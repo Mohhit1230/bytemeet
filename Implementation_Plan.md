@@ -589,7 +589,7 @@ CLOUDINARY_API_SECRET=
 **Prompt:** "Implement Section 2.6 - Subject Room UI for ByteMeet"
 
 **Tasks:**
-- [ ] Create main room layout with panels
+- [x] Create main room layout with panels
   ```
   ┌────────────────────────────────────────────────────────────┐
   │  HEADER: Subject Name | Members | Video Call | Settings   │
@@ -604,12 +604,12 @@ CLOUDINARY_API_SECRET=
   │                  │                                         │
   └──────────────────┴─────────────────────────────────────────┘
   ```
-- [ ] Tab system for switching views
+- [x] Tab system for switching views
   - Friends Chat / Video Call on left
   - AI Chat / Canvas on right
-- [ ] Resizable panels
-- [ ] Mobile responsive (bottom tabs)
-- [ ] GSAP page transitions
+- [x] Resizable panels
+- [x] Mobile responsive (bottom tabs)
+- [x] GSAP page transitions
 
 **Files to create:**
 - `src/app/(dashboard)/subject/[id]/page.tsx`

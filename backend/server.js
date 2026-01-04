@@ -4,13 +4,14 @@
  * Express API server for ByteMeet
  */
 
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
+const subjectRoutes = require('./routes/subject.routes');
 
 // Initialize express app
 const app = express();
@@ -67,6 +68,9 @@ app.get('/api/health', (req, res) => {
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// Subject routes
+app.use('/api/subjects', subjectRoutes);
 
 // 404 handler - catch all unmatched routes
 app.use((req, res) => {

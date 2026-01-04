@@ -526,21 +526,21 @@ CLOUDINARY_API_SECRET=
 **Prompt:** "Implement Section 2.4 - Subject Room System for ByteMeet"
 
 **Tasks:**
-- [ ] Create Subject/Room with GSAP animations
+- [x] Create Subject/Room with GSAP animations
   - Modal with slide-in animation
   - Name, description input
   - Auto-generate unique invite code (6 chars)
   - Creator becomes owner
-- [ ] Home page with subject listing
+- [x] Home page with subject listing
   - Grid of subject cards with hover effects
   - Owned subjects vs joined subjects tabs
   - Pending invitations section
   - Create new subject button (floating action)
-- [ ] Subject settings (for owner)
+- [x] Subject settings (for owner)
   - Edit name/description
   - Regenerate invite code
   - Delete subject with confirmation
-- [ ] GSAP animations
+- [x] GSAP animations
   - Stagger animation for subject cards
   - Modal open/close animations
   - Button hover effects

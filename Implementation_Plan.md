@@ -659,7 +659,7 @@ CLOUDINARY_API_SECRET=
 **Prompt:** "Implement Section 2.8 - Video Call for ByteMeet"
 
 **Tasks:**
-- [ ] Video call grid layout (Google Meet style)
+- [x] Video call grid layout (Google Meet style)
   ```
   ┌─────────────────────────────────────────────┐
   │  ┌─────────┐  ┌─────────┐  ┌─────────┐     │
@@ -676,24 +676,24 @@ CLOUDINARY_API_SECRET=
   │  └───────────────────────────────────────┘ │
   └─────────────────────────────────────────────┘
   ```
-- [ ] Participant tiles
+- [x] Participant tiles
   - Username label
   - Speaking indicator (border glow when speaking)
   - Mute/camera off indicators
   - Pin participant option
-- [ ] Control bar
+- [x] Control bar
   - Toggle microphone
   - Toggle camera
   - Screen share
   - Leave call button
-- [ ] Dynamic grid
+- [x] Dynamic grid
   - Auto-resize based on participant count
   - 1 person = full size
   - 2-4 people = 2x2 grid
   - 5-9 people = 3x3 grid
   - 10+ = scrollable grid
-- [ ] Picture-in-Picture for self
-- [ ] GSAP animations
+- [x] Picture-in-Picture for self
+- [x] GSAP animations
   - Participant join/leave animations
   - Control bar slide-up on hover
 

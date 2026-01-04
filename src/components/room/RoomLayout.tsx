@@ -11,6 +11,7 @@ import gsap from 'gsap';
 import { RoomHeader } from './RoomHeader';
 import { PanelTabs } from './PanelTabs';
 import { FriendsChat } from '../chat/FriendsChat';
+import { VideoCall } from '../video/VideoCall';
 
 interface RoomLayoutProps {
     subject: any;
@@ -81,9 +82,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
                         {leftPanel === 'chat' ? (
                             <FriendsChat subjectId={subject.id} />
                         ) : (
-                            <div className="h-full flex items-center justify-center text-gray-500">
-                                <p>Video Call (Section 2.9)</p>
-                            </div>
+                            <VideoCall subjectId={subject.id} />
                         )}
                     </div>
                 </div>

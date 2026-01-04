@@ -12,6 +12,7 @@ const mongoose = require('mongoose');
 // Routes
 const authRoutes = require('./routes/auth.routes');
 const subjectRoutes = require('./routes/subject.routes');
+const videoRoutes = require('./routes/video.routes');
 
 // Initialize express app
 const app = express();
@@ -71,6 +72,9 @@ app.use('/api/auth', authRoutes);
 
 // Subject routes
 app.use('/api/subjects', subjectRoutes);
+
+// Video routes
+app.use('/api/video', videoRoutes);
 
 // 404 handler - catch all unmatched routes
 app.use((req, res) => {

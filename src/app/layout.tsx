@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Quicksand } from "next/font/google";
 import { GSAPProvider } from "@/providers/GSAPProvider";
+import { AuthProvider } from "@/providers/AuthProvider";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -31,7 +32,9 @@ export default function RootLayout({
         className={`${montserrat.variable} ${quicksand.variable} antialiased`}
       >
         <GSAPProvider>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </GSAPProvider>
       </body>
     </html>

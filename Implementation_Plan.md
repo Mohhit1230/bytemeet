@@ -558,19 +558,19 @@ CLOUDINARY_API_SECRET=
 **Prompt:** "Implement Section 2.5 - Invite System for ByteMeet"
 
 **Tasks:**
-- [ ] Share invite code
+- [x] Share invite code
   - Copy button with animation
   - Generate shareable link: `/join/{inviteCode}`
-- [ ] Join request flow
+- [x] Join request flow
   - Join page with code input
   - Or direct link access
   - Request sent to owner
   - Show "Waiting for approval" screen
-- [ ] Approval system (Google Meet style)
+- [x] Approval system (Google Meet style)
   - Owner sees join requests in subject header
   - Approve/Reject with slide animation
   - Real-time notification when approved
-- [ ] Access control
+- [x] Access control
   - Middleware to check membership
   - Redirect non-members to join page
   - Owner can remove members

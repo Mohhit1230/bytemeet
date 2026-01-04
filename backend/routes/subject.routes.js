@@ -402,4 +402,320 @@ router.delete('/:id', authenticate, async (req, res) => {
     }
 });
 
+/**
+ * POST /api/subjects/join
+ * Join a subject by invite code
+ */
+router.post('/join', authenticate, async (req, res) => {
+    try {
+        const { invite_code } = req.body;
+        const userId = req.userId;
+        const username = req.user.username;
+
+        if (!invite_code) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invite code is required',
+            });
+        }
+
+        // Find subject by invite code
+        const { data: subject, error: subjectError } = await supabase
+            .from('subjects')
+            .select('*')
+            .eq('invite_code', invite_code.toUpperCase())
+            .eq('is_active', true)
+            .single();
+
+        if (subjectError || !subject) {
+            return res.status(404).json({
+                success: false,
+                message: 'Invalid invite code',
+            });
+        }
+
+        // Check if already a member
+        const { data: existing } = await supabase
+            .from('subject_members')
+            .select('*')
+            .eq('subject_id', subject.id)
+            .eq('user_id', userId)
+            .single();
+
+        if (existing) {
+            if (existing.status === 'approved') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'You are already a member of this subject',
+                });
+            } else if (existing.status === 'pending') {
+                return res.status(400).json({
+                    success: false,
+                    message: 'Your join request is pending approval',
+                });
+            } else if (existing.status === 'rejected') {
+                // Allow re-requesting
+                const { error: updateError } = await supabase
+                    .from('subject_members')
+                    .update({ status: 'pending' })
+                    .eq('id', existing.id);
+
+                if (updateError) throw updateError;
+
+                return res.json({
+                    success: true,
+                    message: 'Join request sent',
+                    data: { ...subject, status: 'pending' },
+                });
+            }
+        }
+
+        // Create join request
+        const { error: memberError } = await supabase
+            .from('subject_members')
+            .insert({
+                subject_id: subject.id,
+                user_id: userId,
+                username: username,
+                avatar_url: req.user.avatarUrl,
+                role: 'member',
+                status: 'pending',
+            });
+
+        if (memberError) {
+            throw memberError;
+        }
+
+        res.json({
+            success: true,
+            message: 'Join request sent successfully',
+            data: { ...subject, status: 'pending' },
+        });
+    } catch (error) {
+        console.error('Join subject error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to join subject',
+            error: error.message,
+        });
+    }
+});
+
+/**
+ * GET /api/subjects/:id/pending-requests
+ * Get pending join requests (owner/admin only)
+ */
+router.get('/:id/pending-requests', authenticate, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.userId;
+
+        // Check if user is owner or admin
+        const { data: membership } = await supabase
+            .from('subject_members')
+            .select('role')
+            .eq('subject_id', id)
+            .eq('user_id', userId)
+            .single();
+
+        if (!membership || (membership.role !== 'owner' && membership.role !== 'admin')) {
+            return res.status(403).json({
+                success: false,
+                message: 'Access denied',
+            });
+        }
+
+        // Get pending requests
+        const { data: requests, error } = await supabase
+            .from('subject_members')
+            .select('*')
+            .eq('subject_id', id)
+            .eq('status', 'pending')
+            .order('joined_at', { ascending: true });
+
+        if (error) {
+            throw error;
+        }
+
+        res.json({
+            success: true,
+            data: requests || [],
+        });
+    } catch (error) {
+        console.error('Get pending requests error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch pending requests',
+            error: error.message,
+        });
+    }
+});
+
+/**
+ * POST /api/subjects/:id/approve
+ * Approve a join request (owner/admin only)
+ */
+router.post('/:id/approve', authenticate, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id } = req.body;
+        const currentUserId = req.userId;
+
+        // Check if current user is owner or admin
+        const { data: membership } = await supabase
+            .from('subject_members')
+            .select('role')
+            .eq('subject_id', id)
+            .eq('user_id', currentUserId)
+            .single();
+
+        if (!membership || (membership.role !== 'owner' && membership.role !== 'admin')) {
+            return res.status(403).json({
+                success: false,
+                message: 'Only owners and admins can approve requests',
+            });
+        }
+
+        // Approve the request
+        const { data: approved, error } = await supabase
+            .from('subject_members')
+            .update({ status: 'approved' })
+            .eq('subject_id', id)
+            .eq('user_id', user_id)
+            .select()
+            .single();
+
+        if (error) {
+            throw error;
+        }
+
+        res.json({
+            success: true,
+            message: 'Request approved successfully',
+            data: approved,
+        });
+    } catch (error) {
+        console.error('Approve request error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to approve request',
+            error: error.message,
+        });
+    }
+});
+
+/**
+ * POST /api/subjects/:id/reject
+ * Reject a join request (owner/admin only)
+ */
+router.post('/:id/reject', authenticate, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { user_id } = req.body;
+        const currentUserId = req.userId;
+
+        // Check if current user is owner or admin
+        const { data: membership } = await supabase
+            .from('subject_members')
+            .select('role')
+            .eq('subject_id', id)
+            .eq('user_id', currentUserId)
+            .single();
+
+        if (!membership || (membership.role !== 'owner' && membership.role !== 'admin')) {
+            return res.status(403).json({
+                success: false,
+                message: 'Only owners and admins can reject requests',
+            });
+        }
+
+        // Reject the request (delete the membership)
+        const { error } = await supabase
+            .from('subject_members')
+            .delete()
+            .eq('subject_id', id)
+            .eq('user_id', user_id);
+
+        if (error) {
+            throw error;
+        }
+
+        res.json({
+            success: true,
+            message: 'Request rejected successfully',
+        });
+    } catch (error) {
+        console.error('Reject request error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to reject request',
+            error: error.message,
+        });
+    }
+});
+
+/**
+ * DELETE /api/subjects/:id/members/:userId
+ * Remove a member (owner/admin only)
+ */
+router.delete('/:id/members/:userId', authenticate, async (req, res) => {
+    try {
+        const { id, userId } = req.params;
+        const currentUserId = req.userId;
+
+        // Check if current user is owner or admin
+        const { data: membership } = await supabase
+            .from('subject_members')
+            .select('role')
+            .eq('subject_id', id)
+            .eq('user_id', currentUserId)
+            .single();
+
+        if (!membership || (membership.role !== 'owner' && membership.role !== 'admin')) {
+            return res.status(403).json({
+                success: false,
+                message: 'Only owners and admins can remove members',
+            });
+        }
+
+        // Can't remove owner
+        const { data: targetMember } = await supabase
+            .from('subject_members')
+            .select('role')
+            .eq('subject_id', id)
+            .eq('user_id', userId)
+            .single();
+
+        if (targetMember && targetMember.role === 'owner') {
+            return res.status(400).json({
+                success: false,
+                message: 'Cannot remove the owner',
+            });
+        }
+
+        // Remove member
+        const { error } = await supabase
+            .from('subject_members')
+            .delete()
+            .eq('subject_id', id)
+            .eq('user_id', userId);
+
+        if (error) {
+            throw error;
+        }
+
+        res.json({
+            success: true,
+            message: 'Member removed successfully',
+        });
+    } catch (error) {
+        console.error('Remove member error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to remove member',
+            error: error.message,
+        });
+    }
+});
+
 module.exports = router;

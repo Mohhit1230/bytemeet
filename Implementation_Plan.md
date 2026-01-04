@@ -372,7 +372,7 @@ CLOUDINARY_API_SECRET=
 **Prompt:** "Implement Section 2.2 - Database Schema for ByteMeet"
 
 **Tasks:**
-- [ ] **Supabase Tables (Real-time chat)**
+- [x] **Supabase Tables (Real-time chat)**
   ```sql
   -- Subjects (Study Rooms)
   CREATE TABLE subjects (
@@ -419,11 +419,11 @@ CLOUDINARY_API_SECRET=
   );
   ```
 
-- [ ] **MongoDB Collections**
+- [x] **MongoDB Collections**
   - Update `User` model with username
   - Create `Artifact` model for canvas items
 
-- [ ] **TypeScript Types**
+- [x] **TypeScript Types**
   ```typescript
   // src/types/database.ts
   interface Subject {

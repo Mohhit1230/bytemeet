@@ -12,6 +12,7 @@ import { RoomHeader } from './RoomHeader';
 import { PanelTabs } from './PanelTabs';
 import { FriendsChat } from '../chat/FriendsChat';
 import { VideoCall } from '../video/VideoCall';
+import { AIChat } from '../chat/AIChat';
 
 interface RoomLayoutProps {
     subject: any;
@@ -102,9 +103,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
                     {/* Right Panel Content */}
                     <div className="flex-1 overflow-hidden bg-[#131314]">
                         {rightPanel === 'ai' ? (
-                            <div className="h-full flex items-center justify-center text-gray-500">
-                                <p>AI Chat (Section 2.8)</p>
-                            </div>
+                            <AIChat subjectId={subject.id} />
                         ) : (
                             <div className="h-full flex items-center justify-center text-gray-500">
                                 <p>Canvas (Section 2.10)</p>

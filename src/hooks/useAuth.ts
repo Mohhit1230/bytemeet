@@ -1,6 +1,6 @@
 /**
  * useAuth Hook
- * 
+ *
  * Re-export of useAuth from AuthProvider for convenience
  */
 

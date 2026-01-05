@@ -1,9 +1,6 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --font-primary: var(--font-montserrat), ui-sans-serif, system-ui;
-  --font-ui: var(--font-quicksand), ui-sans-serif, system-ui;
-
   --color-accent: #e94d37;
   --color-accent-light: #f06b58;
   --color-accent-dark: #d44330;
@@ -19,6 +16,8 @@
 :root {
   --background: #131314;
   --foreground: #ffffff;
+  --font-primary: var(--font-montserrat), ui-sans-serif, system-ui;
+  --font-ui: var(--font-quicksand), ui-sans-serif, system-ui;
 }
 
 body {
@@ -35,7 +34,8 @@ h5,
 h6,
 button,
 nav {
-  font-family: var(--font-ui);
+  font-family: var(--font-ui) !important;
+  font-weight: 600 !important;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

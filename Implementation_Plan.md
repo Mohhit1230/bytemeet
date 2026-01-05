@@ -9,18 +9,21 @@ This document contains detailed implementation plans for two project transformat
 Transform the current chat app into a platform where users can practice technical interviews with an AI interviewer.
 
 ## Overview
-| Aspect | Details |
-|--------|---------|
-| **Target Users** | Job seekers, CS students, developers |
-| **Core Value** | Realistic interview practice anytime |
-| **Tech Stack** | Next.js, TypeScript, TailwindCSS, GSAP |
+
+| Aspect           | Details                                |
+| ---------------- | -------------------------------------- |
+| **Target Users** | Job seekers, CS students, developers   |
+| **Core Value**   | Realistic interview practice anytime   |
+| **Tech Stack**   | Next.js, TypeScript, TailwindCSS, GSAP |
 
 ---
 
 ## Section 1.1: Database Schema & Models
+
 **Prompt:** "Implement Section 1.1 - Database Schema for Interview Platform"
 
 **Tasks:**
+
 - [ ] Create `Interview` model (replaces/extends Project)
   - Fields: `type` (DSA/System Design/Behavioral), `difficulty`, `status`, `score`, `feedback`
 - [ ] Create `Question` model
@@ -32,6 +35,7 @@ Transform the current chat app into a platform where users can practice technica
 - [ ] Seed database with 50+ interview questions (DSA, System Design)
 
 **Files to modify/create:**
+
 - `backend/models/interview.model.js`
 - `backend/models/question.model.js`
 - `backend/models/submission.model.js`
@@ -41,9 +45,11 @@ Transform the current chat app into a platform where users can practice technica
 ---
 
 ## Section 1.2: Interview Room UI
+
 **Prompt:** "Implement Section 1.2 - Interview Room UI"
 
 **Tasks:**
+
 - [ ] Redesign Home page to show "Start Interview" options
   - Interview type selector (DSA, System Design, Behavioral)
   - Difficulty selector (Easy, Medium, Hard)
@@ -56,6 +62,7 @@ Transform the current chat app into a platform where users can practice technica
 - [ ] Add interview status indicators (In Progress, Completed, Reviewing)
 
 **Files to modify/create:**
+
 - `frontend/src/screens/Home.jsx` (add interview start flow)
 - `frontend/src/screens/InterviewRoom.jsx` (new)
 - `frontend/src/components/InterviewTimer.jsx` (new)
@@ -64,9 +71,11 @@ Transform the current chat app into a platform where users can practice technica
 ---
 
 ## Section 1.3: AI Interviewer Logic
+
 **Prompt:** "Implement Section 1.3 - AI Interviewer Logic"
 
 **Tasks:**
+
 - [ ] Create interview-specific system prompt for AI
   - Persona: Professional but friendly interviewer
   - Behavior: Ask clarifying questions, give hints when stuck, evaluate approach
@@ -83,6 +92,7 @@ Transform the current chat app into a platform where users can practice technica
   - States: INTRO → QUESTION → CODING → REVIEW → FEEDBACK
 
 **Files to modify/create:**
+
 - `backend/services/ai.service.js` (add interview prompts)
 - `backend/services/interview.service.js` (new)
 - `backend/controllers/interview.controller.js` (new)
@@ -90,9 +100,11 @@ Transform the current chat app into a platform where users can practice technica
 ---
 
 ## Section 1.4: Code Evaluation Engine
+
 **Prompt:** "Implement Section 1.4 - Code Evaluation Engine"
 
 **Tasks:**
+
 - [ ] Integrate code execution (use existing WebContainer or add Judge0 API)
 - [ ] Implement test case runner
   - Run user code against hidden test cases
@@ -107,6 +119,7 @@ Transform the current chat app into a platform where users can practice technica
 - [ ] Store submission results
 
 **Files to modify/create:**
+
 - `backend/services/codeRunner.service.js` (new)
 - `backend/services/complexityAnalyzer.service.js` (new)
 - `backend/routes/submission.routes.js` (new)
@@ -114,9 +127,11 @@ Transform the current chat app into a platform where users can practice technica
 ---
 
 ## Section 1.5: Feedback Report Generation
+
 **Prompt:** "Implement Section 1.5 - Feedback Report Generation"
 
 **Tasks:**
+
 - [ ] Create post-interview analysis
   - Compile all submissions and scores
   - Analyze conversation for communication patterns
@@ -133,6 +148,7 @@ Transform the current chat app into a platform where users can practice technica
   - Skill progression over time
 
 **Files to modify/create:**
+
 - `backend/services/feedback.service.js` (new)
 - `frontend/src/screens/FeedbackReport.jsx` (new)
 - `frontend/src/screens/Dashboard.jsx` (new)
@@ -141,9 +157,11 @@ Transform the current chat app into a platform where users can practice technica
 ---
 
 ## Section 1.6: Voice Integration (Advanced)
+
 **Prompt:** "Implement Section 1.6 - Voice Integration"
 
 **Tasks:**
+
 - [ ] Add Speech-to-Text for user responses
   - Use Web Speech API or Deepgram
   - Real-time transcription in chat
@@ -158,6 +176,7 @@ Transform the current chat app into a platform where users can practice technica
   - Auto-pause timer during explanations
 
 **Files to modify/create:**
+
 - `frontend/src/hooks/useSpeechRecognition.js` (new)
 - `frontend/src/hooks/useTextToSpeech.js` (new)
 - `frontend/src/components/VoiceControls.jsx` (new)
@@ -165,9 +184,11 @@ Transform the current chat app into a platform where users can practice technica
 ---
 
 ## Section 1.7: Premium Features & Monetization
+
 **Prompt:** "Implement Section 1.7 - Premium Features"
 
 **Tasks:**
+
 - [ ] Implement user subscription tiers
   - Free: 3 interviews/month, basic feedback
   - Pro: Unlimited interviews, detailed reports, voice mode
@@ -178,12 +199,14 @@ Transform the current chat app into a platform where users can practice technica
 - [ ] Add referral system
 
 **Files to modify/create:**
+
 - `backend/models/subscription.model.js` (new)
 - `backend/services/payment.service.js` (new)
 - `frontend/src/screens/Pricing.jsx` (new)
 - `frontend/src/screens/Subscription.jsx` (new)
 
 ---
+
 ---
 
 # 📚 PROJECT 2: Collaborative Learning Platform ("ByteMeet")
@@ -191,19 +214,21 @@ Transform the current chat app into a platform where users can practice technica
 Transform the current chat app into a platform where students can create study rooms, invite friends, and learn together with AI tutoring.
 
 ## Overview
-| Aspect | Details |
-|--------|---------|
-| **Target Users** | College students, study groups, friends |
-| **Core Value** | Group study with AI tutoring + collaborative learning |
-| **Frontend** | **Next.js 14+ (App Router), TypeScript, TailwindCSS, GSAP** |
-| **Real-time Chat** | Supabase Realtime |
-| **File Storage** | Cloudinary |
-| **Caching** | Redis (1-2 day message cache) |
-| **Video Calls** | WebRTC / LiveKit / Daily.co (Google Meet-style grid) |
-| **Backend** | Node.js + Express + MongoDB |
-| **AI** | OpenAI API (GPT-4) |
+
+| Aspect             | Details                                                     |
+| ------------------ | ----------------------------------------------------------- |
+| **Target Users**   | College students, study groups, friends                     |
+| **Core Value**     | Group study with AI tutoring + collaborative learning       |
+| **Frontend**       | **Next.js 14+ (App Router), TypeScript, TailwindCSS, GSAP** |
+| **Real-time Chat** | Supabase Realtime                                           |
+| **File Storage**   | Cloudinary                                                  |
+| **Caching**        | Redis (1-2 day message cache)                               |
+| **Video Calls**    | WebRTC / LiveKit / Daily.co (Google Meet-style grid)        |
+| **Backend**        | Node.js + Express + MongoDB                                 |
+| **AI**             | OpenAI API (GPT-4)                                          |
 
 ## Architecture Overview
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
 │                          BYTEMEET APP                                    │
@@ -246,9 +271,11 @@ Transform the current chat app into a platform where students can create study r
 ---
 
 ## Section 2.0: Next.js Project Setup
+
 **Prompt:** "Implement Section 2.0 - Next.js Project Setup for ByteMeet"
 
 **Tasks:**
+
 - [x] Create new Next.js 14+ project with TypeScript
   ```bash
   npx create-next-app@latest bytemeet --typescript --tailwind --eslint --app --src-dir
@@ -291,7 +318,7 @@ Transform the current chat app into a platform where students can create study r
   - Dark mode by default
   - **Color Palette:**
     - Accent: `#e94d37` (Base), `#f06b58` (Light), `#d44330` (Dark)
-    - Neutrals/Surfaces: 
+    - Neutrals/Surfaces:
       - `#262624` (bg-soft)
       - `#30302e` (bg-subtle)
       - `#212121` (bg-dark)
@@ -306,6 +333,7 @@ Transform the current chat app into a platform where students can create study r
 - [x] Set up ESLint + Prettier
 
 **Files to create:**
+
 - `bytemeet/` (entire new project)
 - `src/lib/gsap.ts` (GSAP config)
 - `src/providers/GSAPProvider.tsx`
@@ -314,9 +342,11 @@ Transform the current chat app into a platform where students can create study r
 ---
 
 ## Section 2.1: Tech Stack Setup & Configuration
+
 **Prompt:** "Implement Section 2.1 - Tech Stack Setup for ByteMeet"
 
 **Tasks:**
+
 - [x] Set up Supabase project
   - Create Supabase account and project
   - Configure real-time subscriptions
@@ -337,28 +367,29 @@ Transform the current chat app into a platform where students can create study r
   NEXT_PUBLIC_SUPABASE_URL=
   NEXT_PUBLIC_SUPABASE_ANON_KEY=
   SUPABASE_SERVICE_KEY=
-  
+
   # Cloudinary (Storage)
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-  
+  NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=
+  CLOUDINARY_API_KEY=
+  CLOUDINARY_API_SECRET=
+
   # LiveKit (Video)
   LIVEKIT_API_KEY=
   LIVEKIT_API_SECRET=
   NEXT_PUBLIC_LIVEKIT_URL=
-  
+
   # Backend
   NEXT_PUBLIC_API_URL=
   MONGODB_URI=
   JWT_SECRET=
   REDIS_URL=
-  
+
   # OpenAI
   OPENAI_API_KEY=
   ```
 
 **Files to create:**
+
 - `src/lib/supabase.ts` (Supabase client)
 - `src/lib/r2.ts` (R2 client)
 - `src/lib/livekit.ts` (LiveKit client)
@@ -369,10 +400,13 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.2: Database Schema (Supabase + MongoDB)
+
 **Prompt:** "Implement Section 2.2 - Database Schema for ByteMeet"
 
 **Tasks:**
+
 - [x] **Supabase Tables (Real-time chat)**
+
   ```sql
   -- Subjects (Study Rooms)
   CREATE TABLE subjects (
@@ -383,7 +417,7 @@ CLOUDINARY_API_SECRET=
     invite_code TEXT UNIQUE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW()
   );
-  
+
   -- Subject Members
   CREATE TABLE subject_members (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -394,7 +428,7 @@ CLOUDINARY_API_SECRET=
     status TEXT DEFAULT 'pending',  -- 'pending' | 'approved' | 'rejected'
     joined_at TIMESTAMPTZ DEFAULT NOW()
   );
-  
+
   -- Friend Messages
   CREATE TABLE friend_messages (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -405,7 +439,7 @@ CLOUDINARY_API_SECRET=
     message_type TEXT DEFAULT 'text',  -- 'text' | 'file' | 'system'
     created_at TIMESTAMPTZ DEFAULT NOW()
   );
-  
+
   -- AI Messages
   CREATE TABLE ai_messages (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -424,6 +458,7 @@ CLOUDINARY_API_SECRET=
   - Create `Artifact` model for canvas items
 
 - [x] **TypeScript Types**
+
   ```typescript
   // src/types/database.ts
   interface Subject {
@@ -434,7 +469,7 @@ CLOUDINARY_API_SECRET=
     invite_code: string;
     created_at: string;
   }
-  
+
   interface SubjectMember {
     id: string;
     subject_id: string;
@@ -444,7 +479,7 @@ CLOUDINARY_API_SECRET=
     status: 'pending' | 'approved' | 'rejected';
     joined_at: string;
   }
-  
+
   interface Message {
     id: string;
     subject_id: string;
@@ -456,7 +491,7 @@ CLOUDINARY_API_SECRET=
     has_artifact?: boolean;
     created_at: string;
   }
-  
+
   interface Artifact {
     id: string;
     subject_id: string;
@@ -470,6 +505,7 @@ CLOUDINARY_API_SECRET=
   ```
 
 **Files to create:**
+
 - `src/types/database.ts`
 - `src/types/index.ts`
 - `backend/models/artifact.model.js`
@@ -478,9 +514,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.3: User Authentication & Username System
+
 **Prompt:** "Implement Section 2.3 - Auth System for ByteMeet"
 
 **Tasks:**
+
 - [x] Create auth pages with GSAP animations
   - Login page with smooth form animations
   - Register page with username input
@@ -489,13 +527,14 @@ CLOUDINARY_API_SECRET=
   - Add `username` field (unique, required)
   - Include username in JWT payload
 - [x] Create auth context/provider
+
   ```typescript
   interface User {
     _id: string;
     email: string;
     username: string;
   }
-  
+
   interface AuthContext {
     user: User | null;
     loading: boolean;
@@ -504,6 +543,7 @@ CLOUDINARY_API_SECRET=
     logout: () => void;
   }
   ```
+
 - [x] Create UserAvatar component
   - First letter of username
   - Color based on username hash
@@ -511,6 +551,7 @@ CLOUDINARY_API_SECRET=
 - [x] Add auth middleware for API routes
 
 **Files to create:**
+
 - `src/app/(auth)/login/page.tsx`
 - `src/app/(auth)/register/page.tsx`
 - `src/components/auth/LoginForm.tsx`
@@ -523,9 +564,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.4: Subject (Room) Creation & Management
+
 **Prompt:** "Implement Section 2.4 - Subject Room System for ByteMeet"
 
 **Tasks:**
+
 - [x] Create Subject/Room with GSAP animations
   - Modal with slide-in animation
   - Name, description input
@@ -546,6 +589,7 @@ CLOUDINARY_API_SECRET=
   - Button hover effects
 
 **Files to create:**
+
 - `src/app/(dashboard)/home/page.tsx`
 - `src/components/subject/SubjectCard.tsx`
 - `src/components/subject/CreateSubjectModal.tsx`
@@ -555,9 +599,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.5: Invite & Access Control System
+
 **Prompt:** "Implement Section 2.5 - Invite System for ByteMeet"
 
 **Tasks:**
+
 - [x] Share invite code
   - Copy button with animation
   - Generate shareable link: `/join/{inviteCode}`
@@ -576,6 +622,7 @@ CLOUDINARY_API_SECRET=
   - Owner can remove members
 
 **Files to create:**
+
 - `src/app/(dashboard)/join/[code]/page.tsx`
 - `src/components/subject/InviteModal.tsx`
 - `src/components/subject/MemberRequests.tsx`
@@ -586,9 +633,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.6: Subject Room UI Layout
+
 **Prompt:** "Implement Section 2.6 - Subject Room UI for ByteMeet"
 
 **Tasks:**
+
 - [x] Create main room layout with panels
   ```
   ┌────────────────────────────────────────────────────────────┐
@@ -612,6 +661,7 @@ CLOUDINARY_API_SECRET=
 - [x] GSAP page transitions
 
 **Files to create:**
+
 - `src/app/(dashboard)/subject/[id]/page.tsx`
 - `src/app/(dashboard)/subject/[id]/layout.tsx`
 - `src/components/room/RoomLayout.tsx`
@@ -622,9 +672,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.7: Friends Chat
+
 **Prompt:** "Implement Section 2.7 - Friends Chat for ByteMeet"
 
 **Tasks:**
+
 - [x] Real-time text chat (Supabase)
   - Send/receive messages instantly
   - Username + avatar above each message
@@ -645,6 +697,7 @@ CLOUDINARY_API_SECRET=
   - Typing indicator dots bounce
 
 **Files to create:**
+
 - `src/components/chat/FriendsChat.tsx`
 - `src/components/chat/MessageList.tsx`
 - `src/components/chat/MessageBubble.tsx`
@@ -656,9 +709,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.8: Video Call (Google Meet Style)
+
 **Prompt:** "Implement Section 2.8 - Video Call for ByteMeet"
 
 **Tasks:**
+
 - [x] Video call grid layout (Google Meet style)
   ```
   ┌─────────────────────────────────────────────┐
@@ -698,6 +753,7 @@ CLOUDINARY_API_SECRET=
   - Control bar slide-up on hover
 
 **Files to create:**
+
 - `src/components/video/VideoCall.tsx`
 - `src/components/video/VideoGrid.tsx`
 - `src/components/video/ParticipantTile.tsx`
@@ -710,9 +766,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.9: AI Chat with Collaborative Q&A
+
 **Prompt:** "Implement Section 2.9 - AI Chat for ByteMeet"
 
 **Tasks:**
+
 - [x] Collaborative AI chat
   - All members can ask questions
   - **User messages on LEFT** with username
@@ -732,6 +790,7 @@ CLOUDINARY_API_SECRET=
   - Canvas artifact slide-in
 
 **Files to create:**
+
 - `src/components/chat/AIChat.tsx`
 - `src/components/chat/AIMessageBubble.tsx`
 - `src/components/chat/UserMessageBubble.tsx`
@@ -742,9 +801,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.10: Canvas (Artifacts Panel)
+
 **Prompt:** "Implement Section 2.10 - Canvas System for ByteMeet"
 
 **Tasks:**
+
 - [x] Canvas UI (Claude AI style)
   - Side panel with artifacts
   - Horizontal scrollable carousel
@@ -770,6 +831,7 @@ CLOUDINARY_API_SECRET=
   - Carousel smooth scroll
 
 **Files created:**
+
 - `src/components/canvas/Canvas.tsx`
 - `src/components/canvas/ArtifactCarousel.tsx`
 - `src/components/canvas/ArtifactCard.tsx`
@@ -785,9 +847,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.11: File Upload & Download
+
 **Prompt:** "Implement Section 2.11 - File System for ByteMeet"
 
 **Tasks:**
+
 - [x] File upload component
   - [x] Drag & drop zone
   - [x] File picker button
@@ -807,6 +871,7 @@ CLOUDINARY_API_SECRET=
   - Virus scanning (optional)
 
 **Files to create:**
+
 - `src/components/upload/FileUploader.tsx`
 - `src/components/upload/DropZone.tsx`
 - `src/components/upload/UploadProgress.tsx`
@@ -817,9 +882,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.12: Notifications & Real-time Updates
+
 **Prompt:** "Implement Section 2.12 - Notifications for ByteMeet"
 
 **Tasks:**
+
 - [ ] In-app notifications
   - Bell icon in header
   - Unread count badge
@@ -838,6 +905,7 @@ CLOUDINARY_API_SECRET=
   - Click to navigate
 
 **Files to create:**
+
 - `src/components/notifications/NotificationBell.tsx`
 - `src/components/notifications/NotificationList.tsx`
 - `src/components/ui/Toast.tsx`
@@ -847,9 +915,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.13: GSAP Animations & Polish
+
 **Prompt:** "Implement Section 2.13 - Animations for ByteMeet"
 
 **Tasks:**
+
 - [ ] Page transitions
   - Fade + slide between routes
   - Loading states with skeleton
@@ -870,6 +940,7 @@ CLOUDINARY_API_SECRET=
   - Respect reduced motion
 
 **Files to create:**
+
 - `src/lib/gsap.ts` (GSAP utilities)
 - `src/components/animations/PageTransition.tsx`
 - `src/components/animations/FadeIn.tsx`
@@ -879,9 +950,11 @@ CLOUDINARY_API_SECRET=
 ---
 
 ## Section 2.14: Mobile Responsiveness
+
 **Prompt:** "Implement Section 2.14 - Mobile UI for ByteMeet"
 
 **Tasks:**
+
 - [ ] Mobile navigation
   - Bottom tab bar
   - Hamburger menu for header
@@ -899,6 +972,7 @@ CLOUDINARY_API_SECRET=
   - Floating self-view
 
 **Files to create:**
+
 - `src/components/navigation/MobileNav.tsx`
 - `src/components/navigation/BottomTabBar.tsx`
 - `src/hooks/useMediaQuery.ts`
@@ -909,6 +983,7 @@ CLOUDINARY_API_SECRET=
 # 🗓️ Recommended Implementation Order
 
 ## For ByteMeet Platform (Project 2):
+
 ```
 Phase 0: Setup (Start Here!)
 └── 2.0 Next.js Project Setup ⭐
@@ -952,18 +1027,17 @@ Phase 5: Polish
 
 # 🛠️ Tech Stack Summary for ByteMeet
 
-| Layer | Technology | Purpose |
-|-------|------------|---------|
-| **Framework** | Next.js 14+ (App Router) | Full-stack React framework |
-| **Language** | TypeScript | Type safety |
-| **Styling** | TailwindCSS | Utility-first CSS |
-| **Animations** | GSAP + Framer Motion | Smooth animations |
-| **Real-time Chat** | Supabase Realtime | Friends & AI chat |
-| **Video Calls** | LiveKit / Daily.co | WebRTC video conferencing |
-| **File Storage** | Cloudflare R2 | Images, PDFs, code files |
-| **Caching** | Redis | Message caching (1-2 days) |
-| **Auth** | JWT + MongoDB | User authentication |
-| **AI** | **OpenAI API (GPT-4)** | AI tutor responses |
-| **Backend API** | Node.js + Express | REST API server |
-| **Database** | MongoDB + Supabase | Extended data + real-time |
-
+| Layer              | Technology               | Purpose                    |
+| ------------------ | ------------------------ | -------------------------- |
+| **Framework**      | Next.js 14+ (App Router) | Full-stack React framework |
+| **Language**       | TypeScript               | Type safety                |
+| **Styling**        | TailwindCSS              | Utility-first CSS          |
+| **Animations**     | GSAP + Framer Motion     | Smooth animations          |
+| **Real-time Chat** | Supabase Realtime        | Friends & AI chat          |
+| **Video Calls**    | LiveKit / Daily.co       | WebRTC video conferencing  |
+| **File Storage**   | Cloudflare R2            | Images, PDFs, code files   |
+| **Caching**        | Redis                    | Message caching (1-2 days) |
+| **Auth**           | JWT + MongoDB            | User authentication        |
+| **AI**             | **OpenAI API (GPT-4)**   | AI tutor responses         |
+| **Backend API**    | Node.js + Express        | REST API server            |
+| **Database**       | MongoDB + Supabase       | Extended data + real-time  |

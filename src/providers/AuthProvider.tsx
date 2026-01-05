@@ -1,6 +1,6 @@
 /**
  * Authentication Provider
- * 
+ *
  * Manages user authentication state across the application.
  * Provides login, register, logout, and user session management.
  */
@@ -16,25 +16,25 @@ import { authApi, setAuthToken, clearAuthToken, getAuthToken } from '@/lib/api';
 // =============================================================================
 
 interface User {
-    _id: string;
-    email: string;
-    username: string;
-    avatarUrl?: string;
-    bio?: string;
-    isOnline: boolean;
-    lastSeen: string;
+  _id: string;
+  email: string;
+  username: string;
+  avatarUrl?: string;
+  bio?: string;
+  isOnline: boolean;
+  lastSeen: string;
 }
 
 interface AuthContextType {
-    user: User | null;
-    loading: boolean;
-    error: string | null;
-    login: (email: string, password: string) => Promise<void>;
-    register: (email: string, username: string, password: string) => Promise<void>;
-    logout: () => Promise<void>;
-    refreshUser: () => Promise<void>;
-    checkUsernameAvailability: (username: string) => Promise<boolean>;
-    checkEmailAvailability: (email: string) => Promise<boolean>;
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  register: (email: string, username: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
+  checkUsernameAvailability: (username: string) => Promise<boolean>;
+  checkEmailAvailability: (email: string) => Promise<boolean>;
 }
 
 // =============================================================================
@@ -48,209 +48,211 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // =============================================================================
 
 interface AuthProviderProps {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-    /**
-     * Initialize auth state on mount
-     */
-    useEffect(() => {
-        initializeAuth();
-    }, []);
+  /**
+   * Initialize auth state on mount
+   */
+  useEffect(() => {
+    initializeAuth();
+  }, []);
 
-    /**
-     * Initialize authentication
-     */
-    const initializeAuth = async () => {
-        try {
-            const token = getAuthToken();
+  /**
+   * Initialize authentication
+   */
+  const initializeAuth = async () => {
+    try {
+      const token = getAuthToken();
 
-            if (!token) {
-                setLoading(false);
-                return;
-            }
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
-            // Verify token and get user data
-            const response = await authApi.me();
+      // Verify token and get user data
+      const response = await authApi.me();
 
-            if (response.success) {
-                setUser(response.data);
-            } else {
-                // Invalid token, clear it
-                clearAuthToken();
-            }
-        } catch (err) {
-            console.error('Auth initialization error:', err);
-            clearAuthToken();
-        } finally {
-            setLoading(false);
+      if (response.success) {
+        setUser(response.data);
+      } else {
+        // Invalid token, clear it
+        clearAuthToken();
+      }
+    } catch (err) {
+      console.error('Auth initialization error:', err);
+      clearAuthToken();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Login user
+   */
+  const login = useCallback(
+    async (email: string, password: string) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await authApi.login({ email, password });
+
+        if (response.success) {
+          // Store token
+          setAuthToken(response.data.token);
+
+          // Store user
+          setUser(response.data.user);
+
+          // Store user in localStorage for persistence
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+          }
+
+          // Redirect to home
+          router.push('/home');
+        } else {
+          setError(response.message || 'Login failed');
         }
-    };
+      } catch (err: any) {
+        const message = err.response?.data?.message || 'Login failed. Please try again.';
+        setError(message);
+        throw new Error(message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
 
-    /**
-     * Login user
-     */
-    const login = useCallback(async (email: string, password: string) => {
-        try {
-            setLoading(true);
-            setError(null);
+  /**
+   * Register new user
+   */
+  const register = useCallback(
+    async (email: string, username: string, password: string) => {
+      try {
+        setLoading(true);
+        setError(null);
 
-            const response = await authApi.login({ email, password });
+        const response = await authApi.register({ email, username, password });
 
-            if (response.success) {
-                // Store token
-                setAuthToken(response.data.token);
+        if (response.success) {
+          // Store token
+          setAuthToken(response.data.token);
 
-                // Store user
-                setUser(response.data.user);
+          // Store user
+          setUser(response.data.user);
 
-                // Store user in localStorage for persistence
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-                }
+          // Store user in localStorage
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('user', JSON.stringify(response.data.user));
+          }
 
-                // Redirect to home
-                router.push('/home');
-            } else {
-                setError(response.message || 'Login failed');
-            }
-        } catch (err: any) {
-            const message = err.response?.data?.message || 'Login failed. Please try again.';
-            setError(message);
-            throw new Error(message);
-        } finally {
-            setLoading(false);
+          // Redirect to home
+          router.push('/home');
+        } else {
+          setError(response.message || 'Registration failed');
         }
-    }, [router]);
+      } catch (err: any) {
+        const message = err.response?.data?.message || 'Registration failed. Please try again.';
+        setError(message);
+        throw new Error(message);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
 
-    /**
-     * Register new user
-     */
-    const register = useCallback(async (
-        email: string,
-        username: string,
-        password: string
-    ) => {
-        try {
-            setLoading(true);
-            setError(null);
+  /**
+   * Logout user
+   */
+  const logout = useCallback(async () => {
+    try {
+      setLoading(true);
 
-            const response = await authApi.register({ email, username, password });
+      // Call logout endpoint
+      await authApi.logout();
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      // Clear local state regardless of API result
+      clearAuthToken();
+      setUser(null);
+      setLoading(false);
 
-            if (response.success) {
-                // Store token
-                setAuthToken(response.data.token);
+      // Redirect to login
+      router.push('/login');
+    }
+  }, [router]);
 
-                // Store user
-                setUser(response.data.user);
+  /**
+   * Refresh user data
+   */
+  const refreshUser = useCallback(async () => {
+    try {
+      const response = await authApi.me();
 
-                // Store user in localStorage
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('user', JSON.stringify(response.data.user));
-                }
+      if (response.success) {
+        setUser(response.data);
 
-                // Redirect to home
-                router.push('/home');
-            } else {
-                setError(response.message || 'Registration failed');
-            }
-        } catch (err: any) {
-            const message = err.response?.data?.message || 'Registration failed. Please try again.';
-            setError(message);
-            throw new Error(message);
-        } finally {
-            setLoading(false);
+        // Update localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(response.data));
         }
-    }, [router]);
+      }
+    } catch (err) {
+      console.error('Failed to refresh user:', err);
+    }
+  }, []);
 
-    /**
-     * Logout user
-     */
-    const logout = useCallback(async () => {
-        try {
-            setLoading(true);
+  /**
+   * Check if username is available
+   */
+  const checkUsernameAvailability = useCallback(async (username: string): Promise<boolean> => {
+    try {
+      const response = await authApi.checkUsername(username);
+      return response.data.available;
+    } catch (err) {
+      console.error('Username check error:', err);
+      return false;
+    }
+  }, []);
 
-            // Call logout endpoint
-            await authApi.logout();
-        } catch (err) {
-            console.error('Logout error:', err);
-        } finally {
-            // Clear local state regardless of API result
-            clearAuthToken();
-            setUser(null);
-            setLoading(false);
+  /**
+   * Check if email is available
+   */
+  const checkEmailAvailability = useCallback(async (email: string): Promise<boolean> => {
+    try {
+      const response = await authApi.checkEmail(email);
+      return response.data.available;
+    } catch (err) {
+      console.error('Email check error:', err);
+      return false;
+    }
+  }, []);
 
-            // Redirect to login
-            router.push('/login');
-        }
-    }, [router]);
+  // Context value
+  const value: AuthContextType = {
+    user,
+    loading,
+    error,
+    login,
+    register,
+    logout,
+    refreshUser,
+    checkUsernameAvailability,
+    checkEmailAvailability,
+  };
 
-    /**
-     * Refresh user data
-     */
-    const refreshUser = useCallback(async () => {
-        try {
-            const response = await authApi.me();
-
-            if (response.success) {
-                setUser(response.data);
-
-                // Update localStorage
-                if (typeof window !== 'undefined') {
-                    localStorage.setItem('user', JSON.stringify(response.data));
-                }
-            }
-        } catch (err) {
-            console.error('Failed to refresh user:', err);
-        }
-    }, []);
-
-    /**
-     * Check if username is available
-     */
-    const checkUsernameAvailability = useCallback(async (username: string): Promise<boolean> => {
-        try {
-            const response = await authApi.checkUsername(username);
-            return response.data.available;
-        } catch (err) {
-            console.error('Username check error:', err);
-            return false;
-        }
-    }, []);
-
-    /**
-     * Check if email is available
-     */
-    const checkEmailAvailability = useCallback(async (email: string): Promise<boolean> => {
-        try {
-            const response = await authApi.checkEmail(email);
-            return response.data.available;
-        } catch (err) {
-            console.error('Email check error:', err);
-            return false;
-        }
-    }, []);
-
-    // Context value
-    const value: AuthContextType = {
-        user,
-        loading,
-        error,
-        login,
-        register,
-        logout,
-        refreshUser,
-        checkUsernameAvailability,
-        checkEmailAvailability,
-    };
-
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 // =============================================================================
@@ -261,13 +263,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
  * Hook to access auth context
  */
 export function useAuth() {
-    const context = useContext(AuthContext);
+  const context = useContext(AuthContext);
 
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
 
-    return context;
+  return context;
 }
 
 export default AuthProvider;

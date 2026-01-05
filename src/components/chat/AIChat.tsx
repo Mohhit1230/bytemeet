@@ -15,6 +15,7 @@ import { UserMessageBubble } from './UserMessageBubble';
 import { AIMessageBubble } from './AIMessageBubble';
 import { AIThinkingIndicator } from './AIThinkingIndicator';
 import { useAIChat } from '@/hooks/useAIChat';
+import { FileUploader } from '../canvas/FileUploader';
 
 interface AIChatProps {
     subjectId: string;
@@ -34,6 +35,8 @@ export function AIChat({ subjectId, onArtifactCreated }: AIChatProps) {
     } = useAIChat(subjectId);
 
     const [inputValue, setInputValue] = useState('');
+    const [isUploaderOpen, setIsUploaderOpen] = useState(false);
+    const [attachedFiles, setAttachedFiles] = useState<any[]>([]);
     const scrollRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -58,10 +61,19 @@ export function AIChat({ subjectId, onArtifactCreated }: AIChatProps) {
      * Handle send message
      */
     const handleSend = async () => {
-        if (!inputValue.trim() || sending) return;
+        if ((!inputValue.trim() && attachedFiles.length === 0) || sending) return;
 
-        const message = inputValue;
+        // Build message with file context
+        let message = inputValue;
+        if (attachedFiles.length > 0) {
+            const fileContext = attachedFiles.map(f =>
+                `[Attached file: ${f.title} (${f.type})${f.fileUrl ? ` - ${f.fileUrl}` : ''}]`
+            ).join('\n');
+            message = `${fileContext}\n\n${inputValue || 'Please analyze the attached file(s).'}`;
+        }
+
         setInputValue('');
+        setAttachedFiles([]);
         await sendMessage(message);
     };
 
@@ -187,20 +199,50 @@ export function AIChat({ subjectId, onArtifactCreated }: AIChatProps) {
 
             {/* Input */}
             <div className="px-4 py-3 border-t border-[#30302e] bg-[#1e1f20]">
+                {/* Attached Files Preview */}
+                {attachedFiles.length > 0 && (
+                    <div className="mb-3 flex flex-wrap gap-2">
+                        {attachedFiles.map((file, index) => (
+                            <div
+                                key={index}
+                                className="flex items-center gap-2 px-3 py-2 bg-[#262624] border border-[#30302e] rounded-lg text-sm group hover:border-purple-500/50 transition-all"
+                            >
+                                <span className="text-xl">
+                                    {file.type === 'image' ? '🖼️' :
+                                        file.type === 'pdf' ? '📄' :
+                                            file.type === 'code' ? '💻' : '📎'}
+                                </span>
+                                <span className="text-white font-medium max-w-[200px] truncate">
+                                    {file.title}
+                                </span>
+                                <button
+                                    onClick={() => setAttachedFiles(prev => prev.filter((_, i) => i !== index))}
+                                    className="ml-1 p-1 hover:bg-red-500/20 rounded text-gray-400 hover:text-red-400 transition-colors"
+                                    title="Remove file"
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 <div className="flex items-end gap-2">
                     <textarea
                         ref={inputRef}
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder="Ask the AI tutor..."
+                        placeholder={attachedFiles.length > 0 ? "Ask a question about the file(s)..." : "Ask the AI tutor..."}
                         rows={1}
                         className="flex-1 px-4 py-3 bg-[#262624] border border-[#30302e] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all resize-none max-h-32"
                         disabled={sending}
                     />
                     <button
                         onClick={handleSend}
-                        disabled={!inputValue.trim() || sending}
+                        disabled={(!inputValue.trim() && attachedFiles.length === 0) || sending}
                         className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl hover:from-purple-600 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
                     >
                         {sending ? (
@@ -214,8 +256,31 @@ export function AIChat({ subjectId, onArtifactCreated }: AIChatProps) {
                             </svg>
                         )}
                     </button>
+                    <button
+                        onClick={() => setIsUploaderOpen(true)}
+                        className="flex-shrink-0 w-12 h-12 bg-[#262624] text-gray-400 rounded-xl hover:text-white hover:bg-[#30302e] transition-all flex items-center justify-center border border-[#30302e]"
+                        title="Upload file"
+                    >
+                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                        </svg>
+                    </button>
                 </div>
             </div>
+
+            {/* File Uploader Modal */}
+            {isUploaderOpen && (
+                <FileUploader
+                    subjectId={subjectId}
+                    onClose={() => setIsUploaderOpen(false)}
+                    onUploadSuccess={(artifact) => {
+                        // Add to attached files for context
+                        setAttachedFiles(prev => [...prev, artifact]);
+                        // Also notify parent if needed
+                        if (onArtifactCreated) onArtifactCreated(artifact);
+                    }}
+                />
+            )}
         </div>
     );
 }

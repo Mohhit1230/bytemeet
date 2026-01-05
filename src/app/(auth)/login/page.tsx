@@ -11,9 +11,9 @@ import { LoginForm } from '@/components/auth/LoginForm';
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#131314] relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center bg-bg-500 relative overflow-hidden">
             {/* Animated background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#e94d37]/5 via-transparent to-[#e94d37]/10" />
+            <div className="absolute inset-0 bg-linear-to-br from-accent/5 via-transparent to-accent/10" />
 
             {/* Grid pattern overlay */}
             <div
@@ -30,8 +30,8 @@ export default function LoginPage() {
             </div>
 
             {/* Decorative elements */}
-            <div className="absolute top-10 left-10 w-72 h-72 bg-[#e94d37]/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 right-10 w-96 h-96 bg-[#e94d37]/5 rounded-full blur-3xl" />
+            <div className="absolute top-10 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl" />
+            <div className="absolute bottom-10 right-10 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
         </div>
     );
 }

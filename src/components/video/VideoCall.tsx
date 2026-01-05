@@ -56,7 +56,7 @@ export function VideoCall({ subjectId }: VideoCallProps) {
     // Not connected state
     if (!isConnected) {
         return (
-            <div ref={containerRef} className="h-full flex items-center justify-center bg-[#131314] p-4">
+            <div ref={containerRef} className="h-full flex items-center justify-center bg-bg-500 p-4">
                 <div className="text-center space-y-6 max-w-md">
                     {/* Icon */}
                     <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto">
@@ -120,7 +120,7 @@ export function VideoCall({ subjectId }: VideoCallProps) {
     }
 
     return (
-        <div ref={containerRef} className="h-full flex flex-col bg-[#0d0d0e] relative">
+        <div ref={containerRef} className="h-full flex flex-col bg-bg-500 relative">
             {/* Video Grid */}
             <div className="flex-1 overflow-hidden">
                 <VideoGrid participants={participants} isScreenSharing={isScreenSharing} />

@@ -92,12 +92,12 @@ export function PanelTabs({ activeTab, tabs, onTabChange }: PanelTabsProps) {
     }, [activeTab]);
 
     return (
-        <div className="relative bg-[#262624] px-2 py-2 border-b border-[#30302e]">
+        <div className="relative bg-bg-100 px-2 py-2 border-b border-bg-200">
             <div className="relative flex gap-1">
                 {/* Animated indicator */}
                 <div
                     ref={indicatorRef}
-                    className="absolute bottom-0 h-0.5 bg-gradient-to-r from-[#f06b58] to-[#e94d37] rounded-full transition-all"
+                    className="absolute bottom-0 h-0.5 bg-linear-to-r from-accent-light to-accent rounded-full transition-all"
                     style={{ left: 0, width: 0 }}
                 />
 
@@ -105,11 +105,11 @@ export function PanelTabs({ activeTab, tabs, onTabChange }: PanelTabsProps) {
                 {tabs.map((tab) => (
                     <button
                         key={tab.id}
-                        ref={(el) => (tabRefs.current[tab.id] = el)}
+                        ref={(el) => { tabRefs.current[tab.id] = el; }}
                         onClick={() => onTabChange(tab.id)}
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${activeTab === tab.id
-                            ? 'bg-[#30302e] text-white'
-                            : 'text-gray-400 hover:text-white hover:bg-[#30302e]/50'
+                            ? 'bg-bg-200 text-white'
+                            : 'text-gray-400 hover:text-white hover:bg-bg-200/50'
                             }`}
                     >
                         {icons[tab.icon]}

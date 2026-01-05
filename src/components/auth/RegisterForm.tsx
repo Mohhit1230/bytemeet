@@ -223,8 +223,13 @@ export function RegisterForm() {
 
             // Shake animation on error
             gsap.to(formRef.current, {
-                x: [-10, 10, -10, 10, 0],
-                duration: 0.4,
+                keyframes: [
+                    { x: -10, duration: 0.1 },
+                    { x: 10, duration: 0.1 },
+                    { x: -10, duration: 0.1 },
+                    { x: 10, duration: 0.1 },
+                    { x: 0, duration: 0.05 },
+                ],
                 ease: 'power2.inOut',
             });
         } finally {
@@ -242,7 +247,7 @@ export function RegisterForm() {
             <div className="text-center space-y-2">
                 <h1
                     ref={titleRef}
-                    className="text-4xl font-bold bg-gradient-to-r from-[#f06b58] via-[#e94d37] to-[#d44330] bg-clip-text text-transparent"
+                    className="text-4xl font-bold bg-linear-to-r from-accent-light via-accent to-accent-dark bg-clip-text text-transparent"
                 >
                     Join ByteMeet
                 </h1>
@@ -271,7 +276,7 @@ export function RegisterForm() {
                         name="email"
                         value={formData.email}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 bg-[#1e1f20] border border-[#30302e] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#e94d37] focus:ring-2 focus:ring-[#e94d37]/20 transition-all"
+                        className="w-full px-4 py-3 bg-bg-600 border border-bg-200 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
                         placeholder="you@example.com"
                         disabled={isSubmitting}
                     />
@@ -292,7 +297,7 @@ export function RegisterForm() {
                             name="username"
                             value={formData.username}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-[#1e1f20] border border-[#30302e] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#e94d37] focus:ring-2 focus:ring-[#e94d37]/20 transition-all"
+                            className="w-full px-4 py-3 bg-bg-600 border border-bg-200 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
                             placeholder="cooluser123"
                             disabled={isSubmitting}
                         />
@@ -301,7 +306,7 @@ export function RegisterForm() {
                         {formData.username.length >= 3 && (
                             <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                 {usernameChecking ? (
-                                    <div className="h-5 w-5 border-2 border-[#e94d37] border-t-transparent rounded-full animate-spin" />
+                                    <div className="h-5 w-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
                                 ) : usernameAvailable === true ? (
                                     <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -333,7 +338,7 @@ export function RegisterForm() {
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 bg-[#1e1f20] border border-[#30302e] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#e94d37] focus:ring-2 focus:ring-[#e94d37]/20 transition-all"
+                        className="w-full px-4 py-3 bg-bg-600 border border-bg-200 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
                         placeholder="••••••••"
                         disabled={isSubmitting}
                     />
@@ -353,7 +358,7 @@ export function RegisterForm() {
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 bg-[#1e1f20] border border-[#30302e] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#e94d37] focus:ring-2 focus:ring-[#e94d37]/20 transition-all"
+                        className="w-full px-4 py-3 bg-bg-600 border border-bg-200 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
                         placeholder="••••••••"
                         disabled={isSubmitting}
                     />
@@ -368,7 +373,7 @@ export function RegisterForm() {
                 ref={buttonRef}
                 type="submit"
                 disabled={isSubmitting || usernameChecking}
-                className="w-full px-6 py-3 bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white font-semibold rounded-lg hover:from-[#e94d37] hover:to-[#d44330] focus:outline-none focus:ring-2 focus:ring-[#e94d37]/50 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="w-full px-6 py-3 bg-linear-to-r from-accent-light to-accent text-white font-semibold rounded-lg hover:from-accent hover:to-accent-dark focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
                 {isSubmitting ? (
                     <span className="flex items-center justify-center gap-2">
@@ -400,7 +405,7 @@ export function RegisterForm() {
                 Already have an account?{' '}
                 <Link
                     href="/login"
-                    className="text-[#e94d37] hover:text-[#f06b58] font-semibold transition-colors"
+                    className="text-accent hover:text-accent-light font-semibold transition-colors"
                 >
                     Login
                 </Link>

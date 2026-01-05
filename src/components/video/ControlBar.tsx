@@ -48,7 +48,7 @@ export function ControlBar({
     return (
         <div
             ref={barRef}
-            className="bg-[#1e1f20]/95 backdrop-blur-sm border-t border-[#30302e] px-6 py-4"
+            className="bg-bg-600/95 backdrop-blur-sm border-t border-bg-200 px-6 py-4"
         >
             <div className="flex items-center justify-between max-w-2xl mx-auto">
                 {/* Left: Participant count */}
@@ -70,8 +70,8 @@ export function ControlBar({
                     <button
                         onClick={onToggleMute}
                         className={`w-12 h-12 rounded-full flex items-center justify-center transition-all transform hover:scale-110 active:scale-95 ${isMuted
-                                ? 'bg-red-500 hover:bg-red-600 text-white'
-                                : 'bg-[#3c4043] hover:bg-[#4d5156] text-white'
+                            ? 'bg-red-500 hover:bg-red-600 text-white'
+                            : 'bg-bg-100 hover:bg-bg-200 text-white'
                             }`}
                         title={isMuted ? 'Unmute' : 'Mute'}
                     >
@@ -101,8 +101,8 @@ export function ControlBar({
                     <button
                         onClick={onToggleCamera}
                         className={`w-12 h-12 rounded-full flex items-center justify-center transition-all transform hover:scale-110 active:scale-95 ${isCameraOff
-                                ? 'bg-red-500 hover:bg-red-600 text-white'
-                                : 'bg-[#3c4043] hover:bg-[#4d5156] text-white'
+                            ? 'bg-red-500 hover:bg-red-600 text-white'
+                            : 'bg-bg-100 hover:bg-bg-200 text-white'
                             }`}
                         title={isCameraOff ? 'Turn on camera' : 'Turn off camera'}
                     >
@@ -132,8 +132,8 @@ export function ControlBar({
                     <button
                         onClick={onToggleScreenShare}
                         className={`w-12 h-12 rounded-full flex items-center justify-center transition-all transform hover:scale-110 active:scale-95 ${isScreenSharing
-                                ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                                : 'bg-[#3c4043] hover:bg-[#4d5156] text-white'
+                            ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                            : 'bg-bg-100 hover:bg-bg-200 text-white'
                             }`}
                         title={isScreenSharing ? 'Stop sharing' : 'Share screen'}
                     >

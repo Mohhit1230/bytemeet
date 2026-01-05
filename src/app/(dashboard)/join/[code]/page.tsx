@@ -82,8 +82,13 @@ export default function JoinPage() {
             // Shake animation on error
             if (formRef.current) {
                 gsap.to(formRef.current, {
-                    x: [-10, 10, -10, 10, 0],
-                    duration: 0.4,
+                    keyframes: [
+                        { x: -10, duration: 0.1 },
+                        { x: 10, duration: 0.1 },
+                        { x: -10, duration: 0.1 },
+                        { x: 10, duration: 0.1 },
+                        { x: 0, duration: 0.05 },
+                    ],
                     ease: 'power2.inOut',
                 });
             }
@@ -100,12 +105,12 @@ export default function JoinPage() {
 
     return (
         <ProtectedRoute>
-            <div className="min-h-screen bg-[#131314] flex items-center justify-center p-4">
+            <div className="min-h-screen bg-bg-500 flex items-center justify-center p-4">
                 <div ref={containerRef} className="w-full max-w-md">
-                    <div className="bg-[#1e1f20] border border-[#30302e] rounded-2xl p-8 shadow-2xl">
+                    <div className="bg-bg-600 border border-bg-200 rounded-2xl p-8 shadow-2xl">
                         {/* Icon */}
                         <div className="flex justify-center mb-6">
-                            <div className="w-16 h-16 bg-gradient-to-br from-[#f06b58] to-[#e94d37] rounded-full flex items-center justify-center">
+                            <div className="w-16 h-16 bg-linear-to-br from-accent-light to-accent rounded-full flex items-center justify-center">
                                 <svg
                                     className="h-8 w-8 text-white"
                                     fill="none"
@@ -123,7 +128,7 @@ export default function JoinPage() {
                         </div>
 
                         {/* Title */}
-                        <h1 className="text-3xl font-bold text-center mb-2 bg-gradient-to-r from-[#f06b58] to-[#e94d37] bg-clip-text text-transparent">
+                        <h1 className="text-3xl font-bold text-center mb-2 bg-linear-to-r from-accent-light to-accent bg-clip-text text-transparent">
                             Join Subject
                         </h1>
                         <p className="text-center text-gray-400 mb-8">
@@ -155,7 +160,7 @@ export default function JoinPage() {
                                 </p>
                                 <button
                                     onClick={() => router.push('/home')}
-                                    className="px-6 py-3 bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white font-semibold rounded-lg hover:from-[#e94d37] hover:to-[#d44330] transition-all transform hover:scale-105"
+                                    className="px-6 py-3 bg-linear-to-r from-accent-light to-accent text-white font-semibold rounded-lg hover:from-accent hover:to-accent-dark transition-all transform hover:scale-105"
                                 >
                                     Go to Dashboard
                                 </button>
@@ -181,7 +186,7 @@ export default function JoinPage() {
                                         value={inviteCode}
                                         onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
                                         maxLength={6}
-                                        className="w-full px-4 py-4 bg-[#262624] border border-[#30302e] rounded-lg text-white text-center text-2xl font-mono font-semibold tracking-widest placeholder-gray-500 focus:outline-none focus:border-[#e94d37] focus:ring-2 focus:ring-[#e94d37]/20 transition-all uppercase"
+                                        className="w-full px-4 py-4 bg-bg-100 border border-bg-200 rounded-lg text-white text-center text-2xl font-mono font-semibold tracking-widest placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all uppercase"
                                         placeholder="ABC123"
                                         disabled={loading}
                                         autoFocus
@@ -195,7 +200,7 @@ export default function JoinPage() {
                                 <button
                                     type="submit"
                                     disabled={loading || inviteCode.length !== 6}
-                                    className="w-full px-6 py-3 bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white font-semibold rounded-lg hover:from-[#e94d37] hover:to-[#d44330] focus:outline-none focus:ring-2 focus:ring-[#e94d37]/50 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                    className="w-full px-6 py-3 bg-linear-to-r from-accent-light to-accent text-white font-semibold rounded-lg hover:from-accent hover:to-accent-dark focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                                 >
                                     {loading ? (
                                         <span className="flex items-center justify-center gap-2">

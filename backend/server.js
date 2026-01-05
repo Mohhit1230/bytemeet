@@ -13,6 +13,7 @@ const mongoose = require('mongoose');
 const authRoutes = require('./routes/auth.routes');
 const subjectRoutes = require('./routes/subject.routes');
 const videoRoutes = require('./routes/video.routes');
+const artifactRoutes = require('./routes/artifact.routes');
 
 // Initialize express app
 const app = express();
@@ -75,6 +76,9 @@ app.use('/api/subjects', subjectRoutes);
 
 // Video routes
 app.use('/api/video', videoRoutes);
+
+// Artifact routes (Canvas)
+app.use('/api/artifacts', artifactRoutes);
 
 // 404 handler - catch all unmatched routes
 app.use((req, res) => {

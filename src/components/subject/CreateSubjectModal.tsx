@@ -155,8 +155,13 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
             // Shake animation on error
             if (modalRef.current) {
                 gsap.to(modalRef.current, {
-                    x: [-10, 10, -10, 10, 0],
-                    duration: 0.4,
+                    keyframes: [
+                        { x: -10, duration: 0.1 },
+                        { x: 10, duration: 0.1 },
+                        { x: -10, duration: 0.1 },
+                        { x: 10, duration: 0.1 },
+                        { x: 0, duration: 0.05 },
+                    ],
                     ease: 'power2.inOut',
                 });
             }
@@ -177,18 +182,18 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
             {/* Modal */}
             <div
                 ref={modalRef}
-                className="relative w-full max-w-md bg-[#1e1f20] border border-[#30302e] rounded-2xl shadow-2xl"
+                className="relative w-full max-w-md bg-bg-600 border border-bg-200 rounded-2xl shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-[#30302e]">
+                <div className="px-6 py-4 border-b border-bg-200">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-2xl font-bold bg-gradient-to-r from-[#f06b58] to-[#e94d37] bg-clip-text text-transparent">
+                        <h2 className="text-2xl font-bold bg-linear-to-r from-accent-light to-accent bg-clip-text text-transparent">
                             Create New Subject
                         </h2>
                         <button
                             onClick={handleClose}
-                            className="p-2 text-gray-400 hover:text-white hover:bg-[#30302e] rounded-lg transition-colors"
+                            className="p-2 text-gray-400 hover:text-white hover:bg-bg-200 rounded-lg transition-colors"
                         >
                             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path
@@ -207,7 +212,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
                     {/* Name */}
                     <div>
                         <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">
-                            Subject Name <span className="text-[#e94d37]">*</span>
+                            Subject Name <span className="text-accent">*</span>
                         </label>
                         <input
                             type="text"
@@ -215,7 +220,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
                             name="name"
                             value={formData.name}
                             onChange={handleChange}
-                            className="w-full px-4 py-3 bg-[#262624] border border-[#30302e] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#e94d37] focus:ring-2 focus:ring-[#e94d37]/20 transition-all"
+                            className="w-full px-4 py-3 bg-bg-100 border border-bg-200 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all"
                             placeholder="e.g., Data Structures & Algorithms"
                             disabled={loading}
                             autoFocus
@@ -236,16 +241,16 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
                             value={formData.description}
                             onChange={handleChange}
                             rows={3}
-                            className="w-full px-4 py-3 bg-[#262624] border border-[#30302e] rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#e94d37] focus:ring-2 focus:ring-[#e94d37]/20 transition-all resize-none"
+                            className="w-full px-4 py-3 bg-bg-100 border border-bg-200 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all resize-none"
                             placeholder="What will you learn in this subject?"
                             disabled={loading}
                         />
                     </div>
 
                     {/* Info */}
-                    <div className="bg-[#e94d37]/5 border border-[#e94d37]/20 rounded-lg p-3">
+                    <div className="bg-accent/5 border border-accent/20 rounded-lg p-3">
                         <p className="text-sm text-gray-300">
-                            <span className="font-semibold text-[#e94d37]">Note:</span> You'll receive a unique
+                            <span className="font-semibold text-accent">Note:</span> You'll receive a unique
                             invite code that you can share with your friends to join this subject.
                         </p>
                     </div>
@@ -256,14 +261,14 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
                             type="button"
                             onClick={handleClose}
                             disabled={loading}
-                            className="flex-1 px-4 py-3 bg-[#30302e] text-white font-semibold rounded-lg hover:bg-[#3a3a38] focus:outline-none focus:ring-2 focus:ring-gray-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 px-4 py-3 bg-bg-200 text-white font-semibold rounded-lg hover:bg-[#3a3a38] focus:outline-none focus:ring-2 focus:ring-gray-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-3 bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white font-semibold rounded-lg hover:from-[#e94d37] hover:to-[#d44330] focus:outline-none focus:ring-2 focus:ring-[#e94d37]/50 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                            className="flex-1 px-4 py-3 bg-linear-to-r from-accent-light to-accent text-white font-semibold rounded-lg hover:from-accent hover:to-accent-dark focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                         >
                             {loading ? (
                                 <span className="flex items-center justify-center gap-2">

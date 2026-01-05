@@ -8,18 +8,8 @@
 
 import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
+import { Participant } from '@/hooks/useLiveKit';
 import { SpeakingIndicator } from './SpeakingIndicator';
-
-interface Participant {
-    id: string;
-    username: string;
-    isLocal: boolean;
-    isSpeaking: boolean;
-    isMuted: boolean;
-    isCameraOff: boolean;
-    videoTrack: any;
-    audioTrack: any;
-}
 
 interface ParticipantTileProps {
     participant: Participant;
@@ -80,7 +70,7 @@ export function ParticipantTile({ participant, size, isMain = false }: Participa
     return (
         <div
             ref={tileRef}
-            className={`relative rounded-xl overflow-hidden bg-[#1e1f20] transition-all ${participant.isSpeaking ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-[#0d0d0e]' : ''
+            className={`relative rounded-xl overflow-hidden bg-bg-600 transition-all ${participant.isSpeaking ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-[#0d0d0e]' : ''
                 } ${isMain ? 'h-full' : 'h-full'}`}
         >
             {/* Video or Avatar Placeholder */}
@@ -110,7 +100,7 @@ export function ParticipantTile({ participant, size, isMain = false }: Participa
             {participant.isSpeaking && <SpeakingIndicator />}
 
             {/* Bottom Overlay */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+            <div className="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent p-2">
                 <div className="flex items-center justify-between">
                     {/* Username */}
                     <span className={`text-white font-medium truncate ${size === 'small' ? 'text-xs' : 'text-sm'}`}>

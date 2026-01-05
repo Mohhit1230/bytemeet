@@ -745,31 +745,31 @@ CLOUDINARY_API_SECRET=
 **Prompt:** "Implement Section 2.10 - Canvas System for ByteMeet"
 
 **Tasks:**
-- [ ] Canvas UI (Claude AI style)
+- [x] Canvas UI (Claude AI style)
   - Side panel with artifacts
   - Horizontal scrollable carousel
   - Each artifact is a card
   - Click to expand full view
-- [ ] Artifact types
+- [x] Artifact types
   - **Code**: Syntax highlighted, copy button, download
   - **PDF**: Embedded PDF viewer
   - **Image**: Lightbox with zoom
   - **Diagram**: Mermaid/PlantUML rendered
-- [ ] Artifact controls
+- [x] Artifact controls
   - Download button
   - Copy content (for code)
   - Share artifact
   - Delete (owner only)
-- [ ] File storage (Cloudflare R2)
+- [x] File storage (Cloudinary)
   - Upload on artifact creation
   - Generate signed URLs
   - Download with original filename
-- [ ] GSAP animations
+- [x] GSAP animations
   - Slide-in from right
   - Card flip for expand
   - Carousel smooth scroll
 
-**Files to create:**
+**Files created:**
 - `src/components/canvas/Canvas.tsx`
 - `src/components/canvas/ArtifactCarousel.tsx`
 - `src/components/canvas/ArtifactCard.tsx`
@@ -777,8 +777,10 @@ CLOUDINARY_API_SECRET=
 - `src/components/canvas/PDFArtifact.tsx`
 - `src/components/canvas/ImageArtifact.tsx`
 - `src/components/canvas/ArtifactViewer.tsx`
+- `src/components/canvas/index.ts`
 - `src/hooks/useArtifacts.ts`
-- `src/services/r2.service.ts`
+- `src/services/cloudinary.service.ts`
+- `backend/routes/artifact.routes.js`
 
 ---
 
@@ -786,16 +788,16 @@ CLOUDINARY_API_SECRET=
 **Prompt:** "Implement Section 2.11 - File System for ByteMeet"
 
 **Tasks:**
-- [ ] File upload component
-  - Drag & drop zone
-  - File picker button
-  - Progress bar during upload
-  - Preview before upload
-- [ ] Upload to Cloudflare R2
-  - Presigned URL generation
-  - Client-side upload
-  - Store metadata in MongoDB
-- [ ] Download functionality
+- [x] File upload component
+  - [x] Drag & drop zone
+  - [x] File picker button
+  - [x] Progress bar during upload
+- [x] Upload to Cloudinary
+  - [x] Store metadata in MongoDB
+- [x] Download functionality
+  - [x] Original filename preservation
+  - [x] View/download counts
+- [x] Manual upload trigger from Canvas UI
   - Download button on each artifact
   - Preserve original filename
   - Track download count

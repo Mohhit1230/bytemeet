@@ -253,10 +253,10 @@ artifactSchema.statics.getStatsBySubject = async function (subjectId) {
 // =============================================================================
 
 // Pre-save: Validate content or file URL exists
-artifactSchema.pre('save', function (next) {
+artifactSchema.pre('save', async function () {
     // Either content or fileUrl must be present
     if (!this.content && !this.fileUrl) {
-        return next(new Error('Artifact must have either content or fileUrl'));
+        throw new Error('Artifact must have either content or fileUrl');
     }
 
     // Set language based on file extension if not provided
@@ -286,8 +286,6 @@ artifactSchema.pre('save', function (next) {
         };
         this.language = langMap[ext] || 'other';
     }
-
-    next();
 });
 
 // =============================================================================

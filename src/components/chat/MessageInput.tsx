@@ -56,8 +56,13 @@ export function MessageInput({ onSend }: MessageInputProps) {
             // Error shake animation
             if (buttonRef.current) {
                 gsap.to(buttonRef.current, {
-                    x: [-5, 5, -5, 5, 0],
-                    duration: 0.4,
+                    keyframes: [
+                        { x: -5, duration: 0.1 },
+                        { x: 5, duration: 0.1 },
+                        { x: -5, duration: 0.1 },
+                        { x: 5, duration: 0.1 },
+                        { x: 0, duration: 0.05 },
+                    ],
                 });
             }
         } finally {
@@ -76,7 +81,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
     };
 
     return (
-        <div className="px-4 py-3 border-t border-[#30302e] bg-[#1e1f20]">
+        <div className="px-4 py-3 border-t border-bg-200 bg-bg-600">
             <div className="flex items-end gap-2">
                 {/* Textarea */}
                 <div className="flex-1 relative">
@@ -87,7 +92,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
                         onKeyPress={handleKeyPress}
                         placeholder="Type a message..."
                         rows={1}
-                        className="w-full px-4 py-3 bg-[#262624] border border-[#30302e] rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#e94d37] focus:ring-2 focus:ring-[#e94d37]/20 transition-all resize-none max-h-32 overflow-y-auto"
+                        className="w-full px-4 py-3 bg-bg-100 border border-bg-200 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all resize-none max-h-32 overflow-y-auto"
                         disabled={sending}
                         style={{ minHeight: '48px' }}
                     />
@@ -98,7 +103,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
                     ref={buttonRef}
                     onClick={handleSend}
                     disabled={!message.trim() || sending}
-                    className="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white rounded-xl hover:from-[#e94d37] hover:to-[#d44330] focus:outline-none focus:ring-2 focus:ring-[#e94d37]/50 transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
+                    className="shrink-0 w-12 h-12 bg-linear-to-r from-accent-light to-accent text-white rounded-xl hover:from-accent hover:to-accent-dark focus:outline-none focus:ring-2 focus:ring-accent/50 transition-all transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center"
                 >
                     {sending ? (
                         <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
@@ -132,7 +137,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
 
             {/* Helper Text */}
             <p className="mt-2 text-xs text-gray-500 text-center">
-                Press <kbd className="px-1.5 py-0.5 bg-[#30302e] rounded text-gray-400">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 bg-[#30302e] rounded text-gray-400">Shift+Enter</kbd> for new line
+                Press <kbd className="px-1.5 py-0.5 bg-bg-200 rounded text-gray-400">Enter</kbd> to send, <kbd className="px-1.5 py-0.5 bg-bg-200 rounded text-gray-400">Shift+Enter</kbd> for new line
             </p>
         </div>
     );

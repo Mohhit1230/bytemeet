@@ -13,6 +13,7 @@ import { PanelTabs } from './PanelTabs';
 import { FriendsChat } from '../chat/FriendsChat';
 import { VideoCall } from '../video/VideoCall';
 import { AIChat } from '../chat/AIChat';
+import { Canvas } from '../canvas/Canvas';
 
 interface RoomLayoutProps {
     subject: any;
@@ -58,7 +59,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
     }, []);
 
     return (
-        <div ref={layoutRef} className="h-screen bg-[#131314] flex flex-col overflow-hidden">
+        <div ref={layoutRef} className="h-screen bg-bg-500 flex flex-col overflow-hidden">
             {/* Header */}
             <div ref={headerRef}>
                 <RoomHeader subject={subject} />
@@ -67,7 +68,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
             {/* Main Content */}
             <div ref={contentRef} className="flex-1 flex overflow-hidden">
                 {/* Left Panel */}
-                <div className="w-full md:w-1/3 lg:w-1/4 border-r border-[#30302e] flex flex-col">
+                <div className="w-full md:w-1/3 lg:w-1/4 border-r border-bg-200 flex flex-col">
                     {/* Left Panel Tabs */}
                     <PanelTabs
                         activeTab={leftPanel}
@@ -79,7 +80,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
                     />
 
                     {/* Left Panel Content */}
-                    <div className="flex-1 overflow-hidden bg-[#1e1f20]">
+                    <div className="flex-1 overflow-hidden bg-bg-600">
                         {leftPanel === 'chat' ? (
                             <FriendsChat subjectId={subject.id} />
                         ) : (
@@ -101,13 +102,11 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
                     />
 
                     {/* Right Panel Content */}
-                    <div className="flex-1 overflow-hidden bg-[#131314]">
+                    <div className="flex-1 overflow-hidden bg-bg-500">
                         {rightPanel === 'ai' ? (
                             <AIChat subjectId={subject.id} />
                         ) : (
-                            <div className="h-full flex items-center justify-center text-gray-500">
-                                <p>Canvas (Section 2.10)</p>
-                            </div>
+                            <Canvas subjectId={subject.id} />
                         )}
                     </div>
                 </div>

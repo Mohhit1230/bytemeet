@@ -19,6 +19,9 @@ const quicksand = Quicksand({
 export const metadata: Metadata = {
   title: "ByteMeet - Collaborative Learning Platform",
   description: "Learn together with AI-powered tutoring and real-time collaboration.",
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({

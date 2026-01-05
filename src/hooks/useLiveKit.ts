@@ -21,7 +21,7 @@ import {
 } from 'livekit-client';
 import api from '@/lib/api';
 
-interface Participant {
+export interface Participant {
     id: string;
     username: string;
     isLocal: boolean;
@@ -215,8 +215,8 @@ export function useLiveKit({ subjectId, username }: UseLiveKitOptions) {
             if (isScreenSharing) {
                 const tracks = room.localParticipant.getTrackPublications();
                 tracks.forEach((pub) => {
-                    if (pub.source === Track.Source.ScreenShare) {
-                        room.localParticipant.unpublishTrack(pub.track!);
+                    if (pub.source === Track.Source.ScreenShare && pub.track) {
+                        room.localParticipant.unpublishTrack(pub.track as LocalVideoTrack);
                     }
                 });
                 setIsScreenSharing(false);

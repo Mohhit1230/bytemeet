@@ -11,18 +11,8 @@
 'use client';
 
 import React from 'react';
+import { Participant } from '@/hooks/useLiveKit';
 import { ParticipantTile } from './ParticipantTile';
-
-interface Participant {
-    id: string;
-    username: string;
-    isLocal: boolean;
-    isSpeaking: boolean;
-    isMuted: boolean;
-    isCameraOff: boolean;
-    videoTrack: any;
-    audioTrack: any;
-}
 
 interface VideoGridProps {
     participants: Participant[];
@@ -73,7 +63,7 @@ export function VideoGrid({ participants, isScreenSharing }: VideoGridProps) {
         <div className="h-full flex flex-col p-2 gap-2">
             {/* Top Row - Up to 5 participants */}
             {topRow.length > 0 && (
-                <div className="h-24 flex gap-2 justify-center flex-shrink-0">
+                <div className="h-24 flex gap-2 justify-center shrink-0">
                     {topRow.map((p) => (
                         <div key={p.id} className="w-32 h-full">
                             <ParticipantTile participant={p} size="small" />
@@ -91,7 +81,7 @@ export function VideoGrid({ participants, isScreenSharing }: VideoGridProps) {
 
                 {/* Right Column - Up to 3 more participants */}
                 {rightColumn.length > 0 && (
-                    <div className="w-28 flex flex-col gap-2 flex-shrink-0">
+                    <div className="w-28 flex flex-col gap-2 shrink-0">
                         {rightColumn.map((p) => (
                             <div key={p.id} className="flex-1">
                                 <ParticipantTile participant={p} size="small" />

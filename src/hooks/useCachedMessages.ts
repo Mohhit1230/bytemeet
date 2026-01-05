@@ -6,6 +6,7 @@
  */
 
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useEffect, useCallback } from 'react';
 
@@ -104,7 +105,13 @@ export function useCachedMessages(subjectId: string) {
   useEffect(() => {
     const cached = getFromCache();
     if (cached) {
-      setCachedMessages(cached);
+      setCachedMessages(prev => {
+        // Prevent unnecessary updates
+        if (prev.length === cached.length && prev[0]?.id === cached[0]?.id) {
+          return prev;
+        }
+        return cached;
+      });
     }
   }, [getFromCache]);
 

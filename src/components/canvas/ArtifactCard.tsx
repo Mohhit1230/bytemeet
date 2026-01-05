@@ -111,6 +111,7 @@ export function ArtifactCard({
       case 'image':
         return (
           <div className="h-32 overflow-hidden rounded">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={artifact.fileUrl}
               alt={artifact.title}
@@ -230,9 +231,8 @@ export function ArtifactCard({
 
       {/* Action Buttons (visible on hover) */}
       <div
-        className={`absolute top-2 right-2 flex gap-1 transition-opacity duration-200 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`absolute top-2 right-2 flex gap-1 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Download */}
@@ -348,9 +348,8 @@ export function ArtifactCard({
 
       {/* Hover Glow Effect */}
       <div
-        className={`from-accent/5 pointer-events-none absolute inset-0 bg-linear-to-t to-transparent transition-opacity duration-300 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`from-accent/5 pointer-events-none absolute inset-0 bg-linear-to-t to-transparent transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
       />
     </div>
   );

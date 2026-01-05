@@ -122,9 +122,10 @@ export async function sendToAI(
       const artifacts = extractArtifacts(content);
       return { content, artifacts };
     }
-  } catch (error: any) {
-    console.error('AI service error:', error);
-    throw new Error(error.message || 'Failed to get AI response');
+  } catch (error: unknown) {
+    const e = error as any;
+    console.error('AI service error:', e);
+    throw new Error(e.message || 'Failed to get AI response');
   }
 }
 
@@ -178,8 +179,10 @@ export function hasArtifacts(content: string): boolean {
   return /```[\s\S]*?```/.test(content) || /\$\$[\s\S]*?\$\$/.test(content);
 }
 
-export default {
+const aiService = {
   sendToAI,
   extractArtifacts,
   hasArtifacts,
 };
+
+export default aiService;

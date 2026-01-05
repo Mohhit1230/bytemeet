@@ -16,10 +16,11 @@ import { AIMessageBubble } from './AIMessageBubble';
 import { AIThinkingIndicator } from './AIThinkingIndicator';
 import { useAIChat } from '@/hooks/useAIChat';
 import { FileUploader } from '../canvas/FileUploader';
+import type { Artifact } from '@/services/ai.service';
 
 interface AIChatProps {
   subjectId: string;
-  onArtifactCreated?: (artifact: any) => void;
+  onArtifactCreated?: (artifact: Artifact) => void;
 }
 
 export function AIChat({ subjectId, onArtifactCreated }: AIChatProps) {

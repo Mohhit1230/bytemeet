@@ -8,7 +8,7 @@ import api from '@/lib/api';
 
 export interface UploadResult {
   success: boolean;
-  artifact?: any;
+  artifact?: unknown;
   url?: string;
   publicId?: string;
   fileName?: string;
@@ -22,18 +22,7 @@ export interface UploadProgress {
   percentage: number;
 }
 
-/**
- * Get upload signature from backend
- */
-async function getUploadSignature(folder: string): Promise<{
-  signature: string;
-  timestamp: number;
-  cloudName: string;
-  apiKey: string;
-}> {
-  const response = await api.post('/upload/signature', { folder });
-  return response.data.data;
-}
+
 
 /**
  * Upload file to Cloudinary via backend
@@ -87,24 +76,25 @@ export async function uploadFile(
       success: false,
       error: response.data.message || 'Upload failed',
     };
-  } catch (error: any) {
-    console.error('Upload error:', error);
+  } catch (error: unknown) {
+    const e = error as any;
+    console.error('Upload error:', e);
 
     // Provide detailed error message
     let errorMessage = 'Upload failed';
 
-    if (error.response) {
+    if (e.response) {
       // Server responded with error
-      errorMessage = error.response.data?.message || `Server error: ${error.response.status}`;
-      console.error('Server response:', error.response.data);
-    } else if (error.request) {
+      errorMessage = e.response.data?.message || `Server error: ${e.response.status}`;
+      console.error('Server response:', e.response.data);
+    } else if (e.request) {
       // Request made but no response
       errorMessage = 'No response from server. Please check if the backend is running.';
-      console.error('No response received:', error.request);
+      console.error('No response received:', e.request);
     } else {
       // Error setting up request
-      errorMessage = error.message || 'Failed to make request';
-      console.error('Request setup error:', error.message);
+      errorMessage = e.message || 'Failed to make request';
+      console.error('Request setup error:', e.message);
     }
 
     return {
@@ -203,10 +193,13 @@ export function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-export default {
+const cloudinaryService = {
   uploadFile,
   deleteFile,
   getOptimizedImageUrl,
   getFileType,
   formatFileSize,
 };
+
+export default cloudinaryService;
+

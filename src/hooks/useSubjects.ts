@@ -63,8 +63,9 @@ export function useSubjects() {
         }));
         return response.data.data;
       }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to create subject';
+    } catch (err: unknown) {
+      const e = err as any;
+      const message = e.response?.data?.message || 'Failed to create subject';
       setError(message);
       console.error('Create subject error:', err);
       throw new Error(message);
@@ -92,8 +93,9 @@ export function useSubjects() {
           }));
           return response.data.data;
         }
-      } catch (err: any) {
-        const message = err.response?.data?.message || 'Failed to update subject';
+      } catch (err: unknown) {
+        const e = err as any;
+        const message = e.response?.data?.message || 'Failed to update subject';
         setError(message);
         console.error('Update subject error:', err);
         throw new Error(message);

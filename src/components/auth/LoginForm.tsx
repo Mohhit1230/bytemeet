@@ -20,7 +20,7 @@ import { useAuth } from '@/hooks/useAuth';
 // =============================================================================
 
 export function LoginForm() {
-  const { login, loading, error } = useAuth();
+  const { login, error } = useAuth();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -267,7 +267,7 @@ export function LoginForm() {
 
       {/* Register Link */}
       <div ref={linkRef} className="text-center text-sm text-gray-400">
-        Don't have an account?{' '}
+        Don&apos;t have an account?{' '}
         <Link
           href="/register"
           className="text-accent hover:text-accent-light font-semibold transition-colors"

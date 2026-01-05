@@ -43,7 +43,7 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
     }
   };
 
-  const copyToClipboard = async (text: string, type: 'code' | 'link') => {
+  const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -86,7 +86,7 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
           </button>
         </div>
 
-        <p className="mb-6 text-gray-400">Share this code to invite friends to "{subjectName}"</p>
+        <p className="mb-6 text-gray-400">Share this code to invite friends to &quot;{subjectName}&quot;</p>
 
         {/* Invite Code */}
         <div className="mb-4">
@@ -96,7 +96,7 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
               {inviteCode}
             </code>
             <button
-              onClick={() => copyToClipboard(inviteCode, 'code')}
+              onClick={() => copyToClipboard(inviteCode)}
               className="rounded-lg bg-[#30302e] px-4 py-3 text-white transition-colors hover:bg-[#3a3a38]"
               title="Copy code"
             >
@@ -116,7 +116,7 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
               className="flex-1 rounded-lg border border-[#30302e] bg-[#262624] px-4 py-3 text-sm text-gray-400"
             />
             <button
-              onClick={() => copyToClipboard(inviteLink, 'link')}
+              onClick={() => copyToClipboard(inviteLink)}
               className="rounded-lg bg-gradient-to-r from-[#f06b58] to-[#e94d37] px-4 py-3 text-white transition-all hover:from-[#e94d37] hover:to-[#d44330]"
               title="Copy link"
             >

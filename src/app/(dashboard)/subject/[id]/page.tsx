@@ -11,13 +11,14 @@ import { useParams, useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { RoomLayout } from '@/components/room/RoomLayout';
 import api from '@/lib/api';
+import type { Subject } from '@/types/database';
 
 export default function SubjectRoomPage() {
   const params = useParams();
   const router = useRouter();
   const subjectId = params.id as string;
 
-  const [subject, setSubject] = useState<any>(null);
+  const [subject, setSubject] = useState<Subject | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -33,14 +34,15 @@ export default function SubjectRoomPage() {
         if (response.data.success) {
           setSubject(response.data.data);
         }
-      } catch (err: any) {
-        console.error('Fetch subject error:', err);
+      } catch (err: unknown) {
+        const e = err as any;
+        console.error('Fetch subject error:', e);
 
-        if (err.response?.status === 403 || err.response?.status === 404) {
+        if (e.response?.status === 403 || e.response?.status === 404) {
           // Access denied or not found - redirect to join page or home
           router.push('/home');
         } else {
-          setError(err.response?.data?.message || 'Failed to load subject');
+          setError(e.response?.data?.message || 'Failed to load subject');
         }
       } finally {
         setLoading(false);

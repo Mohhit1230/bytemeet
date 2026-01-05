@@ -38,12 +38,13 @@ export function ParticipantTile({ participant, size, isMain = false }: Participa
    * Attach video track to video element
    */
   useEffect(() => {
-    if (videoRef.current && participant.videoTrack) {
-      participant.videoTrack.attach(videoRef.current);
+    const videoElement = videoRef.current;
+    if (videoElement && participant.videoTrack) {
+      participant.videoTrack.attach(videoElement);
     }
     return () => {
-      if (videoRef.current && participant.videoTrack) {
-        participant.videoTrack.detach(videoRef.current);
+      if (videoElement && participant.videoTrack) {
+        participant.videoTrack.detach(videoElement);
       }
     };
   }, [participant.videoTrack]);
@@ -70,9 +71,8 @@ export function ParticipantTile({ participant, size, isMain = false }: Participa
   return (
     <div
       ref={tileRef}
-      className={`bg-bg-600 relative overflow-hidden rounded-xl transition-all ${
-        participant.isSpeaking ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-[#0d0d0e]' : ''
-      } ${isMain ? 'h-full' : 'h-full'}`}
+      className={`bg-bg-600 relative overflow-hidden rounded-xl transition-all ${participant.isSpeaking ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-[#0d0d0e]' : ''
+        } ${isMain ? 'h-full' : 'h-full'}`}
     >
       {/* Video or Avatar Placeholder */}
       {participant.isCameraOff ? (
@@ -81,13 +81,12 @@ export function ParticipantTile({ participant, size, isMain = false }: Participa
           style={{ backgroundColor: getColor(participant.username) }}
         >
           <span
-            className={`font-bold text-white ${
-              size === 'full' || size === 'large'
+            className={`font-bold text-white ${size === 'full' || size === 'large'
                 ? 'text-6xl'
                 : size === 'medium'
                   ? 'text-4xl'
                   : 'text-2xl'
-            }`}
+              }`}
           >
             {getInitials(participant.username)}
           </span>

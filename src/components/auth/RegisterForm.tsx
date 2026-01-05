@@ -23,8 +23,8 @@ import { useDebounce } from '@/hooks/useDebounce';
 // =============================================================================
 
 export function RegisterForm() {
-  const router = useRouter();
-  const { register, loading, error, checkUsernameAvailability, checkEmailAvailability } = useAuth();
+
+  const { register, error, checkUsernameAvailability } = useAuth();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -215,7 +215,7 @@ export function RegisterForm() {
     try {
       await register(formData.email, formData.username, formData.password);
       // Navigation handled by AuthProvider
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Register error:', err);
 
       // Shake animation on error

@@ -15,8 +15,6 @@ import {
   createLocalAudioTrack,
   LocalVideoTrack,
   LocalAudioTrack,
-  RemoteParticipant,
-  LocalParticipant,
   Track,
 } from 'livekit-client';
 import api from '@/lib/api';

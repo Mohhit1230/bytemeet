@@ -12,10 +12,7 @@ import { uploadFile, getFileType } from '@/services/cloudinary.service';
 import type { ArtifactType } from '@/hooks/useArtifacts';
 import {
     validateFiles,
-    formatFileSize,
-    MAX_FILE_SIZE,
     getAcceptAttribute,
-    getAllowedTypesDescription,
 } from '@/utils/fileValidation';
 
 interface FileUploaderProps {

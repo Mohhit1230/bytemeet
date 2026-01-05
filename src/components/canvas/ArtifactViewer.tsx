@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { Artifact } from '@/hooks/useArtifacts';
 import { CodeArtifact } from './CodeArtifact';
@@ -31,6 +31,18 @@ export function ArtifactViewer({
   const overlayRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
+
+  // Animated close
+  const handleClose = useCallback(() => {
+    gsap.to(overlayRef.current, { opacity: 0, duration: 0.2 });
+    gsap.to(modalRef.current, {
+      scale: 0.9,
+      opacity: 0,
+      y: 20,
+      duration: 0.2,
+      onComplete: onClose,
+    });
+  }, [onClose]);
 
   // GSAP entrance animation
   useEffect(() => {
@@ -65,19 +77,7 @@ export function ArtifactViewer({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // Animated close
-  const handleClose = () => {
-    gsap.to(overlayRef.current, { opacity: 0, duration: 0.2 });
-    gsap.to(modalRef.current, {
-      scale: 0.9,
-      opacity: 0,
-      y: 20,
-      duration: 0.2,
-      onComplete: onClose,
-    });
-  };
+  }, [handleClose]);
 
   // Copy content
   const handleCopy = async () => {
@@ -210,11 +210,10 @@ export function ArtifactViewer({
             {(artifact.type === 'code' || artifact.type === 'markdown') && (
               <button
                 onClick={handleCopy}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${
-                  copied
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${copied
                     ? 'bg-green-500/20 text-green-400'
                     : 'bg-bg-100 hover:bg-bg-200 text-gray-300'
-                }`}
+                  }`}
               >
                 {copied ? (
                   <>

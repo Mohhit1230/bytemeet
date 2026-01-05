@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import gsap from 'gsap';
@@ -27,6 +27,54 @@ export default function JoinPage() {
   const formRef = useRef<HTMLFormElement>(null);
 
   /**
+   * Handle join request
+   */
+  const handleJoin = useCallback(async (code: string) => {
+    if (!code || code.length !== 6) {
+      setError('Please enter a valid 6-character invite code');
+      return;
+    }
+
+    try {
+      setError(null);
+      await joinSubject(code.toUpperCase());
+
+      setSuccess(true);
+
+      // Success animation
+      if (formRef.current) {
+        gsap.to(formRef.current, {
+          scale: 1.05,
+          duration: 0.2,
+          yoyo: true,
+          repeat: 1,
+          onComplete: () => {
+            // Navigate to home to see pending tab
+            setTimeout(() => router.push('/home'), 500);
+          },
+        });
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to join subject';
+      setError(errorMessage);
+
+      // Shake animation on error
+      if (formRef.current) {
+        gsap.to(formRef.current, {
+          keyframes: [
+            { x: -10, duration: 0.1 },
+            { x: 10, duration: 0.1 },
+            { x: -10, duration: 0.1 },
+            { x: 10, duration: 0.1 },
+            { x: 0, duration: 0.05 },
+          ],
+          ease: 'power2.inOut',
+        });
+      }
+    }
+  }, [joinSubject, router]);
+
+  /**
    * GSAP entrance animation
    */
   useEffect(() => {
@@ -44,63 +92,17 @@ export default function JoinPage() {
    */
   useEffect(() => {
     if (params.code && typeof params.code === 'string') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       handleJoin(params.code);
     }
-  }, [params.code]);
-
-  /**
-   * Handle join request
-   */
-  const handleJoin = async (code: string = inviteCode) => {
-    if (!code || code.length !== 6) {
-      setError('Please enter a valid 6-character invite code');
-      return;
-    }
-
-    try {
-      setError(null);
-      const subject = await joinSubject(code.toUpperCase());
-
-      setSuccess(true);
-
-      // Success animation
-      if (formRef.current) {
-        gsap.to(formRef.current, {
-          scale: 1.05,
-          duration: 0.2,
-          yoyo: true,
-          repeat: 1,
-          onComplete: () => {
-            // Navigate to home to see pending tab
-            setTimeout(() => router.push('/home'), 500);
-          },
-        });
-      }
-    } catch (err: any) {
-      setError(err.message || 'Failed to join subject');
-
-      // Shake animation on error
-      if (formRef.current) {
-        gsap.to(formRef.current, {
-          keyframes: [
-            { x: -10, duration: 0.1 },
-            { x: 10, duration: 0.1 },
-            { x: -10, duration: 0.1 },
-            { x: 10, duration: 0.1 },
-            { x: 0, duration: 0.05 },
-          ],
-          ease: 'power2.inOut',
-        });
-      }
-    }
-  };
+  }, [params.code, handleJoin]);
 
   /**
    * Handle form submission
    */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleJoin();
+    handleJoin(inviteCode);
   };
 
   return (
@@ -155,7 +157,7 @@ export default function JoinPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-white">Request Sent!</h3>
                 <p className="text-gray-400">
-                  Your join request has been sent to the subject owner. You'll be notified when they
+                  Your join request has been sent to the subject owner. You&apos;ll be notified when they
                   approve your request.
                 </p>
                 <button

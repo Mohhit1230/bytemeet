@@ -102,7 +102,10 @@ export function UserAvatar({
         style={{ backgroundColor: avatarUrl ? 'transparent' : avatarColor }}
       >
         {avatarUrl ? (
-          <img src={avatarUrl} alt={username} className="h-full w-full rounded-full object-cover" />
+          <div className="relative h-full w-full overflow-hidden rounded-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={avatarUrl} alt={username} className="h-full w-full object-cover" />
+          </div>
         ) : (
           <span>{initials}</span>
         )}

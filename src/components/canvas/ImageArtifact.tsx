@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import gsap from 'gsap';
 
 interface ImageArtifactProps {
@@ -169,9 +169,8 @@ export function ImageArtifact({ src, alt }: ImageArtifactProps) {
           ref={imageRef}
           src={src}
           alt={alt}
-          className={`max-h-[60vh] max-w-full transition-transform duration-100 ${
-            isDragging ? 'cursor-grabbing' : 'cursor-grab'
-          } ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+          className={`max-h-[60vh] max-w-full transition-transform duration-100 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'
+            } ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
           style={{
             transform: `scale(${zoom}) translate(${position.x / zoom}px, ${position.y / zoom}px)`,
           }}

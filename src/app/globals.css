@@ -203,3 +203,103 @@ nav {
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================================
+   Mobile Utilities
+   ============================================================================ */
+
+/* Safe area utilities for notched devices */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-left {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+
+.safe-area-right {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+.safe-area-all {
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+}
+
+/* Touch-friendly interactive elements */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Disable text selection on mobile UI elements */
+.no-select {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+/* Smooth momentum scrolling for iOS */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hide on mobile */
+@media (max-width: 767px) {
+  .hide-mobile {
+    display: none !important;
+  }
+}
+
+/* Show only on mobile */
+@media (min-width: 768px) {
+  .show-mobile-only {
+    display: none !important;
+  }
+}
+
+/* Mobile-optimized tap highlight */
+.tap-highlight-none {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Pull-to-refresh indicator */
+.pull-indicator {
+  transition: transform 0.2s ease-out;
+}
+
+.pull-indicator.active {
+  transform: rotate(180deg);
+}
+
+/* Mobile drawer overlay */
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 40;
+}
+
+/* Bottom sheet styles */
+.bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-bg-500);
+  border-radius: 20px 20px 0 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 50;
+}
+
+.bottom-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background-color: #555;
+  border-radius: 2px;
+  margin: 8px auto 16px;
+}

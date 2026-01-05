@@ -271,7 +271,7 @@ export function getAcceptAttribute(): string {
     return [...extensions, ...mimeTypes].join(',');
 }
 
-export default {
+const fileValidationUtils = {
     MAX_FILE_SIZE,
     ALLOWED_FILE_TYPES,
     ALL_ALLOWED_EXTENSIONS,
@@ -283,3 +283,5 @@ export default {
     getAllowedTypesDescription,
     getAcceptAttribute,
 };
+
+export default fileValidationUtils;

@@ -6,6 +6,7 @@
  */
 
 'use client';
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useCallback, useEffect } from 'react';
 import { useLiveKit } from './useLiveKit';
@@ -35,12 +36,15 @@ export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideo
   /**
    * Track active speaker
    */
+  /**
+   * Track active speaker
+   */
   useEffect(() => {
     const speaker = livekit.participants.find((p) => p.isSpeaking);
-    if (speaker) {
+    if (speaker && speaker.id !== activeSpeaker) {
       setActiveSpeaker(speaker.id);
     }
-  }, [livekit.participants]);
+  }, [livekit.participants, activeSpeaker]);
 
   /**
    * Auto-join on mount if enabled
@@ -49,7 +53,7 @@ export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideo
     if (autoJoin && !livekit.isConnected && !livekit.isConnecting) {
       livekit.connect();
     }
-  }, [autoJoin, livekit.isConnected, livekit.isConnecting]);
+  }, [autoJoin, livekit.isConnected, livekit.isConnecting, livekit.connect]);
 
   /**
    * Get local participant

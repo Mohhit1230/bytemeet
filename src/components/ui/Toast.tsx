@@ -37,6 +37,30 @@ function ToastItem({
 
     const duration = toast.duration ?? 5000;
 
+    const handleClose = React.useCallback(() => {
+        const el = toastRef.current;
+        if (!el) return;
+
+        gsap.to(el, {
+            x: 100,
+            opacity: 0,
+            scale: 0.9,
+            duration: 0.3,
+            ease: 'power2.in',
+            onComplete: () => {
+                onRemove(toast.id);
+                toast.onClose?.();
+            },
+        });
+    }, [onRemove, toast]);
+
+    const handleClick = () => {
+        if (toast.onClick) {
+            toast.onClick();
+            handleClose();
+        }
+    };
+
     // Enter animation
     useEffect(() => {
         const el = toastRef.current;
@@ -72,7 +96,7 @@ function ToastItem({
                 gsap.killTweensOf(progressEl);
             }
         };
-    }, [duration, isHovered]);
+    }, [duration, isHovered, handleClose]);
 
     // Pause animation on hover
     useEffect(() => {
@@ -92,31 +116,7 @@ function ToastItem({
                 onComplete: () => handleClose(),
             });
         }
-    }, [isHovered, duration]);
-
-    const handleClose = () => {
-        const el = toastRef.current;
-        if (!el) return;
-
-        gsap.to(el, {
-            x: 100,
-            opacity: 0,
-            scale: 0.9,
-            duration: 0.3,
-            ease: 'power2.in',
-            onComplete: () => {
-                onRemove(toast.id);
-                toast.onClose?.();
-            },
-        });
-    };
-
-    const handleClick = () => {
-        if (toast.onClick) {
-            toast.onClick();
-            handleClose();
-        }
-    };
+    }, [isHovered, duration, handleClose]);
 
     // Toast styles based on type
     const typeStyles: Record<ToastType, { bg: string; icon: string; iconColor: string; progress: string }> = {

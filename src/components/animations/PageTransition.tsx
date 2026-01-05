@@ -38,7 +38,9 @@ export function PageTransition({
 
         // Skip animation on first mount or if reduced motion
         if (prefersReducedMotion()) {
-            setDisplayChildren(children);
+            if (displayChildren !== children) {
+                setDisplayChildren(children);
+            }
             return;
         }
 
@@ -71,7 +73,7 @@ export function PageTransition({
             }
         };
 
-        if (isAnimating) return;
+        if (isAnimating || displayChildren === children) return;
 
         setIsAnimating(true);
 
@@ -102,7 +104,7 @@ export function PageTransition({
                 );
             },
         });
-    }, [pathname, children]);
+    }, [pathname, children, displayChildren, duration, ease, isAnimating, type]);
 
     // Initial mount animation
     useEffect(() => {
@@ -114,6 +116,7 @@ export function PageTransition({
             { opacity: 0, y: 20 },
             { opacity: 1, y: 0, duration, ease }
         );
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return (

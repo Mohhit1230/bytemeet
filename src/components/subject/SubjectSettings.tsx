@@ -9,12 +9,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { useSubjects } from '@/hooks/useSubjects';
+import type { Subject } from '@/types/database';
 
 interface SubjectSettingsProps {
   isOpen: boolean;
   onClose: () => void;
-  subject: any;
-  onUpdate?: (subject: any) => void;
+  subject: Subject;
+  onUpdate?: (subject: Subject) => void;
 }
 
 export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectSettingsProps) {
@@ -32,9 +33,16 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
 
   useEffect(() => {
     if (subject) {
-      setFormData({
-        name: subject.name || '',
-        description: subject.description || '',
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFormData(prev => {
+        // Only update if changes to prevent cycle
+        if (prev.name === (subject.name || '') && prev.description === (subject.description || '')) {
+          return prev;
+        }
+        return {
+          name: subject.name || '',
+          description: subject.description || '',
+        };
       });
     }
   }, [subject]);

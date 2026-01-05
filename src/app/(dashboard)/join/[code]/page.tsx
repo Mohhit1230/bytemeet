@@ -29,50 +29,53 @@ export default function JoinPage() {
   /**
    * Handle join request
    */
-  const handleJoin = useCallback(async (code: string) => {
-    if (!code || code.length !== 6) {
-      setError('Please enter a valid 6-character invite code');
-      return;
-    }
-
-    try {
-      setError(null);
-      await joinSubject(code.toUpperCase());
-
-      setSuccess(true);
-
-      // Success animation
-      if (formRef.current) {
-        gsap.to(formRef.current, {
-          scale: 1.05,
-          duration: 0.2,
-          yoyo: true,
-          repeat: 1,
-          onComplete: () => {
-            // Navigate to home to see pending tab
-            setTimeout(() => router.push('/home'), 500);
-          },
-        });
+  const handleJoin = useCallback(
+    async (code: string) => {
+      if (!code || code.length !== 6) {
+        setError('Please enter a valid 6-character invite code');
+        return;
       }
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to join subject';
-      setError(errorMessage);
 
-      // Shake animation on error
-      if (formRef.current) {
-        gsap.to(formRef.current, {
-          keyframes: [
-            { x: -10, duration: 0.1 },
-            { x: 10, duration: 0.1 },
-            { x: -10, duration: 0.1 },
-            { x: 10, duration: 0.1 },
-            { x: 0, duration: 0.05 },
-          ],
-          ease: 'power2.inOut',
-        });
+      try {
+        setError(null);
+        await joinSubject(code.toUpperCase());
+
+        setSuccess(true);
+
+        // Success animation
+        if (formRef.current) {
+          gsap.to(formRef.current, {
+            scale: 1.05,
+            duration: 0.2,
+            yoyo: true,
+            repeat: 1,
+            onComplete: () => {
+              // Navigate to home to see pending tab
+              setTimeout(() => router.push('/home'), 500);
+            },
+          });
+        }
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Failed to join subject';
+        setError(errorMessage);
+
+        // Shake animation on error
+        if (formRef.current) {
+          gsap.to(formRef.current, {
+            keyframes: [
+              { x: -10, duration: 0.1 },
+              { x: 10, duration: 0.1 },
+              { x: -10, duration: 0.1 },
+              { x: 10, duration: 0.1 },
+              { x: 0, duration: 0.05 },
+            ],
+            ease: 'power2.inOut',
+          });
+        }
       }
-    }
-  }, [joinSubject, router]);
+    },
+    [joinSubject, router]
+  );
 
   /**
    * GSAP entrance animation
@@ -157,8 +160,8 @@ export default function JoinPage() {
                 </div>
                 <h3 className="text-xl font-semibold text-white">Request Sent!</h3>
                 <p className="text-gray-400">
-                  Your join request has been sent to the subject owner. You&apos;ll be notified when they
-                  approve your request.
+                  Your join request has been sent to the subject owner. You&apos;ll be notified when
+                  they approve your request.
                 </p>
                 <button
                   onClick={() => router.push('/home')}

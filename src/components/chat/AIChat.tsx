@@ -114,11 +114,11 @@ export function AIChat({ subjectId, onArtifactCreated }: AIChatProps) {
   }
 
   return (
-    <div className="bg-bg-500 flex h-full flex-col">
+    <div className="flex h-full flex-col bg-transparent">
       {/* Chat Header */}
-      <div className="border-bg-200 bg-bg-600 border-b px-4 py-3">
+      <div className="border-b border-white/5 px-4 py-3">
         <h3 className="flex items-center gap-2 font-semibold text-white">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-purple-500 to-blue-500">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-[#5a9fff] to-[#4a8cef]">
             <svg
               className="h-5 w-5 text-white"
               fill="none"
@@ -143,16 +143,16 @@ export function AIChat({ subjectId, onArtifactCreated }: AIChatProps) {
         {loading ? (
           <div className="flex h-full items-center justify-center">
             <div className="space-y-3 text-center">
-              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-3 border-purple-500 border-t-transparent" />
+              <div className="mx-auto h-8 w-8 animate-spin rounded-full border-3 border-[#5a9fff] border-t-transparent" />
               <p className="text-sm text-gray-500">Loading messages...</p>
             </div>
           </div>
         ) : messages.length === 0 && !isStreaming ? (
           <div className="flex h-full items-center justify-center">
             <div className="max-w-sm space-y-4 text-center">
-              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-purple-500/20 to-blue-500/20">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-[#5a9fff]/20 to-[#4a8cef]/20">
                 <svg
-                  className="h-8 w-8 text-purple-400"
+                  className="h-8 w-8 text-[#5a9fff]"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -226,7 +226,7 @@ export function AIChat({ subjectId, onArtifactCreated }: AIChatProps) {
             {attachedFiles.map((file, index) => (
               <div
                 key={index}
-                className="bg-bg-100 border-bg-200 group flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-all hover:border-purple-500/50"
+                className="bg-bg-100 border-bg-200 group flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-all hover:border-[#5a9fff]/50"
               >
                 <span className="text-xl">
                   {file.type === 'image'
@@ -269,13 +269,13 @@ export function AIChat({ subjectId, onArtifactCreated }: AIChatProps) {
                 : 'Ask the AI tutor...'
             }
             rows={1}
-            className="bg-bg-100 border-bg-200 max-h-32 flex-1 resize-none rounded-xl border px-4 py-3 text-white placeholder-gray-500 transition-all focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 focus:outline-none"
+            className="bg-bg-100 border-bg-200 max-h-32 flex-1 resize-none rounded-xl border px-4 py-3 text-white placeholder-gray-500 transition-all focus:border-[#5a9fff] focus:ring-2 focus:ring-[#5a9fff]/20 focus:outline-none"
             disabled={sending}
           />
           <button
             onClick={handleSend}
             disabled={(!inputValue.trim() && attachedFiles.length === 0) || sending}
-            className="flex h-12 w-12 shrink-0 transform items-center justify-center rounded-xl bg-linear-to-r from-purple-500 to-blue-500 text-white transition-all hover:scale-105 hover:from-purple-600 hover:to-blue-600 focus:ring-2 focus:ring-purple-500/50 focus:outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+            className="flex h-12 w-12 shrink-0 transform items-center justify-center rounded-xl bg-linear-to-r from-[#5a9fff] to-[#4a8cef] text-white transition-all hover:scale-105 hover:from-[#4a8cef] hover:to-[#5a9fff] focus:ring-2 focus:ring-[#5a9fff]/50 focus:outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
           >
             {sending ? (
               <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">

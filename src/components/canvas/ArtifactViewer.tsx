@@ -97,15 +97,20 @@ export function ArtifactViewer({
       let downloadUrl = artifact.fileUrl;
 
       // Add Cloudinary transformation to force download
-      if (downloadUrl.includes('cloudinary.com')) {
-        // Insert fl_attachment before /upload/
+      if (downloadUrl.startsWith('http://')) {
+        downloadUrl = downloadUrl.replace('http://', 'https://');
+      }
+
+      // Add Cloudinary transformation to force download if not already present
+      if (downloadUrl.includes('cloudinary.com') && !downloadUrl.includes('fl_attachment')) {
         downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
       }
 
       // Create and click download link
       const a = document.createElement('a');
       a.href = downloadUrl;
-      a.download = artifact.fileName || `${artifact.title}.${artifact.type}`;
+      // Use fileName if available, otherwise just use title (browser handles extension from header)
+      a.download = artifact.fileName || artifact.title;
       a.target = '_blank';
       a.rel = 'noopener noreferrer';
       document.body.appendChild(a);
@@ -197,7 +202,7 @@ export function ArtifactViewer({
                 {artifact.isAiGenerated && (
                   <>
                     <span>•</span>
-                    <span className="text-accent-light">AI Generated ✨</span>
+                    <span className="text-[#5a9fff]">AI Generated ✨</span>
                   </>
                 )}
               </div>
@@ -210,10 +215,11 @@ export function ArtifactViewer({
             {(artifact.type === 'code' || artifact.type === 'markdown') && (
               <button
                 onClick={handleCopy}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${copied
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${
+                  copied
                     ? 'bg-green-500/20 text-green-400'
                     : 'bg-bg-100 hover:bg-bg-200 text-gray-300'
-                  }`}
+                }`}
               >
                 {copied ? (
                   <>

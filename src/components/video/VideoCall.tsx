@@ -16,9 +16,10 @@ import { useAuth } from '@/hooks/useAuth';
 
 interface VideoCallProps {
   subjectId: string;
+  audioOnly?: boolean;
 }
 
-export function VideoCall({ subjectId }: VideoCallProps) {
+export function VideoCall({ subjectId, audioOnly = false }: VideoCallProps) {
   const { user } = useAuth();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -38,6 +39,7 @@ export function VideoCall({ subjectId }: VideoCallProps) {
   } = useLiveKit({
     subjectId,
     username: user?.username || 'Guest',
+    audioOnly,
   });
 
   /**

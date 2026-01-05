@@ -2,57 +2,84 @@
  * API Client Configuration
  *
  * Axios instance configured for making API requests to the backend.
- * Automatically includes JWT token in headers and handles errors.
+ * Uses HTTP-only cookies for authentication.
  */
 
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosInstance } from 'axios';
 
 // Get API URL from environment or default to localhost
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 // Create axios instance
-export const api = axios.create({
+export const api: AxiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Include cookies in requests
+  withCredentials: true, // Crucial: Include cookies in requests
 });
 
-// Request interceptor to add auth token
-api.interceptors.request.use(
-  (config) => {
-    // Get token from localStorage
-    const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+// Flag to prevent infinite refresh loops
+let isRefreshing = false;
+let failedQueue: any[] = [];
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
     }
+  });
+  failedQueue = [];
+};
 
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Response interceptor to handle errors
+// Response interceptor to handle errors and token refresh
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error: AxiosError) => {
-    // Handle 401 Unauthorized - redirect to login
-    if (error.response?.status === 401) {
-      // Clear token
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user');
+  async (error: AxiosError) => {
+    const originalRequest = error.config as any;
 
-        // Redirect to login if not already there
-        if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
+    // Handle 401 Unauthorized
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            return api(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        // Attempt to refresh token using the refreshToken cookie
+        // The backend /auth/refresh route will set a new accessToken cookie
+        await authApi.refresh();
+
+        isRefreshing = false;
+        processQueue(null);
+
+        return api(originalRequest);
+      } catch (refreshError) {
+        isRefreshing = false;
+        processQueue(refreshError);
+
+        // Refresh failed - clear local state and redirect to login
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('user');
+          if (!window.location.pathname.includes('/login')) {
+            window.location.href = '/login';
+          }
         }
+        return Promise.reject(refreshError);
       }
     }
 
@@ -119,27 +146,21 @@ export const authApi = {
   },
 };
 
-// Helper function to set auth token
+// Legacy helper functions kept for compatibility but largely unused with cookies
 export const setAuthToken = (token: string) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('auth_token', token);
-  }
+  // Cookies handle this automatically now
 };
 
-// Helper function to clear auth token
 export const clearAuthToken = () => {
+  // Logout endpoint clears cookies
   if (typeof window !== 'undefined') {
-    localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
   }
 };
 
-// Helper function to get auth token
 export const getAuthToken = () => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('auth_token');
-  }
-  return null;
+  // Cookies are handled by the browser
+  return 'cookie-managed';
 };
 
 export default api;

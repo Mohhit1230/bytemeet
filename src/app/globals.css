@@ -5,6 +5,10 @@
   --color-accent-light: #f06b58;
   --color-accent-dark: #d44330;
 
+  --color-accent-secondary: #5a9fff;
+  --color-accent-secondary-light: #7cb3ff;
+  --color-accent-secondary-dark: #4a8cef;
+
   --color-bg-100: #262624;
   --color-bg-200: #30302e;
   --color-bg-300: #212121;
@@ -35,7 +39,7 @@ h6,
 button,
 nav {
   font-family: var(--font-ui) !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -91,10 +95,7 @@ nav {
   position: absolute;
   inset: 0;
   transform: translateX(-100%);
-  background: linear-gradient(90deg,
-      transparent,
-      rgba(255, 255, 255, 0.05),
-      transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
   animation: skeleton-wave 1.5s infinite;
 }
 
@@ -129,7 +130,6 @@ nav {
 }
 
 @keyframes loading-bar {
-
   0%,
   100% {
     transform: scaleY(0.5);
@@ -193,7 +193,6 @@ nav {
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -226,7 +225,8 @@ nav {
 }
 
 .safe-area-all {
-  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
 }
 
 /* Touch-friendly interactive elements */

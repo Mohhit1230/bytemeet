@@ -7,6 +7,7 @@
 require('dotenv').config({ path: '.env.local' });
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
 // Routes
@@ -34,6 +35,7 @@ app.use(
 
 // Body parser
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // Request logging (development)

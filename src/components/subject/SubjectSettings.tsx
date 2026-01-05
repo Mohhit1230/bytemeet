@@ -34,9 +34,12 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
   useEffect(() => {
     if (subject) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setFormData(prev => {
+      setFormData((prev) => {
         // Only update if changes to prevent cycle
-        if (prev.name === (subject.name || '') && prev.description === (subject.description || '')) {
+        if (
+          prev.name === (subject.name || '') &&
+          prev.description === (subject.description || '')
+        ) {
           return prev;
         }
         return {

@@ -96,19 +96,19 @@ export function AIMessageBubble({
       {/* Message */}
       <div className="max-w-[85%]">
         <div className="mb-1 flex items-baseline justify-end gap-2">
-          <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-sm font-semibold text-transparent">
+          <span className="bg-gradient-to-r from-[#5a9fff] to-[#4a8cef] bg-clip-text text-sm font-semibold text-transparent">
             AI Tutor
           </span>
           {timestamp && <span className="text-xs text-gray-500">{formatTime(timestamp)}</span>}
-          {isStreaming && <span className="animate-pulse text-xs text-purple-400">typing...</span>}
+          {isStreaming && <span className="animate-pulse text-xs text-[#5a9fff]">typing...</span>}
         </div>
-        <div className="rounded-2xl rounded-tr-none border border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-blue-500/10 px-4 py-3">
+        <div className="rounded-2xl rounded-tr-none border border-[#5a9fff]/20 bg-gradient-to-br from-[#5a9fff]/10 to-[#4a8cef]/10 px-4 py-3">
           <div className="text-sm text-gray-200">{renderContent(content)}</div>
         </div>
       </div>
 
       {/* AI Avatar */}
-      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-500">
+      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#5a9fff] to-[#4a8cef]">
         <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"

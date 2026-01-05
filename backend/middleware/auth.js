@@ -12,18 +12,19 @@ const { User } = require('../models');
  */
 async function authenticate(req, res, next) {
   try {
-    // Get token from header
-    const authHeader = req.headers.authorization;
+    // Get token from cookie or header
+    let token = req.cookies?.accessToken;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+      token = req.headers.authorization.substring(7);
+    }
+
+    if (!token) {
       return res.status(401).json({
         success: false,
         message: 'No token provided',
       });
     }
-
-    // Extract token
-    const token = authHeader.substring(7); // Remove 'Bearer '
 
     // Verify token
     const decoded = verifyAccessToken(token);
@@ -71,15 +72,17 @@ async function authenticate(req, res, next) {
  */
 async function authenticateOptional(req, res, next) {
   try {
-    const authHeader = req.headers.authorization;
+    let token = req.cookies?.accessToken;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token && req.headers.authorization?.startsWith('Bearer ')) {
+      token = req.headers.authorization.substring(7);
+    }
+
+    if (!token) {
       req.user = null;
       req.userId = null;
       return next();
     }
-
-    const token = authHeader.substring(7);
     const decoded = verifyAccessToken(token);
     const user = await User.findById(decoded.userId).select('-password');
 

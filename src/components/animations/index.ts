@@ -11,19 +11,9 @@ export { Stagger } from './Stagger';
 export { PageTransition } from './PageTransition';
 
 // Loading components
-export {
-    Skeleton,
-    SkeletonText,
-    SkeletonCard,
-    SkeletonAvatar,
-    SkeletonList,
-} from './Skeleton';
+export { Skeleton, SkeletonText, SkeletonCard, SkeletonAvatar, SkeletonList } from './Skeleton';
 
-export {
-    LoadingSpinner,
-    LoadingOverlay,
-    InlineLoading,
-} from './LoadingSpinner';
+export { LoadingSpinner, LoadingOverlay, InlineLoading } from './LoadingSpinner';
 
 // Interactive components
 export { AnimatedButton } from './AnimatedButton';

@@ -12,230 +12,229 @@ import gsap from 'gsap';
 import { useIsSmallScreen } from '@/hooks/useMediaQuery';
 
 interface TabItem {
-    id: string;
-    label: string;
-    icon: React.ReactNode;
-    href?: string;
-    onClick?: () => void;
-    badge?: number;
+  id: string;
+  label: string;
+  icon: React.ReactNode;
+  href?: string;
+  onClick?: () => void;
+  badge?: number;
 }
 
 interface BottomTabBarProps {
-    tabs: TabItem[];
-    className?: string;
-    showLabels?: boolean;
-    hideOnScroll?: boolean;
+  tabs: TabItem[];
+  className?: string;
+  showLabels?: boolean;
+  hideOnScroll?: boolean;
 }
 
 export function BottomTabBar({
-    tabs,
-    className = '',
-    showLabels = true,
-    hideOnScroll = false,
+  tabs,
+  className = '',
+  showLabels = true,
+  hideOnScroll = false,
 }: BottomTabBarProps) {
-    const router = useRouter();
-    const pathname = usePathname();
-    const isMobile = useIsSmallScreen();
-    const barRef = useRef<HTMLDivElement>(null);
-    const [isVisible, setIsVisible] = useState(true);
-    const lastScrollY = useRef(0);
+  const router = useRouter();
+  const pathname = usePathname();
+  const isMobile = useIsSmallScreen();
+  const barRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
 
-    // Hide on scroll up, show on scroll down
-    useEffect(() => {
-        if (!hideOnScroll) return;
+  // Hide on scroll up, show on scroll down
+  useEffect(() => {
+    if (!hideOnScroll) return;
 
-        const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            const scrollingDown = currentScrollY > lastScrollY.current;
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollingDown = currentScrollY > lastScrollY.current;
 
-            if (scrollingDown && currentScrollY > 50) {
-                setIsVisible(false);
-            } else {
-                setIsVisible(true);
-            }
+      if (scrollingDown && currentScrollY > 50) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
 
-            lastScrollY.current = currentScrollY;
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, [hideOnScroll]);
-
-    // Animate visibility
-    useEffect(() => {
-        if (!barRef.current) return;
-
-        gsap.to(barRef.current, {
-            y: isVisible ? 0 : 100,
-            duration: 0.3,
-            ease: 'power2.out',
-        });
-    }, [isVisible]);
-
-    // Don't render on desktop
-    if (!isMobile) return null;
-
-    const handleTabClick = (tab: TabItem) => {
-        if (tab.onClick) {
-            tab.onClick();
-        } else if (tab.href) {
-            router.push(tab.href);
-        }
+      lastScrollY.current = currentScrollY;
     };
 
-    const isActive = (tab: TabItem) => {
-        if (!tab.href) return false;
-        return pathname === tab.href || pathname.startsWith(tab.href + '/');
-    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [hideOnScroll]);
 
-    return (
-        <div
-            ref={barRef}
-            className={`fixed bottom-0 left-0 right-0 z-50 border-t border-bg-200 bg-bg-500/95 backdrop-blur-lg ${className}`}
-            style={{
-                paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-            }}
-        >
-            <nav className="mx-auto flex h-16 max-w-lg items-center justify-around px-2">
-                {tabs.map((tab) => {
-                    const active = isActive(tab);
-                    return (
-                        <button
-                            key={tab.id}
-                            onClick={() => handleTabClick(tab)}
-                            className={`group relative flex min-w-[60px] flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors ${active
-                                ? 'text-accent'
-                                : 'text-gray-400 hover:text-white active:text-white'
-                                }`}
-                        >
-                            {/* Icon container */}
-                            <div className="relative">
-                                {/* Icon */}
-                                <div
-                                    className={`transition-transform ${active ? 'scale-110' : 'group-active:scale-95'
-                                        }`}
-                                >
-                                    {tab.icon}
-                                </div>
+  // Animate visibility
+  useEffect(() => {
+    if (!barRef.current) return;
 
-                                {/* Badge */}
-                                {tab.badge && tab.badge > 0 && (
-                                    <span className="absolute -right-2 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
-                                        {tab.badge > 99 ? '99+' : tab.badge}
-                                    </span>
-                                )}
-                            </div>
+    gsap.to(barRef.current, {
+      y: isVisible ? 0 : 100,
+      duration: 0.3,
+      ease: 'power2.out',
+    });
+  }, [isVisible]);
 
-                            {/* Label */}
-                            {showLabels && (
-                                <span
-                                    className={`text-[10px] font-medium transition-opacity ${active ? 'opacity-100' : 'opacity-70'
-                                        }`}
-                                >
-                                    {tab.label}
-                                </span>
-                            )}
+  // Don't render on desktop
+  if (!isMobile) return null;
 
-                            {/* Active indicator */}
-                            {active && (
-                                <div className="absolute -bottom-1 h-1 w-6 rounded-full bg-accent" />
-                            )}
-                        </button>
-                    );
-                })}
-            </nav>
-        </div>
-    );
+  const handleTabClick = (tab: TabItem) => {
+    if (tab.onClick) {
+      tab.onClick();
+    } else if (tab.href) {
+      router.push(tab.href);
+    }
+  };
+
+  const isActive = (tab: TabItem) => {
+    if (!tab.href) return false;
+    return pathname === tab.href || pathname.startsWith(tab.href + '/');
+  };
+
+  return (
+    <div
+      ref={barRef}
+      className={`border-bg-200 bg-bg-500/95 fixed right-0 bottom-0 left-0 z-50 border-t backdrop-blur-lg ${className}`}
+      style={{
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+      }}
+    >
+      <nav className="mx-auto flex h-16 max-w-lg items-center justify-around px-2">
+        {tabs.map((tab) => {
+          const active = isActive(tab);
+          return (
+            <button
+              key={tab.id}
+              onClick={() => handleTabClick(tab)}
+              className={`group relative flex min-w-[60px] flex-1 flex-col items-center justify-center gap-1 rounded-xl py-2 transition-colors ${
+                active ? 'text-accent' : 'text-gray-400 hover:text-white active:text-white'
+              }`}
+            >
+              {/* Icon container */}
+              <div className="relative">
+                {/* Icon */}
+                <div
+                  className={`transition-transform ${
+                    active ? 'scale-110' : 'group-active:scale-95'
+                  }`}
+                >
+                  {tab.icon}
+                </div>
+
+                {/* Badge */}
+                {tab.badge && tab.badge > 0 && (
+                  <span className="bg-accent absolute -top-1 -right-2 flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white">
+                    {tab.badge > 99 ? '99+' : tab.badge}
+                  </span>
+                )}
+              </div>
+
+              {/* Label */}
+              {showLabels && (
+                <span
+                  className={`text-[10px] font-medium transition-opacity ${
+                    active ? 'opacity-100' : 'opacity-70'
+                  }`}
+                >
+                  {tab.label}
+                </span>
+              )}
+
+              {/* Active indicator */}
+              {active && <div className="bg-accent absolute -bottom-1 h-1 w-6 rounded-full" />}
+            </button>
+          );
+        })}
+      </nav>
+    </div>
+  );
 }
 
 // Pre-built icons for common tabs
 export const TabIcons = {
-    home: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-            />
-        </svg>
-    ),
-    chat: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-            />
-        </svg>
-    ),
-    video: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-            />
-        </svg>
-    ),
-    canvas: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-            />
-        </svg>
-    ),
-    settings: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-            />
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-        </svg>
-    ),
-    ai: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-            />
-        </svg>
-    ),
-    notifications: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-            />
-        </svg>
-    ),
-    profile: (
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            />
-        </svg>
-    ),
+  home: (
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+      />
+    </svg>
+  ),
+  chat: (
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+      />
+    </svg>
+  ),
+  video: (
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+      />
+    </svg>
+  ),
+  canvas: (
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+      />
+    </svg>
+  ),
+  settings: (
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+      />
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+      />
+    </svg>
+  ),
+  ai: (
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
+      />
+    </svg>
+  ),
+  notifications: (
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+      />
+    </svg>
+  ),
+  profile: (
+    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={2}
+        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+      />
+    </svg>
+  ),
 };
 
 export default BottomTabBar;

@@ -86,7 +86,9 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
           </button>
         </div>
 
-        <p className="mb-6 text-gray-400">Share this code to invite friends to &quot;{subjectName}&quot;</p>
+        <p className="mb-6 text-gray-400">
+          Share this code to invite friends to &quot;{subjectName}&quot;
+        </p>
 
         {/* Invite Code */}
         <div className="mb-4">
@@ -107,7 +109,7 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
 
         {/* Invite Link */}
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-medium text-gray-300">Invite Link</label>
+          <label className="mb-2 block text-sm font-medium text-[#5a9fff]">Invite Link</label>
           <div className="flex gap-2">
             <input
               type="text"

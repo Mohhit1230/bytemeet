@@ -362,6 +362,7 @@ Transform the current chat app into a platform where students can create study r
   - Create account and get API keys
   - Configure room creation API
 - [x] Create environment variables
+
   ```env
   # Supabase
   NEXT_PUBLIC_SUPABASE_URL=

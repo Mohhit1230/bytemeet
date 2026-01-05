@@ -11,6 +11,8 @@ import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { UserAvatarGroup } from '@/components/ui/UserAvatar';
 import type { Subject } from '@/types/database';
+import { useToast } from '@/components/ui/Toast';
+import { useAuth } from '@/hooks/useAuth';
 
 interface SubjectCardProps {
   subject: Subject & {
@@ -24,6 +26,9 @@ interface SubjectCardProps {
 export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
   const router = useRouter();
   const cardRef = useRef<HTMLDivElement>(null);
+  const { success } = useToast();
+  const { user } = useAuth();
+  const [isHovered, setIsHovered] = React.useState(false);
 
   /**
    * GSAP entrance animation
@@ -54,6 +59,19 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
     router.push(`/subject/${subject.id}`);
   };
 
+  const handleCopyLink = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    let link = `${window.location.origin}/join/${subject.invite_code}`;
+    const ownerName = subject.role === 'owner' ? user?.username : (subject as any).owner?.username;
+
+    if (ownerName) {
+      link = `${window.location.origin}/${ownerName}/${encodeURIComponent(subject.name)}/${subject.invite_code}`;
+    }
+
+    navigator.clipboard.writeText(link);
+    success('Copied', 'Invite link copied to clipboard');
+  };
+
   /**
    * Get status badge
    */
@@ -74,6 +92,14 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
       );
     }
 
+    if (subject.role === 'member') {
+      return (
+        <span className="rounded-md border border-[#5a9fff]/20 bg-[#5a9fff]/10 px-2 py-1 text-xs font-medium text-[#5a9fff]">
+          Member
+        </span>
+      );
+    }
+
     return null;
   };
 
@@ -81,7 +107,9 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
     <div
       ref={cardRef}
       onClick={handleClick}
-      className="group relative cursor-pointer rounded-xl border border-[#30302e] bg-[#1e1f20] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-[#e94d37]/50 hover:shadow-lg hover:shadow-[#e94d37]/10"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="group relative cursor-pointer rounded-xl border border-white/5 bg-white/5 p-5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#e94d37]/50 hover:shadow-2xl hover:shadow-[#e94d37]/10"
     >
       {/* Gradient overlay on hover */}
       <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#e94d37]/0 to-[#e94d37]/0 transition-all duration-300 group-hover:from-[#e94d37]/5 group-hover:to-transparent" />
@@ -91,9 +119,25 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-lg font-semibold text-white transition-colors group-hover:text-[#f06b58]">
-              {subject.name}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="truncate text-lg font-semibold text-white transition-colors group-hover:text-[#f06b58]">
+                {subject.name}
+              </h3>
+              <button
+                onClick={handleCopyLink}
+                className={`rounded p-1 text-gray-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-[#30302e] hover:text-white ${isHovered ? 'opacity-100' : ''}`}
+                title="Copy Invite Link"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                  />
+                </svg>
+              </button>
+            </div>
             {subject.description && (
               <p className="mt-1 line-clamp-2 text-sm text-gray-400">{subject.description}</p>
             )}

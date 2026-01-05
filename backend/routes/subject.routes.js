@@ -603,11 +603,7 @@ router.post('/:id/approve', authenticate, async (req, res) => {
     }
 
     // Get subject name for notification
-    const { data: subject } = await supabase
-      .from('subjects')
-      .select('name')
-      .eq('id', id)
-      .single();
+    const { data: subject } = await supabase.from('subjects').select('name').eq('id', id).single();
 
     // Create notification for the approved user
     try {
@@ -669,11 +665,7 @@ router.post('/:id/reject', authenticate, async (req, res) => {
     }
 
     // Get subject name for notification before rejecting
-    const { data: subject } = await supabase
-      .from('subjects')
-      .select('name')
-      .eq('id', id)
-      .single();
+    const { data: subject } = await supabase.from('subjects').select('name').eq('id', id).single();
 
     // Reject the request (delete the membership)
     const { error } = await supabase

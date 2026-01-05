@@ -33,9 +33,10 @@ export interface Participant {
 interface UseLiveKitOptions {
   subjectId: string;
   username: string;
+  audioOnly?: boolean;
 }
 
-export function useLiveKit({ subjectId, username }: UseLiveKitOptions) {
+export function useLiveKit({ subjectId, username, audioOnly = false }: UseLiveKitOptions) {
   const [room, setRoom] = useState<Room | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -144,15 +145,17 @@ export function useLiveKit({ subjectId, username }: UseLiveKitOptions) {
       await newRoom.connect(livekitUrl, token);
 
       // Publish local tracks
-      const videoTrack = await createLocalVideoTrack({
-        resolution: VideoPresets.h720.resolution,
-      });
-      const audioTrack = await createLocalAudioTrack();
+      if (!audioOnly) {
+        const videoTrack = await createLocalVideoTrack({
+          resolution: VideoPresets.h720.resolution,
+        });
+        await newRoom.localParticipant.publishTrack(videoTrack);
+        setLocalVideoTrack(videoTrack);
+      }
 
-      await newRoom.localParticipant.publishTrack(videoTrack);
+      const audioTrack = await createLocalAudioTrack();
       await newRoom.localParticipant.publishTrack(audioTrack);
 
-      setLocalVideoTrack(videoTrack);
       setLocalAudioTrack(audioTrack);
       setRoom(newRoom);
       setIsConnected(true);
@@ -163,7 +166,7 @@ export function useLiveKit({ subjectId, username }: UseLiveKitOptions) {
     } finally {
       setIsConnecting(false);
     }
-  }, [getToken, updateParticipants]);
+  }, [getToken, updateParticipants, audioOnly]);
 
   /**
    * Disconnect from room

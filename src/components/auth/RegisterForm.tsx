@@ -12,18 +12,17 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/useDebounce';
+import { GoogleSignInButton, AuthDivider } from './GoogleSignInButton';
 
 // =============================================================================
 // COMPONENT
 // =============================================================================
 
 export function RegisterForm() {
-
   const { register, error, checkUsernameAvailability } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -240,9 +239,9 @@ export function RegisterForm() {
       <div className="space-y-2 text-center">
         <h1
           ref={titleRef}
-          className="from-accent-light via-accent to-accent-dark bg-linear-to-r bg-clip-text text-4xl font-bold text-transparent"
+          className="from-accent-light via-accent to-accent-dark bg-linear-to-r bg-clip-text text-4xl font-bold tracking-wide text-transparent"
         >
-          Join ByteMeet
+          Join <span className="text-white">Now</span>
         </h1>
         <p ref={subtitleRef} className="text-gray-400">
           Create an account to start learning together
@@ -256,8 +255,14 @@ export function RegisterForm() {
         </div>
       )}
 
+      {/* Google Sign Up */}
+      <GoogleSignInButton mode="register" disabled={isSubmitting} />
+
+      {/* Divider */}
+      <AuthDivider />
+
       {/* Inputs */}
-      <div ref={inputsRef} className="space-y-4">
+      <div ref={inputsRef} className="space-y-3">
         {/* Email */}
         <div>
           <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-300">

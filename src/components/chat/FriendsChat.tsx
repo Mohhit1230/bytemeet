@@ -45,9 +45,9 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
   }
 
   return (
-    <div className="flex h-full flex-col bg-[#1e1f20]">
+    <div className="flex h-full flex-col bg-transparent">
       {/* Chat Header */}
-      <div className="border-b border-[#30302e] px-4 py-3">
+      <div className="border-b border-white/5 px-4 py-3">
         <h3 className="flex items-center gap-2 font-semibold text-white">
           <svg
             className="h-5 w-5 text-[#e94d37]"

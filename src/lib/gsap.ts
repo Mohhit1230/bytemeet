@@ -84,10 +84,7 @@ export const presets = {
 /**
  * Animate element with fade in
  */
-export function fadeIn(
-  element: gsap.TweenTarget,
-  options: gsap.TweenVars = {}
-): gsap.core.Tween {
+export function fadeIn(element: gsap.TweenTarget, options: gsap.TweenVars = {}): gsap.core.Tween {
   return gsap.from(element, {
     ...presets.fadeIn,
     ...options,
@@ -97,10 +94,7 @@ export function fadeIn(
 /**
  * Animate element with slide up
  */
-export function slideUp(
-  element: gsap.TweenTarget,
-  options: gsap.TweenVars = {}
-): gsap.core.Tween {
+export function slideUp(element: gsap.TweenTarget, options: gsap.TweenVars = {}): gsap.core.Tween {
   return gsap.from(element, {
     ...presets.slideUp,
     ...options,
@@ -123,10 +117,7 @@ export function slideDown(
 /**
  * Animate element with scale in
  */
-export function scaleIn(
-  element: gsap.TweenTarget,
-  options: gsap.TweenVars = {}
-): gsap.core.Tween {
+export function scaleIn(element: gsap.TweenTarget, options: gsap.TweenVars = {}): gsap.core.Tween {
   return gsap.from(element, {
     ...presets.scaleIn,
     ...options,
@@ -257,10 +248,7 @@ export function getSafeDuration(duration: number): number {
 /**
  * GSAP with reduced motion support
  */
-export function safeAnimate(
-  element: gsap.TweenTarget,
-  vars: gsap.TweenVars
-): gsap.core.Tween {
+export function safeAnimate(element: gsap.TweenTarget, vars: gsap.TweenVars): gsap.core.Tween {
   if (prefersReducedMotion()) {
     // Skip animation, just set final state
     gsap.set(element, {

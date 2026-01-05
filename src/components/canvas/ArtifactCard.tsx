@@ -130,7 +130,7 @@ export function ArtifactCard({
         );
       case 'diagram':
         return (
-          <div className="flex h-24 items-center justify-center rounded bg-linear-to-br from-purple-500/10 to-purple-600/5">
+          <div className="flex h-24 items-center justify-center rounded bg-linear-to-br from-[#5a9fff]/10 to-[#4a8cef]/5">
             <div className="text-center">
               <span className="text-4xl">📊</span>
               <p className="mt-2 text-xs text-gray-400">Mermaid Diagram</p>
@@ -187,7 +187,7 @@ export function ArtifactCard({
 
           {/* AI Badge */}
           {artifact.isAiGenerated && (
-            <span className="from-accent/20 to-accent-light/20 text-accent-light rounded-full bg-linear-to-r px-2 py-1 text-xs font-medium">
+            <span className="rounded-full bg-linear-to-r from-[#5a9fff]/20 to-[#4a8cef]/20 px-2 py-1 text-xs font-medium text-[#5a9fff]">
               AI ✨
             </span>
           )}
@@ -231,8 +231,9 @@ export function ArtifactCard({
 
       {/* Action Buttons (visible on hover) */}
       <div
-        className={`absolute top-2 right-2 flex gap-1 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'
-          }`}
+        className={`absolute top-2 right-2 flex gap-1 transition-opacity duration-200 ${
+          isHovered ? 'opacity-100' : 'opacity-0'
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Download */}
@@ -246,8 +247,15 @@ export function ArtifactCard({
               // For Cloudinary URLs, add download flag
               let downloadUrl = artifact.fileUrl;
 
+              if (downloadUrl.startsWith('http://')) {
+                downloadUrl = downloadUrl.replace('http://', 'https://');
+              }
+
               // Add Cloudinary transformation to force download
-              if (downloadUrl.includes('cloudinary.com')) {
+              if (
+                downloadUrl.includes('cloudinary.com') &&
+                !downloadUrl.includes('fl_attachment')
+              ) {
                 // Insert fl_attachment before /upload/
                 downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
               }
@@ -348,8 +356,9 @@ export function ArtifactCard({
 
       {/* Hover Glow Effect */}
       <div
-        className={`from-accent/5 pointer-events-none absolute inset-0 bg-linear-to-t to-transparent transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
-          }`}
+        className={`from-accent/5 pointer-events-none absolute inset-0 bg-linear-to-t to-transparent transition-opacity duration-300 ${
+          isHovered ? 'opacity-100' : 'opacity-0'
+        }`}
       />
     </div>
   );

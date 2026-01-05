@@ -14,6 +14,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
 import { useAuth } from '@/hooks/useAuth';
+import { GoogleSignInButton, AuthDivider } from './GoogleSignInButton';
 
 // =============================================================================
 // COMPONENT
@@ -191,6 +192,12 @@ export function LoginForm() {
           {error}
         </div>
       )}
+
+      {/* Google Sign In */}
+      <GoogleSignInButton mode="login" disabled={isSubmitting} />
+
+      {/* Divider */}
+      <AuthDivider />
 
       {/* Inputs */}
       <div ref={inputsRef} className="space-y-4">

@@ -126,6 +126,13 @@ const userSchema = new mongoose.Schema(
       type: String,
     },
 
+    // Google OAuth ID
+    googleId: {
+      type: String,
+      sparse: true,
+      index: true,
+    },
+
     // OAuth providers (for future social login)
     providers: [
       {

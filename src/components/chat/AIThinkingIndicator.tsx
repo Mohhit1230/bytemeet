@@ -81,22 +81,22 @@ export function AIThinkingIndicator() {
       {/* Message */}
       <div className="max-w-[60%]">
         <div className="mb-1 flex items-baseline justify-end gap-2">
-          <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-sm font-semibold text-transparent">
+          <span className="bg-gradient-to-r from-[#5a9fff] to-[#4a8cef] bg-clip-text text-sm font-semibold text-transparent">
             AI Tutor
           </span>
-          <span className="text-xs text-purple-400">thinking...</span>
+          <span className="text-xs text-[#5a9fff]">thinking...</span>
         </div>
-        <div className="rounded-2xl rounded-tr-none border border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-blue-500/10 px-6 py-4">
+        <div className="rounded-2xl rounded-tr-none border border-[#5a9fff]/20 bg-gradient-to-br from-[#5a9fff]/10 to-[#4a8cef]/10 px-6 py-4">
           <div className="flex items-center gap-2">
-            <div ref={dot1Ref} className="h-2.5 w-2.5 rounded-full bg-purple-400" />
-            <div ref={dot2Ref} className="h-2.5 w-2.5 rounded-full bg-purple-400/80" />
-            <div ref={dot3Ref} className="h-2.5 w-2.5 rounded-full bg-purple-400/60" />
+            <div ref={dot1Ref} className="h-2.5 w-2.5 rounded-full bg-[#5a9fff]" />
+            <div ref={dot2Ref} className="h-2.5 w-2.5 rounded-full bg-[#5a9fff]/80" />
+            <div ref={dot3Ref} className="h-2.5 w-2.5 rounded-full bg-[#5a9fff]/60" />
           </div>
         </div>
       </div>
 
       {/* AI Avatar */}
-      <div className="flex h-8 w-8 flex-shrink-0 animate-pulse items-center justify-center rounded-lg bg-gradient-to-br from-purple-500 to-blue-500">
+      <div className="flex h-8 w-8 flex-shrink-0 animate-pulse items-center justify-center rounded-lg bg-gradient-to-br from-[#5a9fff] to-[#4a8cef]">
         <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"

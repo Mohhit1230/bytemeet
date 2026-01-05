@@ -22,8 +22,6 @@ export interface UploadProgress {
   percentage: number;
 }
 
-
-
 /**
  * Upload file to Cloudinary via backend
  */
@@ -202,4 +200,3 @@ const cloudinaryService = {
 };
 
 export default cloudinaryService;
-

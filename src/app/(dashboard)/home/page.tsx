@@ -7,6 +7,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import gsap from 'gsap';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SubjectCard } from '@/components/subject/SubjectCard';
@@ -15,7 +16,7 @@ import { useSubjects } from '@/hooks/useSubjects';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { subjects, loading, fetchSubjects } = useSubjects();
   const [activeTab, setActiveTab] = useState<'owned' | 'joined' | 'pending'>('owned');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +25,6 @@ export default function HomePage() {
   const headerRef = useRef<HTMLDivElement>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
-  const fabRef = useRef<HTMLButtonElement>(null);
 
   /**
    * Fetch subjects on mount
@@ -45,27 +45,16 @@ export default function HomePage() {
         opacity: 0,
         duration: 0.6,
         ease: 'power3.out',
-      })
-        .from(
-          tabsRef.current,
-          {
-            y: -20,
-            opacity: 0,
-            duration: 0.5,
-            ease: 'power2.out',
-          },
-          '-=0.3'
-        )
-        .from(
-          fabRef.current,
-          {
-            scale: 0,
-            opacity: 0,
-            duration: 0.5,
-            ease: 'back.out(1.7)',
-          },
-          '-=0.2'
-        );
+      }).from(
+        tabsRef.current,
+        {
+          y: -20,
+          opacity: 0,
+          duration: 0.5,
+          ease: 'power2.out',
+        },
+        '-=0.3'
+      );
     });
 
     return () => ctx.revert();
@@ -105,30 +94,73 @@ export default function HomePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-bg-500 pb-20">
+      <div className="bg-bg-500 min-h-screen pb-20">
         {/* Header */}
         <div ref={headerRef} className="px-4 py-8 md:px-8 md:py-12">
-          <div className="mx-auto max-w-7xl">
-            <h1 className="mb-3 text-4xl font-bold text-white md:text-5xl">
-              Welcome back,{' '}
-              <span className="bg-accent bg-clip-text text-transparent">
-                {user?.username}
-              </span>
-            </h1>
-            <p className="text-lg text-gray-400">Create or join study rooms to learn together</p>
+          <div className="mx-auto flex max-w-7xl items-center justify-between">
+            <div>
+              <h1 className="mb-3 text-4xl font-bold text-white md:text-5xl">
+                Welcome back,{' '}
+                <Link
+                  href="/profile"
+                  className="bg-accent bg-clip-text text-transparent transition-opacity hover:opacity-80"
+                >
+                  {user?.username}
+                </Link>
+              </h1>
+              <p className="text-lg text-gray-400">Create or join study rooms to learn together</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="bg-accent hover:bg-accent-dark flex items-center gap-2 rounded-lg px-4 py-2 text-white transition-all hover:shadow-lg"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+                <span className="font-medium">Create Subject</span>
+              </button>
+
+              <div className="mx-2 h-8 w-px bg-gray-700" />
+
+              <button
+                onClick={logout}
+                className="group bg-bg-600 flex items-center gap-2 rounded-lg px-4 py-2 text-gray-400 transition-all hover:bg-red-500/10 hover:text-red-500"
+              >
+                <svg
+                  className="h-5 w-5 transition-transform group-hover:translate-x-1"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+                <span className="font-medium">Logout</span>
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Tabs */}
         <div ref={tabsRef} className="mb-8 px-4 md:px-8">
           <div className="mx-auto max-w-7xl">
-            <div className="flex gap-2 rounded-xl border border-bg-200 bg-bg-600 p-2">
+            <div className="border-bg-200 bg-bg-600 flex gap-2 rounded-xl border p-2">
               <button
                 onClick={() => handleTabChange('owned')}
                 className={`flex-1 rounded-lg px-6 py-3 font-semibold transition-all ${
                   activeTab === 'owned'
-                    ? 'bg-accent text-white shadow-lg '
-                    : 'text-gray-400 hover:bg-bg-200 hover:text-white'
+                    ? 'bg-accent text-white shadow-lg'
+                    : 'hover:bg-bg-200 text-gray-400 hover:text-white'
                 }`}
               >
                 My Subjects ({subjects.owned.length})
@@ -138,7 +170,7 @@ export default function HomePage() {
                 className={`flex-1 rounded-lg px-6 py-3 font-semibold transition-all ${
                   activeTab === 'joined'
                     ? 'bg-accent text-white shadow-lg'
-                    : 'text-gray-400 hover:bg-bg-200 hover:text-white'
+                    : 'hover:bg-bg-200 text-gray-400 hover:text-white'
                 }`}
               >
                 Joined ({subjects.joined.length})
@@ -148,7 +180,7 @@ export default function HomePage() {
                 className={`flex-1 rounded-lg px-6 py-3 font-semibold transition-all ${
                   activeTab === 'pending'
                     ? 'bg-accent text-white shadow-lg'
-                    : 'text-gray-400 hover:bg-bg-200 hover:text-white'
+                    : 'hover:bg-bg-200 text-gray-400 hover:text-white'
                 }`}
               >
                 Pending ({subjects.pending.length})
@@ -163,7 +195,7 @@ export default function HomePage() {
             {loading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="space-y-4 text-center">
-                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent" />
+                  <div className="border-accent mx-auto h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
                   <p className="text-gray-400">Loading subjects...</p>
                 </div>
               </div>
@@ -175,7 +207,7 @@ export default function HomePage() {
               </div>
             ) : (
               <div ref={gridRef} className="py-20 text-center">
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full border border-bg-200 bg-bg-600">
+                <div className="border-bg-200 bg-bg-600 mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full border">
                   <svg
                     className="h-8 w-8 text-gray-500"
                     fill="none"
@@ -203,7 +235,7 @@ export default function HomePage() {
                 {activeTab === 'owned' && (
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="transform rounded-lg bg-accent px-6 py-3 font-semibold text-white transition-all hover:scale-105"
+                    className="bg-accent transform rounded-lg px-6 py-3 font-semibold text-white transition-all hover:scale-105"
                   >
                     Create Subject
                   </button>
@@ -214,20 +246,6 @@ export default function HomePage() {
         </div>
 
         {/* Floating Action Button */}
-        <button
-          ref={fabRef}
-          onClick={() => setIsModalOpen(true)}
-          className="group fixed right-8 bottom-8 flex h-16 w-16 items-center justify-center rounded-full bg-accent text-white shadow-2xl transition-all hover:scale-110 hover:shadow-accent-dark/50 active:scale-95"
-        >
-          <svg
-            className="h-8 w-8 transition-transform group-hover:rotate-90"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-        </button>
 
         {/* Create Subject Modal */}
         <CreateSubjectModal

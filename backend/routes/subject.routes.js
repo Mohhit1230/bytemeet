@@ -7,6 +7,7 @@
 const express = require('express');
 const { authenticate } = require('../middleware/auth');
 const { createClient } = require('@supabase/supabase-js');
+const Notification = require('../models/notification.model');
 
 const router = express.Router();
 
@@ -479,6 +480,25 @@ router.post('/join', authenticate, async (req, res) => {
       throw memberError;
     }
 
+    // Notify the subject owner about the join request
+    try {
+      await Notification.createNotification({
+        userId: subject.created_by,
+        type: 'join_request',
+        title: 'New Join Request',
+        message: `${username} wants to join "${subject.name}"`,
+        data: {
+          subjectId: subject.id,
+          subjectName: subject.name,
+          fromUser: userId,
+          fromUsername: username,
+        },
+      });
+    } catch (notifError) {
+      console.error('Failed to create join request notification:', notifError);
+      // Don't fail the request if notification fails
+    }
+
     res.json({
       success: true,
       message: 'Join request sent successfully',
@@ -582,6 +602,32 @@ router.post('/:id/approve', authenticate, async (req, res) => {
       throw error;
     }
 
+    // Get subject name for notification
+    const { data: subject } = await supabase
+      .from('subjects')
+      .select('name')
+      .eq('id', id)
+      .single();
+
+    // Create notification for the approved user
+    try {
+      await Notification.createNotification({
+        userId: user_id,
+        type: 'request_approved',
+        title: 'Request Approved! 🎉',
+        message: `Your request to join "${subject?.name || 'the subject'}" has been approved. You can now access the room.`,
+        data: {
+          subjectId: id,
+          subjectName: subject?.name,
+          fromUser: currentUserId,
+          fromUsername: req.user.username,
+        },
+      });
+    } catch (notifError) {
+      console.error('Failed to create approval notification:', notifError);
+      // Don't fail the request if notification fails
+    }
+
     res.json({
       success: true,
       message: 'Request approved successfully',
@@ -622,6 +668,13 @@ router.post('/:id/reject', authenticate, async (req, res) => {
       });
     }
 
+    // Get subject name for notification before rejecting
+    const { data: subject } = await supabase
+      .from('subjects')
+      .select('name')
+      .eq('id', id)
+      .single();
+
     // Reject the request (delete the membership)
     const { error } = await supabase
       .from('subject_members')
@@ -631,6 +684,23 @@ router.post('/:id/reject', authenticate, async (req, res) => {
 
     if (error) {
       throw error;
+    }
+
+    // Create notification for the rejected user
+    try {
+      await Notification.createNotification({
+        userId: user_id,
+        type: 'request_rejected',
+        title: 'Request Declined',
+        message: `Your request to join "${subject?.name || 'the subject'}" was not approved.`,
+        data: {
+          subjectId: id,
+          subjectName: subject?.name,
+        },
+      });
+    } catch (notifError) {
+      console.error('Failed to create rejection notification:', notifError);
+      // Don't fail the request if notification fails
     }
 
     res.json({

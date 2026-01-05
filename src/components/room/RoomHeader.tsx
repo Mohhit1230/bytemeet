@@ -10,6 +10,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserAvatar, UserAvatarGroup } from '@/components/ui/UserAvatar';
 import { useAuth } from '@/hooks/useAuth';
+import { NotificationBell } from '@/components/notifications';
 
 interface RoomHeaderProps {
   subject: any;
@@ -25,14 +26,14 @@ export function RoomHeader({ subject }: RoomHeaderProps) {
   const pendingRequests = subject.members?.filter((m: any) => m.status === 'pending') || [];
 
   return (
-    <div className="border-b border-[#30302e] bg-[#1e1f20] px-4 py-3 md:px-6">
+    <div className="border-b border-bg-200 bg-bg-600 px-4 py-3 md:px-6">
       <div className="flex items-center justify-between gap-4">
         {/* Left: Subject Info */}
         <div className="flex min-w-0 flex-1 items-center gap-4">
           {/* Back Button */}
           <button
             onClick={() => router.push('/home')}
-            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-[#30302e] hover:text-white"
+            className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-bg-200 hover:text-white"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -60,7 +61,7 @@ export function RoomHeader({ subject }: RoomHeaderProps) {
           {/* Members */}
           <button
             onClick={() => setShowMemberList(!showMemberList)}
-            className="group relative flex items-center gap-2 rounded-lg bg-[#262624] px-3 py-2 transition-colors hover:bg-[#30302e]"
+            className="group relative flex items-center gap-2 rounded-lg bg-bg-100 px-3 py-2 transition-colors hover:bg-bg-300"
           >
             <UserAvatarGroup
               users={approvedMembers.map((m: any) => ({
@@ -77,7 +78,7 @@ export function RoomHeader({ subject }: RoomHeaderProps) {
 
             {/* Pending Requests Badge */}
             {isOwner && pendingRequests.length > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#e94d37] text-xs font-bold text-white">
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-white">
                 {pendingRequests.length}
               </span>
             )}
@@ -99,10 +100,13 @@ export function RoomHeader({ subject }: RoomHeaderProps) {
             <span className="hidden text-sm font-medium md:inline">Video</span>
           </button>
 
+          {/* Notifications */}
+          <NotificationBell />
+
           {/* Settings (Owner Only) */}
           {isOwner && (
             <button
-              className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-[#30302e] hover:text-white"
+              className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-bg-200 hover:text-white"
               title="Subject Settings"
             >
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -126,7 +130,7 @@ export function RoomHeader({ subject }: RoomHeaderProps) {
 
       {/* Member List Modal (Placeholder) */}
       {showMemberList && (
-        <div className="absolute top-full right-0 left-0 z-50 mx-4 mt-1 rounded-lg border border-[#30302e] bg-[#1e1f20] p-4 shadow-2xl md:mx-6">
+        <div className="absolute top-full right-0 left-0 z-50 mx-4 mt-1 rounded-lg border border-bg-200 bg-bg-600 p-4 shadow-2xl md:mx-6">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white">Members</h3>
             <button
@@ -154,7 +158,7 @@ export function RoomHeader({ subject }: RoomHeaderProps) {
                 {pendingRequests.map((member: any) => (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between rounded-lg bg-[#262624] p-2"
+                    className="flex items-center justify-between rounded-lg bg-bg-100 p-2"
                   >
                     <div className="flex items-center gap-2">
                       <UserAvatar
@@ -186,14 +190,14 @@ export function RoomHeader({ subject }: RoomHeaderProps) {
             {approvedMembers.map((member: any) => (
               <div
                 key={member.id}
-                className="flex items-center justify-between rounded-lg bg-[#262624] p-2"
+                className="flex items-center justify-between rounded-lg bg-bg-100 p-2"
               >
                 <div className="flex items-center gap-2">
                   <UserAvatar username={member.username} avatarUrl={member.avatar_url} size="sm" />
                   <div>
                     <p className="text-sm text-white">{member.username}</p>
                     {member.role === 'owner' && (
-                      <span className="text-xs text-[#e94d37]">Owner</span>
+                      <span className="text-xs text-accent">Owner</span>
                     )}
                     {member.role === 'admin' && (
                       <span className="text-xs text-blue-400">Admin</span>

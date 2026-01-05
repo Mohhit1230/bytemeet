@@ -14,6 +14,7 @@ const authRoutes = require('./routes/auth.routes');
 const subjectRoutes = require('./routes/subject.routes');
 const videoRoutes = require('./routes/video.routes');
 const artifactRoutes = require('./routes/artifact.routes');
+const notificationRoutes = require('./routes/notification.routes');
 
 // Initialize express app
 const app = express();
@@ -81,6 +82,9 @@ app.use('/api/video', videoRoutes);
 
 // Artifact routes (Canvas)
 app.use('/api/artifacts', artifactRoutes);
+
+// Notification routes
+app.use('/api/notifications', notificationRoutes);
 
 // 404 handler - catch all unmatched routes
 app.use((req, res) => {

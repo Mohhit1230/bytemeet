@@ -105,13 +105,13 @@ export default function HomePage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-[#131314] pb-20">
+      <div className="min-h-screen bg-bg-500 pb-20">
         {/* Header */}
         <div ref={headerRef} className="px-4 py-8 md:px-8 md:py-12">
           <div className="mx-auto max-w-7xl">
             <h1 className="mb-3 text-4xl font-bold text-white md:text-5xl">
               Welcome back,{' '}
-              <span className="bg-gradient-to-r from-[#f06b58] to-[#e94d37] bg-clip-text text-transparent">
+              <span className="bg-accent bg-clip-text text-transparent">
                 {user?.username}
               </span>
             </h1>
@@ -122,13 +122,13 @@ export default function HomePage() {
         {/* Tabs */}
         <div ref={tabsRef} className="mb-8 px-4 md:px-8">
           <div className="mx-auto max-w-7xl">
-            <div className="flex gap-2 rounded-xl border border-[#30302e] bg-[#1e1f20] p-2">
+            <div className="flex gap-2 rounded-xl border border-bg-200 bg-bg-600 p-2">
               <button
                 onClick={() => handleTabChange('owned')}
                 className={`flex-1 rounded-lg px-6 py-3 font-semibold transition-all ${
                   activeTab === 'owned'
-                    ? 'bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white shadow-lg'
-                    : 'text-gray-400 hover:bg-[#30302e] hover:text-white'
+                    ? 'bg-accent text-white shadow-lg '
+                    : 'text-gray-400 hover:bg-bg-200 hover:text-white'
                 }`}
               >
                 My Subjects ({subjects.owned.length})
@@ -137,8 +137,8 @@ export default function HomePage() {
                 onClick={() => handleTabChange('joined')}
                 className={`flex-1 rounded-lg px-6 py-3 font-semibold transition-all ${
                   activeTab === 'joined'
-                    ? 'bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white shadow-lg'
-                    : 'text-gray-400 hover:bg-[#30302e] hover:text-white'
+                    ? 'bg-accent text-white shadow-lg'
+                    : 'text-gray-400 hover:bg-bg-200 hover:text-white'
                 }`}
               >
                 Joined ({subjects.joined.length})
@@ -147,8 +147,8 @@ export default function HomePage() {
                 onClick={() => handleTabChange('pending')}
                 className={`flex-1 rounded-lg px-6 py-3 font-semibold transition-all ${
                   activeTab === 'pending'
-                    ? 'bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white shadow-lg'
-                    : 'text-gray-400 hover:bg-[#30302e] hover:text-white'
+                    ? 'bg-accent text-white shadow-lg'
+                    : 'text-gray-400 hover:bg-bg-200 hover:text-white'
                 }`}
               >
                 Pending ({subjects.pending.length})
@@ -163,7 +163,7 @@ export default function HomePage() {
             {loading ? (
               <div className="flex items-center justify-center py-20">
                 <div className="space-y-4 text-center">
-                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#e94d37] border-t-transparent" />
+                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent" />
                   <p className="text-gray-400">Loading subjects...</p>
                 </div>
               </div>
@@ -175,7 +175,7 @@ export default function HomePage() {
               </div>
             ) : (
               <div ref={gridRef} className="py-20 text-center">
-                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full border border-[#30302e] bg-[#1e1f20]">
+                <div className="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-full border border-bg-200 bg-bg-600">
                   <svg
                     className="h-8 w-8 text-gray-500"
                     fill="none"
@@ -203,7 +203,7 @@ export default function HomePage() {
                 {activeTab === 'owned' && (
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="transform rounded-lg bg-gradient-to-r from-[#f06b58] to-[#e94d37] px-6 py-3 font-semibold text-white transition-all hover:scale-105 hover:from-[#e94d37] hover:to-[#d44330]"
+                    className="transform rounded-lg bg-accent px-6 py-3 font-semibold text-white transition-all hover:scale-105"
                   >
                     Create Subject
                   </button>
@@ -217,7 +217,7 @@ export default function HomePage() {
         <button
           ref={fabRef}
           onClick={() => setIsModalOpen(true)}
-          className="group fixed right-8 bottom-8 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white shadow-2xl transition-all hover:scale-110 hover:shadow-[#e94d37]/50 active:scale-95"
+          className="group fixed right-8 bottom-8 flex h-16 w-16 items-center justify-center rounded-full bg-accent text-white shadow-2xl transition-all hover:scale-110 hover:shadow-accent-dark/50 active:scale-95"
         >
           <svg
             className="h-8 w-8 transition-transform group-hover:rotate-90"

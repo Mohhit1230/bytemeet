@@ -1,7 +1,8 @@
 /**
  * Subject Card Component
  *
- * Card displaying a subject/room with hover effects and GSAP animations
+ * Completely redesigned card displaying a subject/room
+ * Featuring a modern, vibrant, and glassmorphic aesthetic
  */
 
 'use client';
@@ -28,7 +29,12 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const { success } = useToast();
   const { user } = useAuth();
-  const [isHovered, setIsHovered] = React.useState(false);
+
+  const isOwner = subject.role === 'owner';
+  const roleColor = isOwner ? 'accent' : 'accent-secondary';
+  const displayRoleColor = isOwner ? 'text-accent' : 'text-accent-secondary';
+  const borderRoleColor = isOwner ? 'border-accent/20' : 'border-accent-secondary/20';
+  const bgRoleColor = isOwner ? 'bg-accent/10' : 'bg-accent-secondary/10';
 
   /**
    * GSAP entrance animation
@@ -39,15 +45,17 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
     gsap.fromTo(
       cardRef.current,
       {
-        y: 30,
+        y: 40,
         opacity: 0,
+        scale: 0.95
       },
       {
         y: 0,
         opacity: 1,
-        duration: 0.5,
+        scale: 1,
+        duration: 0.6,
         delay,
-        ease: 'power2.out',
+        ease: 'power3.out',
       }
     );
   }, [delay]);
@@ -73,124 +81,99 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
   };
 
   /**
-   * Get status badge
+   * Status Badge
    */
-  const getStatusBadge = () => {
+  const renderBadge = () => {
     if (subject.status === 'pending') {
       return (
-        <span className="rounded-md border border-yellow-500/20 bg-yellow-500/10 px-2 py-1 text-xs font-medium text-yellow-400">
-          Pending Approval
+        <span className="inline-flex items-center rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2.5 py-0.5 text-xs font-semibold text-yellow-400 backdrop-blur-sm">
+          Pending
         </span>
       );
     }
-
-    if (subject.role === 'owner') {
-      return (
-        <span className="rounded-md border border-[#e94d37]/20 bg-[#e94d37]/10 px-2 py-1 text-xs font-medium text-[#e94d37]">
-          Owner
-        </span>
-      );
-    }
-
-    if (subject.role === 'member') {
-      return (
-        <span className="rounded-md border border-[#5a9fff]/20 bg-[#5a9fff]/10 px-2 py-1 text-xs font-medium text-[#5a9fff]">
-          Member
-        </span>
-      );
-    }
-
-    return null;
+    return (
+      <span className={`inline-flex items-center rounded-full border ${borderRoleColor} ${bgRoleColor} px-2.5 py-0.5 text-xs font-semibold ${displayRoleColor} backdrop-blur-sm`}>
+        {subject.role === 'owner' ? 'Owner' : 'Member'}
+      </span>
+    );
   };
 
   return (
     <div
       ref={cardRef}
       onClick={handleClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="group relative cursor-pointer rounded-xl border border-white/5 bg-white/5 p-5 backdrop-blur-md transition-all duration-300 hover:-translate-y-1 hover:border-[#e94d37]/50 hover:shadow-2xl hover:shadow-[#e94d37]/10"
+      className="group relative flex h-full min-h-[220px] cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-accent-secondary-light/6 p-6 backdrop-blur-3xl transition-all duration-500 hover:-translate-y-2 hover:border-white/5 hover:shadow-2xl hover:shadow-black/50"
     >
-      {/* Gradient overlay on hover */}
-      <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[#e94d37]/0 to-[#e94d37]/0 transition-all duration-300 group-hover:from-[#e94d37]/5 group-hover:to-transparent" />
+      {/* Dynamic Background Gradient */}
+      <div className={`absolute -top-24 -right-24 h-48 w-48 rounded-full ${isOwner ? 'bg-accent/20' : 'bg-accent-secondary/20'} blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-60`} />
+      <div className="absolute inset-0 bg-linear-to-bl from-white/4 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-      {/* Content */}
-      <div className="relative space-y-4">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="truncate text-lg font-semibold text-white transition-colors group-hover:text-[#f06b58]">
-                {subject.name}
-              </h3>
-              <button
-                onClick={handleCopyLink}
-                className={`rounded p-1 text-gray-400 opacity-0 transition-all group-hover:opacity-100 hover:bg-[#30302e] hover:text-white ${isHovered ? 'opacity-100' : ''}`}
-                title="Copy Invite Link"
-              >
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                  />
-                </svg>
-              </button>
-            </div>
-            {subject.description && (
-              <p className="mt-1 line-clamp-2 text-sm text-gray-400">{subject.description}</p>
-            )}
-          </div>
-          {getStatusBadge()}
+      {/* Header Section */}
+      <div className="relative z-10">
+        <div className="flex items-start justify-between">
+          {renderBadge()}
+
+          {/* Action Menu (Hidden by default, shown on hover mainly for desktop) */}
+          <button
+            onClick={handleCopyLink}
+            className="rounded-full bg-white/15 p-2 text-white/50 opacity-0 transition-all hover:bg-white/10 hover:text-white group-hover:opacity-100"
+            title="Copy Invite Link"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+            </svg>
+          </button>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-between border-t border-[#30302e] pt-4">
-          {/* Members */}
-          <div className="flex items-center gap-2">
-            {subject.members && subject.members.length > 0 ? (
-              <UserAvatarGroup
-                users={subject.members.map((m) => ({
-                  username: m.username,
-                  avatarUrl: m.avatar_url,
-                  isOnline: false,
-                }))}
-                max={3}
-                size="sm"
-              />
-            ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#30302e]">
-                <span className="text-xs text-gray-500">0</span>
-              </div>
-            )}
-            <span className="text-sm text-gray-400">
-              {subject.members?.length || 0} member{subject.members?.length !== 1 ? 's' : ''}
-            </span>
-          </div>
+        <h3 className="mt-4 text-2xl font-bold leading-tight text-white transition-colors group-hover:text-accent-light">
+          {subject.name}
+        </h3>
 
-          {/* Invite code (for owned subjects) */}
-          {subject.role === 'owner' && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">Code:</span>
-              <code className="rounded bg-[#30302e] px-2 py-1 font-mono text-xs font-semibold text-[#e94d37]">
-                {subject.invite_code}
-              </code>
-            </div>
+        <div className="mt-2 min-h-[40px]">
+          {subject.description ? (
+            <p className="text-sm leading-relaxed text-gray-400 line-clamp-2">
+              {subject.description}
+            </p>
+          ) : (
+            <p className="text-sm italic text-gray-600">No description provided</p>
           )}
         </div>
       </div>
 
-      {/* Hover indicator */}
-      <div className="absolute top-4 right-4 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        <svg
-          className="h-5 w-5 text-[#e94d37]"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
+      <div className="flex-1" />
+
+      {/* Footer Section */}
+      <div className="relative z-10 mt-6 border-t border-white/5 pt-4">
+        <div className="flex items-end justify-between">
+          {/* Members Info */}
+          <div className="flex flex-col gap-1.5">
+            <span className="text-[10px] uppercase tracking-wider font-bold text-gray-500">Members</span>
+            <div className="flex items-center -space-x-2">
+              {subject.members && subject.members.length > 0 ? (
+                <UserAvatarGroup
+                  users={subject.members.map((m) => ({
+                    username: m.username,
+                    avatarUrl: m.avatar_url,
+                    isOnline: false,
+                  }))}
+                  max={3}
+                  size="xs"
+                  className="bg-transparent"
+                />
+              ) : (
+                <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white/50 border border-[#1e1e24]">0</div>
+              )}
+            </div>
+          </div>
+
+          {/* Enter Button visual */}
+          <div className={`flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-white transition-all duration-300  group-hover:bg-white/10 ${isOwner ? 'bg-accent' : 'bg-accent-secondary'} shadow-lg shadow-black/20`}>
+            <span>Enter</span>
+            <svg className="h-5 w-5 group-hover:text-accent-dark transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
   );

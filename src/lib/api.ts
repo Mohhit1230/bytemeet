@@ -144,6 +144,32 @@ export const authApi = {
     const response = await api.post('/auth/refresh');
     return response.data;
   },
+
+  /**
+   * Update user profile
+   */
+  updateProfile: async (data: any) => {
+    // If data contains a file (avatar), use FormData
+    if (data.avatar instanceof File) {
+      const formData = new FormData();
+      Object.keys(data).forEach(key => {
+        if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
+          formData.append(key, data[key]);
+        }
+      });
+
+      const response = await api.put('/auth/profile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data;
+    }
+
+    // Otherwise use JSON
+    const response = await api.put('/auth/profile', data);
+    return response.data;
+  },
 };
 
 // Legacy helper functions kept for compatibility but largely unused with cookies

@@ -49,7 +49,7 @@ export function PendingApproval({ subjectName }: PendingApprovalProps) {
         </div>
 
         <button
-          onClick={() => (window.location.href = '/home')}
+          onClick={() => (window.location.href = '/dashboard')}
           className="rounded-lg bg-gradient-to-r from-[#f06b58] to-[#e94d37] px-6 py-3 font-semibold text-white transition-all hover:from-[#e94d37] hover:to-[#d44330]"
         >
           Go to Dashboard

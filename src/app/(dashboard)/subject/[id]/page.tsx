@@ -40,7 +40,7 @@ export default function SubjectRoomPage() {
 
         if (e.response?.status === 403 || e.response?.status === 404) {
           // Access denied or not found - redirect to join page or home
-          router.push('/home');
+          router.push('/dashboard');
         } else {
           setError(e.response?.data?.message || 'Failed to load subject');
         }
@@ -57,9 +57,9 @@ export default function SubjectRoomPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="flex min-h-screen items-center justify-center bg-[#131314]">
+        <div className="flex min-h-screen items-center justify-center bg-bg-500">
           <div className="space-y-4 text-center">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#e94d37] border-t-transparent" />
+            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent" />
             <p className="text-gray-400">Loading subject...</p>
           </div>
         </div>
@@ -70,7 +70,7 @@ export default function SubjectRoomPage() {
   if (error || !subject) {
     return (
       <ProtectedRoute>
-        <div className="flex min-h-screen items-center justify-center bg-[#131314]">
+        <div className="flex min-h-screen items-center justify-center bg-bg-500">
           <div className="space-y-4 text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
               <svg
@@ -90,8 +90,8 @@ export default function SubjectRoomPage() {
             <h3 className="text-xl font-semibold text-white">Failed to Load Subject</h3>
             <p className="text-gray-400">{error || 'Subject not found'}</p>
             <button
-              onClick={() => router.push('/home')}
-              className="rounded-lg bg-gradient-to-r from-[#f06b58] to-[#e94d37] px-6 py-3 font-semibold text-white transition-all hover:from-[#e94d37] hover:to-[#d44330]"
+              onClick={() => router.push('/dashboard')}
+              className="rounded-lg bg-linear-to-r from-accent to-accent-dark px-6 py-3 font-semibold text-white transition-all hover:from-accent hover:to-accent-dark"
             >
               Go to Dashboard
             </button>

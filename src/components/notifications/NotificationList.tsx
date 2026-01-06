@@ -134,7 +134,7 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
 
                 {/* Icon */}
                 <div
-                  className={`bg-bg-100 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg text-lg ${getNotificationColor(
+                  className={`bg-bg-100 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg ${getNotificationColor(
                     notification.type
                   )}`}
                 >

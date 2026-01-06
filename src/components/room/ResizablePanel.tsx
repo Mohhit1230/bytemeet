@@ -43,13 +43,11 @@ export function ResizablePanel({
   return (
     <div
       ref={panelRef}
-      className={`relative flex flex-col ${className}`}
+      className={`relative flex flex-col bg-linear-to-b from-[#141416]/60 to-[#0e0e10]/80 shadow-2xl backdrop-blur-xl ${className}`}
       style={{
         width: defaultWidth,
         minWidth,
         maxWidth,
-        background: 'linear-gradient(180deg, rgba(20, 20, 22, 0.6) 0%, rgba(14, 14, 16, 0.8) 100%)',
-        backdropFilter: 'blur(10px)',
       }}
     >
       {/* Subtle inner glow */}
@@ -63,12 +61,8 @@ export function ResizablePanel({
       {/* Content */}
       <div className="relative flex flex-1 flex-col">{children}</div>
 
-      {/* Resize handle indicator (visual only for now) */}
       <div
-        className="absolute top-1/2 right-0 h-12 w-1 -translate-y-1/2 cursor-col-resize rounded-full opacity-0 transition-opacity duration-200 hover:opacity-100"
-        style={{
-          background: 'linear-gradient(180deg, transparent, rgba(233, 77, 55, 0.3), transparent)',
-        }}
+        className="absolute top-1/2 right-0 h-12 w-1 -translate-y-1/2 cursor-col-resize rounded-full bg-linear-to-b from-transparent via-accent/30 to-transparent opacity-0 transition-opacity duration-200 hover:opacity-100"
       />
     </div>
   );

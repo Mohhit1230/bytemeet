@@ -182,13 +182,13 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
       {/* Modal */}
       <div
         ref={modalRef}
-        className="bg-bg-600 border-bg-200 relative w-full max-w-md rounded-2xl border shadow-2xl"
+        className="bg-[#292f2e89] border-bg-200 relative w-full max-w-md rounded-2xl border shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="border-bg-200 border-b px-6 py-4">
           <div className="flex items-center justify-between">
-            <h2 className="from-accent-light to-accent bg-linear-to-r bg-clip-text text-2xl font-bold text-transparent">
+            <h2 className="from-accent-light to-accent bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent">
               Create New Subject
             </h2>
             <button
@@ -259,14 +259,14 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="bg-bg-200 flex-1 rounded-lg px-4 py-3 font-semibold text-white transition-all hover:bg-[#3a3a38] focus:ring-2 focus:ring-gray-500/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-bg-200 flex-1 rounded-lg px-4 py-3 font-semibold text-white transition-all hover:bg-bg-300 focus:ring-2 focus:ring-gray-500/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="from-accent-light to-accent hover:from-accent hover:to-accent-dark focus:ring-accent/50 flex-1 transform rounded-lg bg-linear-to-r px-4 py-3 font-semibold text-white transition-all hover:scale-[1.02] focus:ring-2 focus:outline-none active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+              className="from-accent-light to-accent hover:from-accent hover:to-accent-dark focus:ring-accent/50 flex-1 transform rounded-lg bg-gradient-to-r px-4 py-3 font-semibold text-white transition-all hover:scale-[1.02] focus:ring-2 focus:outline-none active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

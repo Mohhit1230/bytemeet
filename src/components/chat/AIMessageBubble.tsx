@@ -63,9 +63,9 @@ export function AIMessageBubble({
           return (
             <div
               key={index}
-              className="my-3 overflow-hidden rounded-lg border border-[#30302e] bg-[#0d0d0e]"
+              className="my-3 overflow-hidden rounded-lg border border-bg-200 bg-[#0d0d0e]"
             >
-              <div className="flex items-center justify-between border-b border-[#30302e] bg-[#1e1f20] px-3 py-2">
+              <div className="flex items-center justify-between border-b border-bg-200 bg-bg-600 px-3 py-2">
                 <span className="font-mono text-xs text-gray-400">{language}</span>
                 <button
                   onClick={() => navigator.clipboard.writeText(code)}
@@ -96,19 +96,19 @@ export function AIMessageBubble({
       {/* Message */}
       <div className="max-w-[85%]">
         <div className="mb-1 flex items-baseline justify-end gap-2">
-          <span className="bg-gradient-to-r from-[#5a9fff] to-[#4a8cef] bg-clip-text text-sm font-semibold text-transparent">
+          <span className="bg-linear-to-r from-accent-secondary to-accent-secondary-dark bg-clip-text text-sm font-semibold text-transparent">
             AI Tutor
           </span>
           {timestamp && <span className="text-xs text-gray-500">{formatTime(timestamp)}</span>}
-          {isStreaming && <span className="animate-pulse text-xs text-[#5a9fff]">typing...</span>}
+          {isStreaming && <span className="animate-pulse text-xs text-accent-secondary">typing...</span>}
         </div>
-        <div className="rounded-2xl rounded-tr-none border border-[#5a9fff]/20 bg-gradient-to-br from-[#5a9fff]/10 to-[#4a8cef]/10 px-4 py-3">
+        <div className="rounded-2xl rounded-tr-none border border-accent-secondary/20 bg-linear-to-br from-accent-secondary/10 to-accent-secondary-dark/10 px-4 py-3">
           <div className="text-sm text-gray-200">{renderContent(content)}</div>
         </div>
       </div>
 
       {/* AI Avatar */}
-      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#5a9fff] to-[#4a8cef]">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-accent-secondary to-accent-secondary-dark">
         <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"

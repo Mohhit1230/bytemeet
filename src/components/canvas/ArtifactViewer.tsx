@@ -202,7 +202,7 @@ export function ArtifactViewer({
                 {artifact.isAiGenerated && (
                   <>
                     <span>•</span>
-                    <span className="text-[#5a9fff]">AI Generated ✨</span>
+                    <span className="text-accent-secondary">AI Generated ✨</span>
                   </>
                 )}
               </div>

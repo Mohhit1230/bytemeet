@@ -51,7 +51,7 @@ export default function JoinPage() {
             repeat: 1,
             onComplete: () => {
               // Navigate to home to see pending tab
-              setTimeout(() => router.push('/home'), 500);
+              setTimeout(() => router.push('/dashboard'), 500);
             },
           });
         }
@@ -110,9 +110,55 @@ export default function JoinPage() {
 
   return (
     <ProtectedRoute>
-      <div className="bg-bg-500 flex min-h-screen items-center justify-center p-4">
+      <div className="bg-accent-secondary/6  flex min-h-screen items-center justify-center p-4">
+      <nav className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-3 md:px-12">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="ByteMeet logotype"
+            role="img"
+            viewBox="170.324 176.465 134.194 39.2"
+            width="154.194"
+            height="39.2"
+          >
+            <defs>
+              <style>{`@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700&display=swap');`}</style>
+            </defs>
+            <text
+              style={{
+                fill: 'rgb(51, 51, 51)',
+                fillRule: 'evenodd',
+                fontFamily: 'Quicksand',
+                fontSize: '30px',
+                textAnchor: 'middle',
+                fontWeight: 700,
+              }}
+              id="object-0"
+
+            >
+              <tspan style={{ fill: 'rgb(255, 255, 255)' }} x="199.324" y="207.665" >
+                Byte
+              </tspan>
+              <tspan style={{ fill: 'rgb(233, 77, 55)' }} x='269' y="207.665" >Meet</tspan>
+            </text>
+          </svg>
+
+        </nav>
+        
         <div ref={containerRef} className="w-full max-w-md">
-          <div className="bg-bg-600 border-bg-200 rounded-2xl border p-8 shadow-2xl">
+          <div className="flex justify-start">
+                  <button
+                    type="button"
+                    onClick={() => router.push('/dashboard')}
+                    className="flex items-center gap-2 bg-bg-600 group px-4 py-2 rounded-lg text-sm  transition-colors hover:text-white hover:bg-bg-500"
+                  >
+                   <svg className="h-4 w-4 group-hover:text-accent-light transition-colors duration-300 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+               <span>Back to Dashboard</span>
+                  </button>
+                </div>
+          <div className="bg-bg-600 border-bg-200 rounded-2xl border p-8 mt-8 shadow-2xl">
+            
             {/* Icon */}
             <div className="mb-6 flex justify-center">
               <div className="from-accent-light to-accent flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br">
@@ -164,7 +210,7 @@ export default function JoinPage() {
                   they approve your request.
                 </p>
                 <button
-                  onClick={() => router.push('/home')}
+                  onClick={() => router.push('/dashboard')}
                   className="from-accent-light to-accent hover:from-accent hover:to-accent-dark transform rounded-lg bg-linear-to-r px-6 py-3 font-semibold text-white transition-all hover:scale-105"
                 >
                   Go to Dashboard
@@ -233,15 +279,7 @@ export default function JoinPage() {
                 </button>
 
                 {/* Back Link */}
-                <div className="text-center">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/home')}
-                    className="text-sm text-gray-400 transition-colors hover:text-white"
-                  >
-                    ← Back to Dashboard
-                  </button>
-                </div>
+                
               </form>
             )}
           </div>

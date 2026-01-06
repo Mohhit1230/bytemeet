@@ -168,13 +168,13 @@ export const AnimatedButton = forwardRef<HTMLButtonElement, AnimatedButtonProps>
         )}
 
         {/* Left icon */}
-        {!isLoading && leftIcon && <span className="flex-shrink-0">{leftIcon}</span>}
+        {!isLoading && leftIcon && <span className="shrink-0">{leftIcon}</span>}
 
         {/* Button text */}
         <span>{isLoading && loadingText ? loadingText : children}</span>
 
         {/* Right icon */}
-        {!isLoading && rightIcon && <span className="flex-shrink-0">{rightIcon}</span>}
+        {!isLoading && rightIcon && <span className="shrink-0">{rightIcon}</span>}
       </button>
     );
   }

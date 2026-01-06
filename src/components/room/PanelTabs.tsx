@@ -110,7 +110,7 @@ export default function PanelTabs({ activeTab, tabs, onTabChange }: PanelTabsPro
   return (
     <div
       ref={containerRef}
-      className="relative border-b border-white/[0.04] bg-[#0c0c0e] px-3 py-2"
+      className="relative border-b border-white/4 bg-[#0c0c0e] px-3 py-2"
     >
       <div className="relative flex gap-1">
         {/* Animated active indicator */}
@@ -142,9 +142,9 @@ export default function PanelTabs({ activeTab, tabs, onTabChange }: PanelTabsPro
               onMouseLeave={() => setHoveredTab(null)}
               className={`relative flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 font-medium tracking-wide transition-all duration-200 ${
                 isActive
-                  ? 'text-[#e94d37]'
+                  ? 'text-accent'
                   : isHovered
-                    ? 'bg-white/[0.02] text-white/90'
+                    ? 'bg-white/2 text-white/90'
                     : 'text-gray-500 hover:text-gray-300'
               } `}
             >

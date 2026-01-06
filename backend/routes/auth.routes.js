@@ -370,6 +370,115 @@ router.get('/check-email/:email', async (req, res) => {
     });
   }
 });
+// =============================================================================
+// PROFILE ROUTES
+// =============================================================================
+
+/**
+ * PUT /api/auth/profile
+ * Update user profile
+ */
+const { upload } = require('../middleware/multer.middleware');
+const { uploadOnCloudinary } = require('../utils/cloudinary');
+const fs = require('fs');
+
+/**
+ * PUT /api/auth/profile
+ * Update user profile
+ */
+router.put('/profile', authenticate, upload.single('avatar'), async (req, res) => {
+  try {
+    const { username, email, bio, currentPassword, newPassword } = req.body;
+    let { avatarUrl } = req.body;
+    const user = req.user;
+
+    // Handle file upload if present - upload directly to Cloudinary
+    if (req.file) {
+      const result = await uploadOnCloudinary(req.file.buffer);
+      if (result) {
+        avatarUrl = result.secure_url;
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to upload avatar to Cloudinary',
+        });
+      }
+    }
+    // Reject base64 avatars - only Cloudinary URLs allowed
+    else if (avatarUrl && avatarUrl.startsWith('data:image')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Base64 images are not supported. Please upload an image file.',
+      });
+    }
+
+    // Build update object - only Cloudinary URLs are saved
+    if (avatarUrl !== undefined && !avatarUrl.startsWith('blob:')) {
+      user.avatarUrl = avatarUrl;
+    }
+    if (bio !== undefined) user.bio = bio;
+
+    // Update username if changed and unique
+    if (username && username !== user.username) {
+      const existingUser = await User.findByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Username is already taken',
+        });
+      }
+      user.username = username;
+    }
+
+    // Update email if changed and unique
+    if (email && email !== user.email) {
+      const existingEmail = await User.findByEmail(email);
+      if (existingEmail) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email is already in use',
+        });
+      }
+      user.email = email;
+    }
+
+    // Update password if provided
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          success: false,
+          message: 'Current password is required to set a new password',
+        });
+      }
+
+      // Verify current password
+      const isMatch = await user.comparePassword(currentPassword);
+      if (!isMatch) {
+        return res.status(401).json({
+          success: false,
+          message: 'Incorrect current password',
+        });
+      }
+
+      user.password = newPassword;
+    }
+
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      data: user.getPublicProfile(),
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update profile',
+      error: error.message,
+    });
+  }
+});
 
 // =============================================================================
 // GOOGLE OAUTH ROUTES
@@ -521,7 +630,7 @@ router.get('/google/callback', async (req, res) => {
     });
 
     // Redirect to frontend with success
-    res.redirect(`${CLIENT_URL}/home?auth=success`);
+    res.redirect(`${CLIENT_URL}/dashboard?auth=success`);
   } catch (error) {
     console.error('Google OAuth callback error:', error);
     res.redirect(`${CLIENT_URL}/login?error=oauth_failed`);

@@ -23,6 +23,8 @@ interface User {
   bio?: string;
   isOnline: boolean;
   lastSeen: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 interface AuthContextType {
@@ -35,6 +37,7 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
   checkUsernameAvailability: (username: string) => Promise<boolean>;
   checkEmailAvailability: (email: string) => Promise<boolean>;
+  updateProfile: (data: Partial<{ username: string; email: string; avatarUrl: string; bio: string; currentPassword?: string; newPassword?: string }>) => Promise<any>;
 }
 
 // =============================================================================
@@ -117,7 +120,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
 
           // Redirect to home
-          router.push('/home');
+          router.push('/dashboard');
         } else {
           setError(response.message || 'Login failed');
         }
@@ -156,7 +159,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           }
 
           // Redirect to home
-          router.push('/home');
+          router.push('/dashboard');
         } else {
           setError(response.message || 'Registration failed');
         }
@@ -239,6 +242,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  /**
+   * Update user profile
+   */
+  const updateProfile = useCallback(async (data: any) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await authApi.updateProfile(data);
+
+      if (response.success) {
+        setUser(response.data);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('user', JSON.stringify(response.data));
+        }
+      }
+      return response;
+    } catch (err: any) {
+      const message = err.response?.data?.message || 'Failed to update profile';
+      setError(message);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // Context value
   const value: AuthContextType = {
     user,
@@ -249,7 +277,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     logout,
     refreshUser,
     checkUsernameAvailability,
+
     checkEmailAvailability,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -46,12 +46,38 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-[#e94d37] selection:text-white">
+    <div className="min-h-screen bg-black text-white selection:bg-accent selection:text-white">
       {/* Navigation */}
-      <nav className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-6 md:px-12">
-        <div className="text-2xl font-bold tracking-tighter">
-          Byte<span className="text-[#e94d37]">Meet</span>
-        </div>
+      <nav className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-4 md:px-12">
+                <svg
+  xmlns="http://www.w3.org/2000/svg"
+  aria-label="ByteMeet logotype"
+  role="img"
+  viewBox="170.324 176.465 134.194 39.2"
+  width="154.194"
+  height="39.2"
+>
+  <defs>
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700&display=swap');`}</style>
+  </defs>
+  <text
+    style={{
+      fill: 'rgb(51, 51, 51)',
+      fillRule: 'evenodd',
+      fontFamily: 'Quicksand',
+      fontSize: '30px',
+      textAnchor: 'middle',
+      fontWeight: 700,
+    }}
+    id="object-0"
+   
+  >
+    <tspan style={{ fill: 'rgb(255, 255, 255)' }} x="199.324" y="207.665" >
+      Byte
+    </tspan>
+    <tspan style={{ fill: 'rgb(233, 77, 55)' }} x='269' y="207.665" >Meet</tspan>
+  </text>
+</svg>
         <div className="flex gap-4">
           <Link
             href="/login"
@@ -68,14 +94,14 @@ export default function LandingPage() {
         className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4"
       >
         {/* Background effects */}
-        <div className="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-[#e94d37]/20 blur-[120px]" />
-        <div className="absolute right-[-10%] bottom-[-20%] h-[600px] w-[600px] rounded-full bg-[#5a9fff]/15 blur-[140px]" />
+        <div className="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-accent/20 blur-[120px]" />
+        <div className="absolute right-[-10%] bottom-[-20%] h-[600px] w-[600px] rounded-full bg-accent-secondary/15 blur-[140px]" />
 
         <h1
           ref={titleRef}
           className="text-center text-6xl font-extrabold tracking-tight md:text-8xl lg:text-9xl"
         >
-          Byte<span className="text-[#e94d37]">Meet</span>.
+          Byte<span className="text-accent">Meet</span>.
         </h1>
         <p ref={textRef} className="mt-6 max-w-2xl text-center text-xl text-gray-400 md:text-2xl">
           The future of collaborative learning. Connect with peers, share knowledge, and grow
@@ -85,7 +111,7 @@ export default function LandingPage() {
         <div ref={buttonsRef} className="mt-10 flex flex-col gap-4 sm:flex-row">
           <Link
             href="/register"
-            className="rounded-full bg-[#e94d37] px-8 py-4 text-lg font-bold text-white transition-transform hover:scale-105 hover:bg-[#d44330] hover:shadow-lg hover:shadow-[#e94d37]/25"
+            className="rounded-full bg-accent px-8 py-4 text-lg font-bold text-white transition-transform hover:scale-105 hover:bg-accent-dark hover:shadow-lg hover:shadow-accent/25"
           >
             Get Started Free
           </Link>

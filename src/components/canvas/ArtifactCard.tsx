@@ -130,7 +130,7 @@ export function ArtifactCard({
         );
       case 'diagram':
         return (
-          <div className="flex h-24 items-center justify-center rounded bg-linear-to-br from-[#5a9fff]/10 to-[#4a8cef]/5">
+          <div className="flex h-24 items-center justify-center rounded bg-linear-to-br from-accent-secondary/10 to-accent-secondary-dark/5">
             <div className="text-center">
               <span className="text-4xl">📊</span>
               <p className="mt-2 text-xs text-gray-400">Mermaid Diagram</p>
@@ -187,7 +187,7 @@ export function ArtifactCard({
 
           {/* AI Badge */}
           {artifact.isAiGenerated && (
-            <span className="rounded-full bg-linear-to-r from-[#5a9fff]/20 to-[#4a8cef]/20 px-2 py-1 text-xs font-medium text-[#5a9fff]">
+            <span className="rounded-full bg-linear-to-r from-accent-secondary/20 to-accent-secondary-dark/20 px-2 py-1 text-xs font-medium text-accent-secondary">
               AI ✨
             </span>
           )}
@@ -231,9 +231,8 @@ export function ArtifactCard({
 
       {/* Action Buttons (visible on hover) */}
       <div
-        className={`absolute top-2 right-2 flex gap-1 transition-opacity duration-200 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`absolute top-2 right-2 flex gap-1 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Download */}
@@ -356,9 +355,8 @@ export function ArtifactCard({
 
       {/* Hover Glow Effect */}
       <div
-        className={`from-accent/5 pointer-events-none absolute inset-0 bg-linear-to-t to-transparent transition-opacity duration-300 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`from-accent/5 pointer-events-none absolute inset-0 bg-linear-to-t to-transparent transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
       />
     </div>
   );

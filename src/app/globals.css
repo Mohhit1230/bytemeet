@@ -57,8 +57,8 @@ nav {
 
 /* Custom scrollbar styling */
 .scrollbar-thin::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 3px;
+  height: 3px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-track {
@@ -66,17 +66,17 @@ nav {
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb {
-  background: #30302e;
+  background: var(--color-accent);
   border-radius: 3px;
 }
 
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: var(--color-accent-secondary);
 }
 
 /* Selection color */
 ::selection {
-  background-color: rgba(0, 213, 255, 0.499);
+  background-color: var(--color-accent-secondary);
   color: white;
 }
 
@@ -107,8 +107,9 @@ nav {
 
 /* Custom scrollbar for chat and lists */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 3px;
+  height: 3px;
+  
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -116,12 +117,12 @@ nav {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #30302e;
+  background: var(--color-accent);
   border-radius: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #404040;
+  background: var(--color-accent-secondary);
 }
 
 /* Loading bar animation */
@@ -130,6 +131,7 @@ nav {
 }
 
 @keyframes loading-bar {
+
   0%,
   100% {
     transform: scaleY(0.5);
@@ -193,6 +195,7 @@ nav {
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -225,8 +228,7 @@ nav {
 }
 
 .safe-area-all {
-  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
-    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
 }
 
 /* Touch-friendly interactive elements */

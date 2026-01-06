@@ -2,6 +2,7 @@
  * Message Bubble Component
  *
  * Individual message with avatar, username, and timestamp
+ * Premium glassmorphic design
  */
 
 'use client';
@@ -37,17 +38,8 @@ export function MessageBubble({ message, delay = 0 }: MessageBubbleProps) {
     if (bubbleRef.current) {
       gsap.fromTo(
         bubbleRef.current,
-        {
-          x: -20,
-          opacity: 0,
-        },
-        {
-          x: 0,
-          opacity: 1,
-          duration: 0.4,
-          delay,
-          ease: 'power2.out',
-        }
+        { y: 10, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.3, delay, ease: 'power2.out' }
       );
     }
   }, [delay]);
@@ -68,33 +60,36 @@ export function MessageBubble({ message, delay = 0 }: MessageBubbleProps) {
   };
 
   return (
-    <div ref={bubbleRef} className="flex gap-3">
+    <div
+      ref={bubbleRef}
+      className={`group flex gap-3 py-2 px-2 -mx-2 rounded-xl transition-colors hover:bg-white/[0.02] ${isOwnMessage ? 'flex-row-reverse' : ''
+        }`}
+    >
       {/* Avatar */}
-      <UserAvatar username={message.username} size="sm" />
+      <div className="shrink-0 pt-0.5">
+        <UserAvatar username={message.username} size="sm" />
+      </div>
 
       {/* Message Content */}
-      <div className="min-w-0 flex-1">
+      <div className={`min-w-0 max-w-[75%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col`}>
         {/* Username & Timestamp */}
-        <div className="mb-1 flex items-baseline gap-2">
-          <span
-            className={`text-sm font-semibold ${isOwnMessage ? 'text-[#e94d37]' : 'text-white'}`}
-          >
-            {message.username}
+        <div className={`mb-1 flex items-center gap-2 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
+          <span className={`text-sm font-medium ${isOwnMessage ? 'text-accent' : 'text-white'}`}>
+            {isOwnMessage ? 'You' : message.username}
           </span>
-          <span className="text-xs text-gray-500">{formatTime(message.created_at)}</span>
+          <span className="text-[11px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+            {formatTime(message.created_at)}
+          </span>
         </div>
 
         {/* Message Bubble */}
-        <div className="inline-block max-w-full">
-          <div
-            className={`rounded-2xl px-4 py-2 break-words ${
-              isOwnMessage
-                ? 'bg-gradient-to-r from-[#f06b58] to-[#e94d37] text-white'
-                : 'bg-[#262624] text-gray-200'
+        <div
+          className={`inline-block rounded-2xl px-4 py-2.5 ${isOwnMessage
+              ? 'bg-gradient-to-br from-accent to-accent-dark text-white rounded-tr-md'
+              : 'bg-white/5 border border-white/10 text-gray-200 rounded-tl-md'
             }`}
-          >
-            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-          </div>
+        >
+          <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
         </div>
       </div>
     </div>

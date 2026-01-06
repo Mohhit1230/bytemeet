@@ -50,17 +50,14 @@ export function RoomHeader({
 
   return (
     <div
-      className="flex h-16 items-center justify-between border-b border-white/[0.04] px-4 md:px-6"
-      style={{
-        background: 'linear-gradient(180deg, rgba(15, 15, 18, 0.95) 0%, rgba(9, 9, 11, 0.98) 100%)',
-      }}
+      className="flex h-16 items-center justify-between border-b border-white/4 bg-linear-to-b from-[#0f0f12]/95 to-[#09090b]/98 px-4 md:px-6"
     >
       {/* Left: Subject Info */}
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {/* Back Button */}
         <button
-          onClick={() => router.push('/home')}
-          className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 transition-all hover:bg-[#e94d37]/10 hover:text-[#e94d37]"
+          onClick={() => router.push('/dashboard')}
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 transition-all hover:bg-accent/10 hover:text-accent"
         >
           <svg
             className="h-5 w-5"
@@ -87,7 +84,7 @@ export function RoomHeader({
         {/* Members */}
         <button
           onClick={() => setShowMemberList(!showMemberList)}
-          className="relative flex items-center gap-2 rounded-xl bg-white/[0.03] px-3 py-2 transition-all hover:bg-white/[0.06]"
+          className="relative flex items-center gap-2 rounded-xl bg-white/3 px-3 py-2 transition-all hover:bg-white/6"
         >
           <UserAvatarGroup
             users={approvedMembers.map((m: any) => ({
@@ -103,8 +100,7 @@ export function RoomHeader({
           </span>
           {isOwner && pendingRequests.length > 0 && (
             <span
-              className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white"
-              style={{ background: '#e94d37' }}
+              className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-white"
             >
               {pendingRequests.length}
             </span>
@@ -114,7 +110,7 @@ export function RoomHeader({
         {/* Invite */}
         <button
           onClick={handleCopyLink}
-          className="flex h-9 items-center gap-2 rounded-xl bg-[#e94d37]/10 px-3 text-[#e94d37] transition-all hover:bg-[#e94d37] hover:text-white"
+          className="flex h-9 items-center gap-2 rounded-xl bg-accent/10 px-3 text-accent transition-all hover:bg-accent hover:text-white"
         >
           <svg
             className="h-5 w-5"
@@ -135,7 +131,7 @@ export function RoomHeader({
         {/* Audio Call */}
         <button
           onClick={onStartAudio}
-          className="flex h-9 items-center gap-2 rounded-xl bg-[#5a9fff]/10 px-3 text-[#5a9fff] transition-all hover:bg-[#5a9fff] hover:text-white"
+          className="flex h-9 items-center gap-2 rounded-xl bg-accent-secondary/10 px-3 text-accent-secondary transition-all hover:bg-accent-secondary hover:text-white"
         >
           <svg
             className="h-5 w-5"
@@ -181,7 +177,7 @@ export function RoomHeader({
         {isOwner && (
           <button
             onClick={onOpenSettings}
-            className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 transition-all hover:bg-white/[0.05] hover:text-white"
+            className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 transition-all hover:bg-white/5 hover:text-white"
           >
             <svg
               className="h-5 w-5"
@@ -237,12 +233,12 @@ export function RoomHeader({
             {approvedMembers.map((member: any) => (
               <div
                 key={member.id}
-                className="flex items-center gap-2 rounded-lg p-2 hover:bg-white/[0.03]"
+                className="flex items-center gap-2 rounded-lg p-2 hover:bg-white/3"
               >
                 <UserAvatar username={member.username} avatarUrl={member.avatar_url} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm text-white">{member.username}</p>
-                  {member.role === 'owner' && <span className="text-xs text-[#e94d37]">Owner</span>}
+                  {member.role === 'owner' && <span className="text-xs text-accent">Owner</span>}
                 </div>
               </div>
             ))}

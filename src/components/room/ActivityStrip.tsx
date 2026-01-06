@@ -38,10 +38,7 @@ export function ActivityStrip({ members }: ActivityStripProps) {
   return (
     <div
       ref={stripRef}
-      className="flex w-16 flex-shrink-0 flex-col items-center border-l border-white/[0.04] py-4"
-      style={{
-        background: 'linear-gradient(180deg, rgba(12, 12, 14, 0.5) 0%, rgba(9, 9, 11, 0.8) 100%)',
-      }}
+      className="flex w-16 shrink-0 flex-col items-center border-l border-white/4 bg-linear-to-b from-[#0c0c0e]/50 to-[#09090b]/80 py-4"
     >
       {/* Members Section */}
       <div className="scrollbar-hide flex flex-1 flex-col items-center gap-3 overflow-y-auto py-2">
@@ -82,7 +79,7 @@ export function ActivityStrip({ members }: ActivityStripProps) {
             >
               <span className="text-xs font-medium text-white">{member.username}</span>
               {member.role === 'owner' && (
-                <span className="ml-1.5 text-[10px] font-semibold text-[#e94d37]">Owner</span>
+                <span className="ml-1.5 text-[10px] font-semibold text-accent">Owner</span>
               )}
             </div>
           </div>
@@ -103,13 +100,13 @@ export function ActivityStrip({ members }: ActivityStripProps) {
       </div>
 
       {/* Divider */}
-      <div className="my-3 h-px w-6 bg-white/[0.06]" />
+      <div className="my-3 h-px w-6 bg-white/6" />
 
       {/* Quick Actions */}
       <div className="flex flex-col items-center gap-2">
         {/* Participants */}
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-white/[0.05] hover:text-white"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-white/5 hover:text-white"
           title="Participants"
         >
           <svg
@@ -129,7 +126,7 @@ export function ActivityStrip({ members }: ActivityStripProps) {
 
         {/* Activity */}
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-white/[0.05] hover:text-white"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 transition-all hover:bg-white/5 hover:text-white"
           title="Activity"
         >
           <svg

@@ -270,6 +270,8 @@ userSchema.methods.getPublicProfile = function () {
     bio: this.bio,
     isOnline: this.isOnline,
     lastSeen: this.lastSeen,
+    createdAt: this.createdAt,
+    updatedAt: this.updatedAt,
   };
 };
 

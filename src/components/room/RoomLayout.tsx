@@ -148,7 +148,13 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
   };
 
   return (
-    <div ref={containerRef} className="flex h-screen overflow-hidden bg-[#09090b]">
+    <div ref={containerRef} className="flex h-screen overflow-hidden bg-[#050505] text-white selection:bg-accent/30">
+      {/* Background Ambience */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-[20%] -left-[10%] h-[50%] w-[50%] rounded-full bg-accent/5 blur-[120px]" />
+        <div className="absolute top-[20%] -right-[10%] h-[40%] w-[40%] rounded-full bg-blue-500/5 blur-[120px]" />
+      </div>
+
       {/* Left Sidebar - Navigation */}
       {!isSmallScreen && (
         <RoomSidebar
@@ -161,7 +167,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
       )}
 
       {/* Main Content Area */}
-      <div className="flex min-w-0 flex-1 flex-col">
+      <div className="flex min-w-0 flex-1 flex-col relative z-10 transition-all duration-300">
         {/* Top Navbar */}
         <RoomNavbar
           subject={subject}
@@ -173,19 +179,25 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
         />
 
         {/* Content Container */}
-        <div className="relative flex flex-1 overflow-hidden">
+        <div className="relative flex flex-1 overflow-hidden p-2 md:p-4 md:pt-0 gap-4">
           {/* Main Content - with swipe gestures on mobile */}
-          <div ref={swipeRef} className="flex-1 overflow-hidden">
-            <div className="h-full overflow-hidden rounded-tl-2xl bg-[#0f0f12]">
+          <div
+            ref={swipeRef}
+            className="flex-1 overflow-hidden rounded-2xl bg-[#0f0f12]/50 border border-white/5 shadow-2xl backdrop-blur-sm relative"
+          >
+            {/* Inner Render Container */}
+            <div className="h-full w-full">
               {renderContent()}
             </div>
           </div>
 
           {/* Activity Strip - Right Edge */}
           {!isSmallScreen && (
-            <ActivityStrip
-              members={subject.members?.filter((m: any) => m.status === 'approved') || []}
-            />
+            <div className="hidden xl:block h-full">
+              <ActivityStrip
+                members={subject.members?.filter((m: any) => m.status === 'approved') || []}
+              />
+            </div>
           )}
         </div>
 

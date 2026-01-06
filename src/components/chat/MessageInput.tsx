@@ -1,7 +1,8 @@
 /**
  * Message Input Component
  *
- * Auto-resize textarea with send button
+ * Premium auto-resize textarea with send button
+ * Glassmorphic design with smooth animations
  */
 
 'use client';
@@ -18,6 +19,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
   const [sending, setSending] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   /**
    * Auto-resize textarea
@@ -25,7 +27,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + 'px';
+      textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 120) + 'px';
     }
   }, [message]);
 
@@ -41,8 +43,8 @@ export function MessageInput({ onSend }: MessageInputProps) {
       // Success animation
       if (buttonRef.current) {
         gsap.to(buttonRef.current, {
-          scale: 1.1,
-          duration: 0.2,
+          scale: 0.9,
+          duration: 0.1,
           yoyo: true,
           repeat: 1,
         });
@@ -54,15 +56,10 @@ export function MessageInput({ onSend }: MessageInputProps) {
       console.error('Send error:', error);
 
       // Error shake animation
-      if (buttonRef.current) {
-        gsap.to(buttonRef.current, {
-          keyframes: [
-            { x: -5, duration: 0.1 },
-            { x: 5, duration: 0.1 },
-            { x: -5, duration: 0.1 },
-            { x: 5, duration: 0.1 },
-            { x: 0, duration: 0.05 },
-          ],
+      if (containerRef.current) {
+        gsap.to(containerRef.current, {
+          x: [-4, 4, -4, 4, 0],
+          duration: 0.4,
         });
       }
     } finally {
@@ -81,20 +78,23 @@ export function MessageInput({ onSend }: MessageInputProps) {
   };
 
   return (
-    <div className="border-bg-200 bg-bg-600 border-t px-4 py-3">
-      <div className="flex items-end gap-2">
-        {/* Textarea */}
+    <div
+      ref={containerRef}
+      className="shrink-0 border-t border-white/5 bg-black/30 backdrop-blur-xl px-4 py-4"
+    >
+      <div className="flex items-end gap-3">
+        {/* Textarea Container */}
         <div className="relative flex-1">
           <textarea
             ref={textareaRef}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            onKeyPress={handleKeyPress}
+            onKeyDown={handleKeyPress}
             placeholder="Type a message..."
             rows={1}
-            className="bg-bg-100 border-bg-200 focus:border-accent focus:ring-accent/20 max-h-32 w-full resize-none overflow-y-auto rounded-xl border px-4 py-3 text-white placeholder-gray-500 transition-all focus:ring-2 focus:outline-none"
+            className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 transition-all focus:border-accent/50 focus:ring-2 focus:ring-accent/20 focus:outline-none backdrop-blur-sm"
             disabled={sending}
-            style={{ minHeight: '48px' }}
+            style={{ minHeight: '48px', maxHeight: '120px' }}
           />
         </div>
 
@@ -103,33 +103,16 @@ export function MessageInput({ onSend }: MessageInputProps) {
           ref={buttonRef}
           onClick={handleSend}
           disabled={!message.trim() || sending}
-          className="from-accent-light to-accent hover:from-accent hover:to-accent-dark focus:ring-accent/50 flex h-12 w-12 shrink-0 transform items-center justify-center rounded-xl bg-linear-to-r text-white transition-all hover:scale-105 focus:ring-2 focus:outline-none active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+          className="group flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent-dark text-white shadow-lg shadow-accent/25 transition-all hover:shadow-accent/40 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100 disabled:shadow-none"
         >
           {sending ? (
             <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-                fill="none"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              />
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
           ) : (
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
-              />
+            <svg className="h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
           )}
         </button>
@@ -137,9 +120,11 @@ export function MessageInput({ onSend }: MessageInputProps) {
 
       {/* Helper Text */}
       <p className="mt-2 text-center text-xs text-gray-500">
-        Press <kbd className="bg-bg-200 rounded px-1.5 py-0.5 text-gray-400">Enter</kbd> to send,{' '}
-        <kbd className="bg-bg-200 rounded px-1.5 py-0.5 text-gray-400">Shift+Enter</kbd> for new
-        line
+        <kbd className="rounded bg-white/5 border border-white/10 px-1.5 py-0.5 text-gray-400 font-mono text-[10px]">Enter</kbd>
+        <span className="mx-1">to send</span>
+        <span className="text-gray-600">•</span>
+        <kbd className="ml-1 rounded bg-white/5 border border-white/10 px-1.5 py-0.5 text-gray-400 font-mono text-[10px]">Shift+Enter</kbd>
+        <span className="mx-1">for new line</span>
       </p>
     </div>
   );

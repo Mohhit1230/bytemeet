@@ -96,7 +96,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
     try {
       await deleteSubject(subject.id);
       handleClose();
-      window.location.href = '/home';
+      window.location.href = '/dashboard';
     } catch (err) {
       console.error('Delete error:', err);
     }
@@ -114,9 +114,9 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
 
       <div
         ref={modalRef}
-        className="relative w-full max-w-md rounded-2xl border border-[#30302e] bg-[#1e1f20] shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl border border-bg-200 bg-bg-600 shadow-2xl"
       >
-        <div className="border-b border-[#30302e] px-6 py-4">
+        <div className="border-b border-bg-200 px-6 py-4">
           <h2 className="text-2xl font-bold text-white">Subject Settings</h2>
         </div>
 
@@ -128,7 +128,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full rounded-lg border border-[#30302e] bg-[#262624] px-4 py-3 text-white"
+              className="w-full rounded-lg border border-bg-200 bg-bg-100 px-4 py-3 text-white"
             />
           </div>
 
@@ -139,7 +139,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
-              className="w-full resize-none rounded-lg border border-[#30302e] bg-[#262624] px-4 py-3 text-white"
+              className="w-full resize-none rounded-lg border border-bg-200 bg-bg-100 px-4 py-3 text-white"
             />
           </div>
 
@@ -147,13 +147,13 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-300">Invite Code</label>
             <div className="flex gap-2">
-              <code className="flex-1 rounded-lg border border-[#30302e] bg-[#262624] px-4 py-3 font-mono text-lg font-bold text-[#e94d37]">
+              <code className="flex-1 rounded-lg border border-bg-200 bg-bg-100 px-4 py-3 font-mono text-lg font-bold text-accent">
                 {subject?.invite_code}
               </code>
               <button
                 onClick={handleRegenerateCode}
                 disabled={loading}
-                className="rounded-lg bg-[#30302e] px-4 py-3 text-white transition-colors hover:bg-[#3a3a38]"
+                className="rounded-lg bg-bg-200 px-4 py-3 text-white transition-colors hover:bg-bg-300"
               >
                 🔄
               </button>
@@ -183,7 +183,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
                   </button>
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
-                    className="flex-1 rounded-lg bg-[#30302e] px-4 py-2 text-white transition-colors hover:bg-[#3a3a38]"
+                    className="flex-1 rounded-lg bg-bg-200 px-4 py-2 text-white transition-colors hover:bg-bg-300"
                   >
                     Cancel
                   </button>
@@ -193,18 +193,18 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
           </div>
         </div>
 
-        <div className="flex gap-3 border-t border-[#30302e] px-6 py-4">
+        <div className="flex gap-3 border-t border-bg-200 px-6 py-4">
           <button
             onClick={handleClose}
             disabled={loading}
-            className="flex-1 rounded-lg bg-[#30302e] px-4 py-3 text-white transition-colors hover:bg-[#3a3a38]"
+            className="flex-1 rounded-lg bg-bg-200 px-4 py-3 text-white transition-colors hover:bg-bg-300"
           >
             Cancel
           </button>
           <button
             onClick={handleUpdate}
             disabled={loading}
-            className="flex-1 rounded-lg bg-gradient-to-r from-[#f06b58] to-[#e94d37] px-4 py-3 text-white transition-all hover:from-[#e94d37] hover:to-[#d44330]"
+            className="from-accent-light to-accent hover:from-accent hover:to-accent-dark flex-1 rounded-lg bg-linear-to-r px-4 py-3 text-white transition-all"
           >
             {loading ? 'Saving...' : 'Save Changes'}
           </button>

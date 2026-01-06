@@ -8,6 +8,7 @@
 
 import { LoginForm } from '@/components/auth/LoginForm';
 
+
 export default function LoginPage() {
   return (
     <div className="bg-bg-500 relative flex min-h-screen items-center justify-center overflow-hidden">
@@ -22,22 +23,47 @@ export default function LoginPage() {
           backgroundSize: '50px 50px',
         }}
       />
-      <nav className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-6 md:px-12">
-        <div className="text-2xl font-bold tracking-tighter">
-          Byte<span className="text-[#e94d37]">Meet</span>
-        </div>
+      <nav className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-3 md:px-12">
+        <svg
+  xmlns="http://www.w3.org/2000/svg"
+  aria-label="ByteMeet logotype"
+  role="img"
+  viewBox="170.324 176.465 134.194 39.2"
+  width="154.194"
+  height="39.2"
+>
+  <defs>
+    <style>{`@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700&display=swap');`}</style>
+  </defs>
+  <text
+    style={{
+      fill: 'rgb(51, 51, 51)',
+      fillRule: 'evenodd',
+      fontFamily: 'Quicksand',
+      fontSize: '30px',
+      textAnchor: 'middle',
+      fontWeight: 700,
+    }}
+    id="object-0"
+   
+  >
+    <tspan style={{ fill: 'rgb(255, 255, 255)' }} x="199.324" y="207.665" >
+      Byte
+    </tspan>
+    <tspan style={{ fill: 'rgb(233, 77, 55)' }} x='269' y="207.665" >Meet</tspan>
+  </text>
+        </svg>
+
       </nav>
       {/* Content */}
       <div className="relative z-10 w-full px-4">
         <LoginForm />
       </div>
 
-      {/* Decorative elements */}
-      {/* <div className="bg-accent/10 absolute top-10 left-10 h-72 w-72 rounded-full blur-3xl" />
-      <div className="bg-blue-500/10 blur-[140px] absolute right-1 bottom-10 h-96 w-96 rounded-full" /> */}
 
-      <div className="absolute top-[-20%] left-[-10%] h-[400px] w-[400px] rounded-full bg-[#e94d37]/15 blur-[120px]" />
-      <div className="absolute right-[-15%] bottom-[-30%] h-[500px] w-[500px] rounded-full bg-[#5a9fff]/15 blur-[120px]" />
+      {/* Decorative elements */}
+      <div className="absolute top-[-20%] left-[-10%] h-[400px] w-[400px] rounded-full bg-accent/15 blur-[120px]" />
+      <div className="absolute right-[-15%] bottom-[-30%] h-[500px] w-[500px] rounded-full bg-accent-secondary-dark/15 blur-[120px]" />
     </div>
   );
 }

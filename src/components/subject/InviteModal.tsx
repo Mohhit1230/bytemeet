@@ -65,10 +65,10 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
 
       <div
         ref={modalRef}
-        className="relative w-full max-w-md rounded-2xl border border-[#30302e] bg-[#1e1f20] p-6 shadow-2xl"
+        className="relative w-full max-w-md rounded-2xl border border-bg-200 bg-bg-600 p-6 shadow-2xl"
       >
         <div className="mb-6 flex items-center justify-between">
-          <h2 className="bg-gradient-to-r from-[#f06b58] to-[#e94d37] bg-clip-text text-2xl font-bold text-transparent">
+          <h2 className="bg-linear-to-r from-accent-light to-accent bg-clip-text text-2xl font-bold text-transparent">
             Invite Friends
           </h2>
           <button
@@ -92,14 +92,14 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
 
         {/* Invite Code */}
         <div className="mb-4">
-          <label className="mb-2 block text-sm font-medium text-gray-300">Invite Code</label>
+          <label className="mb-2 block text-sm font-medium text-accent-secondary">Invite Code</label>
           <div className="flex gap-2">
-            <code className="flex-1 rounded-lg border border-[#30302e] bg-[#262624] px-4 py-3 text-center font-mono text-2xl font-bold tracking-widest text-[#e94d37]">
+            <code className="flex-1 rounded-lg border border-bg-200 bg-bg-100 px-4 py-3 text-center font-mono text-2xl font-bold tracking-widest text-accent">
               {inviteCode}
             </code>
             <button
               onClick={() => copyToClipboard(inviteCode)}
-              className="rounded-lg bg-[#30302e] px-4 py-3 text-white transition-colors hover:bg-[#3a3a38]"
+              className="rounded-lg bg-bg-200 px-4 py-3 text-white transition-colors hover:bg-bg-300"
               title="Copy code"
             >
               {copied ? '✓' : '📋'}
@@ -109,17 +109,17 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
 
         {/* Invite Link */}
         <div className="mb-6">
-          <label className="mb-2 block text-sm font-medium text-[#5a9fff]">Invite Link</label>
+          <label className="mb-2 block text-sm font-medium text-accent-secondary">Invite Link</label>
           <div className="flex gap-2">
             <input
               type="text"
               value={inviteLink}
               readOnly
-              className="flex-1 rounded-lg border border-[#30302e] bg-[#262624] px-4 py-3 text-sm text-gray-400"
+              className="flex-1 rounded-lg border border-bg-200 bg-bg-100 px-4 py-3 text-sm text-gray-400"
             />
             <button
               onClick={() => copyToClipboard(inviteLink)}
-              className="rounded-lg bg-gradient-to-r from-[#f06b58] to-[#e94d37] px-4 py-3 text-white transition-all hover:from-[#e94d37] hover:to-[#d44330]"
+              className="rounded-lg bg-linear-to-r from-accent-light to-accent px-4 py-3 text-white transition-all hover:from-accent hover:to-accent-dark"
               title="Copy link"
             >
               Copy
@@ -133,7 +133,7 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
 
         <button
           onClick={handleClose}
-          className="w-full rounded-lg bg-[#30302e] px-4 py-3 text-white transition-colors hover:bg-[#3a3a38]"
+          className="w-full rounded-lg bg-bg-200 px-4 py-3 text-white transition-colors hover:bg-bg-300"
         >
           Done
         </button>

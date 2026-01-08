@@ -198,15 +198,17 @@ export function MobileNav({ isOpen, onClose, navItems }: MobileNavProps) {
                 <li key={item.id}>
                   <button
                     onClick={() => handleNavClick(item)}
-                    className={`group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${isActive(item)
-                      ? 'bg-accent/10 text-accent'
-                      : 'hover:bg-bg-100 text-gray-300 hover:text-white'
-                      }`}
+                    className={`group flex w-full items-center gap-3 rounded-lg px-4 py-3 text-left transition-colors ${
+                      isActive(item)
+                        ? 'bg-accent/10 text-accent'
+                        : 'hover:bg-bg-100 text-gray-300 hover:text-white'
+                    }`}
                   >
                     {/* Icon */}
                     <span
-                      className={`${isActive(item) ? 'text-accent' : 'text-gray-400 group-hover:text-white'
-                        } transition-colors`}
+                      className={`${
+                        isActive(item) ? 'text-accent' : 'text-gray-400 group-hover:text-white'
+                      } transition-colors`}
                     >
                       {item.icon}
                     </span>

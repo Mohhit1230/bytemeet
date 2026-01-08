@@ -80,7 +80,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
   return (
     <div
       ref={containerRef}
-      className="shrink-0 border-t border-white/5 bg-black/30 backdrop-blur-xl px-4 py-4"
+      className="shrink-0 border-t border-white/5 bg-black/30 px-4 py-4 backdrop-blur-xl"
     >
       <div className="flex items-end gap-3">
         {/* Textarea Container */}
@@ -92,7 +92,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
             onKeyDown={handleKeyPress}
             placeholder="Type a message..."
             rows={1}
-            className="w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 transition-all focus:border-accent/50 focus:ring-2 focus:ring-accent/20 focus:outline-none backdrop-blur-sm"
+            className="focus:border-accent/50 focus:ring-accent/20 w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-gray-500 backdrop-blur-sm transition-all focus:ring-2 focus:outline-none"
             disabled={sending}
             style={{ minHeight: '48px', maxHeight: '120px' }}
           />
@@ -103,16 +103,38 @@ export function MessageInput({ onSend }: MessageInputProps) {
           ref={buttonRef}
           onClick={handleSend}
           disabled={!message.trim() || sending}
-          className="group flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-accent-dark text-white shadow-lg shadow-accent/25 transition-all hover:shadow-accent/40 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100 disabled:shadow-none"
+          className="group from-accent to-accent-dark shadow-accent/25 hover:shadow-accent/40 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:shadow-none disabled:hover:scale-100"
         >
           {sending ? (
             <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+              />
             </svg>
           ) : (
-            <svg className="h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            <svg
+              className="h-5 w-5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
             </svg>
           )}
         </button>
@@ -120,10 +142,14 @@ export function MessageInput({ onSend }: MessageInputProps) {
 
       {/* Helper Text */}
       <p className="mt-2 text-center text-xs text-gray-500">
-        <kbd className="rounded bg-white/5 border border-white/10 px-1.5 py-0.5 text-gray-400 font-mono text-[10px]">Enter</kbd>
+        <kbd className="rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-gray-400">
+          Enter
+        </kbd>
         <span className="mx-1">to send</span>
         <span className="text-gray-600">•</span>
-        <kbd className="ml-1 rounded bg-white/5 border border-white/10 px-1.5 py-0.5 text-gray-400 font-mono text-[10px]">Shift+Enter</kbd>
+        <kbd className="ml-1 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 font-mono text-[10px] text-gray-400">
+          Shift+Enter
+        </kbd>
         <span className="mx-1">for new line</span>
       </p>
     </div>

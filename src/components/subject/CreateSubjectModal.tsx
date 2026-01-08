@@ -182,7 +182,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
       {/* Modal */}
       <div
         ref={modalRef}
-        className="bg-[#292f2e89] border-bg-200 relative w-full max-w-md rounded-2xl border shadow-2xl"
+        className="border-bg-200 relative w-full max-w-md rounded-2xl border bg-[#292f2e89] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -259,7 +259,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="bg-bg-200 flex-1 rounded-lg px-4 py-3 font-semibold text-white transition-all hover:bg-bg-300 focus:ring-2 focus:ring-gray-500/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-bg-200 hover:bg-bg-300 flex-1 rounded-lg px-4 py-3 font-semibold text-white transition-all focus:ring-2 focus:ring-gray-500/50 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>

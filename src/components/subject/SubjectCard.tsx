@@ -47,7 +47,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
       {
         y: 40,
         opacity: 0,
-        scale: 0.95
+        scale: 0.95,
       },
       {
         y: 0,
@@ -92,7 +92,9 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
       );
     }
     return (
-      <span className={`inline-flex items-center rounded-full border ${borderRoleColor} ${bgRoleColor} px-2.5 py-0.5 text-xs font-semibold ${displayRoleColor} backdrop-blur-sm`}>
+      <span
+        className={`inline-flex items-center rounded-full border ${borderRoleColor} ${bgRoleColor} px-2.5 py-0.5 text-xs font-semibold ${displayRoleColor} backdrop-blur-sm`}
+      >
         {subject.role === 'owner' ? 'Owner' : 'Member'}
       </span>
     );
@@ -102,52 +104,57 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
     <div
       ref={cardRef}
       onClick={handleClick}
-      className="group relative flex h-full min-h-[220px] cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-accent-secondary-light/6 p-6 backdrop-blur-3xl transition-all duration-500 hover:-translate-y-2 hover:border-white/5 hover:shadow-2xl hover:shadow-black/50"
+      className="group relative flex h-full min-h-[220px] cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#19191c] pt-6 backdrop-blur-3xl transition-all duration-500 hover:-translate-y-2 hover:border-white/5 hover:shadow-2xl hover:shadow-black/50"
     >
       {/* Dynamic Background Gradient */}
-      <div className={`absolute -top-24 -right-24 h-48 w-48 rounded-full ${isOwner ? 'bg-accent/20' : 'bg-accent-secondary/20'} blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-60`} />
-      <div className="absolute inset-0 bg-linear-to-bl from-white/4 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      {/* <div className={`absolute -top-24 -right-24 h-48 w-48 rounded-full ${isOwner ? 'bg-accent/20' : 'bg-accent-secondary/20'} blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-60`} />
+      <div className="absolute inset-0 bg-linear-to-bl from-white/4 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" /> */}
 
       {/* Header Section */}
-      <div className="relative z-10">
+      <div className="relative z-10 px-6">
         <div className="flex items-start justify-between">
           {renderBadge()}
 
           {/* Action Menu (Hidden by default, shown on hover mainly for desktop) */}
           <button
             onClick={handleCopyLink}
-            className="rounded-full bg-white/15 p-2 text-white/50 opacity-0 transition-all hover:bg-white/10 hover:text-white group-hover:opacity-100"
+            className="rounded-full bg-white/15 p-2 text-white/50 opacity-0 transition-all group-hover:opacity-100 hover:bg-white/10 hover:text-white"
             title="Copy Invite Link"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+              />
             </svg>
           </button>
         </div>
 
-        <h3 className="mt-4 text-2xl font-bold leading-tight text-white transition-colors group-hover:text-accent-light">
+        <h3 className="group-hover:text-accent-light mt-4 text-2xl leading-tight font-bold text-white transition-colors">
           {subject.name}
         </h3>
 
         <div className="mt-2 min-h-[40px]">
           {subject.description ? (
-            <p className="text-sm leading-relaxed text-gray-400 line-clamp-2">
+            <p className="line-clamp-2 text-sm leading-relaxed text-gray-400">
               {subject.description}
             </p>
           ) : (
-            <p className="text-sm italic text-gray-600">No description provided</p>
+            <p className="text-sm text-gray-600 italic">No description provided</p>
           )}
         </div>
       </div>
 
-      <div className="flex-1" />
-
       {/* Footer Section */}
-      <div className="relative z-10 mt-6 border-t border-white/5 pt-4">
+      <div className="relative z-10 mt-6 w-full border-t border-white/5 bg-[#101010] px-6 py-8 pt-4">
         <div className="flex items-end justify-between">
           {/* Members Info */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-gray-500">Members</span>
+            <span className="text-[10px] font-bold tracking-wider text-gray-500 uppercase">
+              Members
+            </span>
             <div className="flex items-center -space-x-2">
               {subject.members && subject.members.length > 0 ? (
                 <UserAvatarGroup
@@ -161,16 +168,30 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
                   className="bg-transparent"
                 />
               ) : (
-                <div className="h-6 w-6 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white/50 border border-[#1e1e24]">0</div>
+                <div className="flex h-6 w-6 items-center justify-center rounded-full border border-[#1e1e24] bg-white/10 text-[10px] text-white/50">
+                  0
+                </div>
               )}
             </div>
           </div>
 
           {/* Enter Button visual */}
-          <div className={`flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-white transition-all duration-300  group-hover:bg-white/10 ${isOwner ? 'bg-accent' : 'bg-accent-secondary'} shadow-lg shadow-black/20`}>
+          <div
+            className={`flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-white transition-all duration-300 group-hover:bg-white/10 ${isOwner ? 'bg-accent-dark' : 'bg-accent-secondary'} shadow-lg shadow-black/20`}
+          >
             <span>Enter</span>
-            <svg className="h-5 w-5 group-hover:text-accent-dark transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            <svg
+              className="group-hover:text-accent-dark h-5 w-5 transition-colors duration-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M14 5l7 7m0 0l-7 7m7-7H3"
+              />
             </svg>
           </div>
         </div>

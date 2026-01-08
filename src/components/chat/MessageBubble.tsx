@@ -62,8 +62,9 @@ export function MessageBubble({ message, delay = 0 }: MessageBubbleProps) {
   return (
     <div
       ref={bubbleRef}
-      className={`group flex gap-3 py-2 px-2 -mx-2 rounded-xl transition-colors hover:bg-white/[0.02] ${isOwnMessage ? 'flex-row-reverse' : ''
-        }`}
+      className={`group -mx-2 flex gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/[0.02] ${
+        isOwnMessage ? 'flex-row-reverse' : ''
+      }`}
     >
       {/* Avatar */}
       <div className="shrink-0 pt-0.5">
@@ -71,25 +72,30 @@ export function MessageBubble({ message, delay = 0 }: MessageBubbleProps) {
       </div>
 
       {/* Message Content */}
-      <div className={`min-w-0 max-w-[75%] ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col`}>
+      <div
+        className={`max-w-[75%] min-w-0 ${isOwnMessage ? 'items-end' : 'items-start'} flex flex-col`}
+      >
         {/* Username & Timestamp */}
         <div className={`mb-1 flex items-center gap-2 ${isOwnMessage ? 'flex-row-reverse' : ''}`}>
           <span className={`text-sm font-medium ${isOwnMessage ? 'text-accent' : 'text-white'}`}>
             {isOwnMessage ? 'You' : message.username}
           </span>
-          <span className="text-[11px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity">
+          <span className="text-[11px] text-gray-500 opacity-0 transition-opacity group-hover:opacity-100">
             {formatTime(message.created_at)}
           </span>
         </div>
 
         {/* Message Bubble */}
         <div
-          className={`inline-block rounded-2xl px-4 py-2.5 ${isOwnMessage
-              ? 'bg-gradient-to-br from-accent to-accent-dark text-white rounded-tr-md'
-              : 'bg-white/5 border border-white/10 text-gray-200 rounded-tl-md'
-            }`}
+          className={`inline-block rounded-2xl px-4 py-2.5 ${
+            isOwnMessage
+              ? 'from-accent to-accent-dark rounded-tr-md bg-gradient-to-br text-white'
+              : 'rounded-tl-md border border-white/10 bg-white/5 text-gray-200'
+          }`}
         >
-          <p className="text-sm whitespace-pre-wrap break-words leading-relaxed">{message.content}</p>
+          <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+            {message.content}
+          </p>
         </div>
       </div>
     </div>

@@ -24,10 +24,10 @@ export function LoginForm() {
   const { login, error } = useAuth();
 
   const [formData, setFormData] = useState({
-    email: '',
+    identifier: '',
     password: '',
   });
-  const [formErrors, setFormErrors] = useState<{ email?: string; password?: string }>({});
+  const [formErrors, setFormErrors] = useState<{ identifier?: string; password?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Refs for GSAP animations
@@ -119,13 +119,13 @@ export function LoginForm() {
    * Validate form
    */
   const validateForm = (): boolean => {
-    const errors: { email?: string; password?: string } = {};
+    const errors: { identifier?: string; password?: string } = {};
 
-    // Email validation
-    if (!formData.email) {
-      errors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Invalid email address';
+    // Email or Username validation
+    if (!formData.identifier) {
+      errors.identifier = 'Email or username is required';
+    } else if (formData.identifier.length < 3) {
+      errors.identifier = 'Must be at least 3 characters';
     }
 
     // Password validation
@@ -150,7 +150,7 @@ export function LoginForm() {
     setIsSubmitting(true);
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.identifier, formData.password);
       // Navigation handled by AuthProvider
     } catch (err: any) {
       console.error('Login error:', err);
@@ -201,22 +201,25 @@ export function LoginForm() {
 
       {/* Inputs */}
       <div ref={inputsRef} className="space-y-4">
-        {/* Email */}
+        {/* Email or Username */}
         <div>
-          <label htmlFor="email" className="mb-2 block text-sm font-medium text-gray-300">
-            Email
+          <label htmlFor="identifier" className="mb-2 block text-sm font-medium text-gray-300">
+            Email or Username
           </label>
           <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
+            type="text"
+            id="identifier"
+            name="identifier"
+            value={formData.identifier}
             onChange={handleChange}
             className="bg-bg-600 border-bg-200 focus:border-accent focus:ring-accent/20 w-full rounded-lg border px-4 py-3 text-white placeholder-gray-500 transition-all focus:ring-2 focus:outline-none"
-            placeholder="you@example.com"
+            placeholder="you@example.com or username"
             disabled={isSubmitting}
+            autoComplete="username"
           />
-          {formErrors.email && <p className="mt-1 text-sm text-red-400">{formErrors.email}</p>}
+          {formErrors.identifier && (
+            <p className="mt-1 text-sm text-red-400">{formErrors.identifier}</p>
+          )}
         </div>
 
         {/* Password */}

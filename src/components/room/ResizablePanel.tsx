@@ -61,9 +61,7 @@ export function ResizablePanel({
       {/* Content */}
       <div className="relative flex flex-1 flex-col">{children}</div>
 
-      <div
-        className="absolute top-1/2 right-0 h-12 w-1 -translate-y-1/2 cursor-col-resize rounded-full bg-linear-to-b from-transparent via-accent/30 to-transparent opacity-0 transition-opacity duration-200 hover:opacity-100"
-      />
+      <div className="via-accent/30 absolute top-1/2 right-0 h-12 w-1 -translate-y-1/2 cursor-col-resize rounded-full bg-linear-to-b from-transparent to-transparent opacity-0 transition-opacity duration-200 hover:opacity-100" />
     </div>
   );
 }

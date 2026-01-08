@@ -81,22 +81,22 @@ export function AIThinkingIndicator() {
       {/* Message */}
       <div className="max-w-[60%]">
         <div className="mb-1 flex items-baseline justify-end gap-2">
-          <span className="bg-linear-to-r from-accent-secondary to-accent-secondary-dark bg-clip-text text-sm font-semibold text-transparent">
+          <span className="from-accent-secondary to-accent-secondary-dark bg-linear-to-r bg-clip-text text-sm font-semibold text-transparent">
             AI Tutor
           </span>
-          <span className="text-xs text-accent-secondary">thinking...</span>
+          <span className="text-accent-secondary text-xs">thinking...</span>
         </div>
-        <div className="rounded-2xl rounded-tr-none border border-accent-secondary/20 bg-linear-to-br from-accent-secondary/10 to-accent-secondary-dark/10 px-6 py-4">
+        <div className="border-accent-secondary/20 from-accent-secondary/10 to-accent-secondary-dark/10 rounded-2xl rounded-tr-none border bg-linear-to-br px-6 py-4">
           <div className="flex items-center gap-2">
-            <div ref={dot1Ref} className="h-2.5 w-2.5 rounded-full bg-accent-secondary" />
-            <div ref={dot2Ref} className="h-2.5 w-2.5 rounded-full bg-accent-secondary/80" />
-            <div ref={dot3Ref} className="h-2.5 w-2.5 rounded-full bg-accent-secondary/60" />
+            <div ref={dot1Ref} className="bg-accent-secondary h-2.5 w-2.5 rounded-full" />
+            <div ref={dot2Ref} className="bg-accent-secondary/80 h-2.5 w-2.5 rounded-full" />
+            <div ref={dot3Ref} className="bg-accent-secondary/60 h-2.5 w-2.5 rounded-full" />
           </div>
         </div>
       </div>
 
       {/* AI Avatar */}
-      <div className="flex h-8 w-8 shrink-0 animate-pulse items-center justify-center rounded-lg bg-linear-to-br from-accent-secondary to-accent-secondary-dark">
+      <div className="from-accent-secondary to-accent-secondary-dark flex h-8 w-8 shrink-0 animate-pulse items-center justify-center rounded-lg bg-linear-to-br">
         <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"

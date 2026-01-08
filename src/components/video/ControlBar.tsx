@@ -137,7 +137,7 @@ export function ControlBar({
             onClick={onToggleScreenShare}
             className={`flex h-12 w-12 transform items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95 ${
               isScreenSharing
-                ? 'bg-accent-secondary text-white hover:bg-accent-secondary-dark'
+                ? 'bg-accent-secondary hover:bg-accent-secondary-dark text-white'
                 : 'bg-bg-100 hover:bg-bg-200 text-white'
             }`}
             title={isScreenSharing ? 'Stop sharing' : 'Share screen'}

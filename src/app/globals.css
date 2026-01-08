@@ -109,7 +109,6 @@ nav {
 .custom-scrollbar::-webkit-scrollbar {
   width: 3px;
   height: 3px;
-  
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -131,7 +130,6 @@ nav {
 }
 
 @keyframes loading-bar {
-
   0%,
   100% {
     transform: scaleY(0.5);
@@ -195,7 +193,6 @@ nav {
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -228,7 +225,8 @@ nav {
 }
 
 .safe-area-all {
-  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
 }
 
 /* Touch-friendly interactive elements */

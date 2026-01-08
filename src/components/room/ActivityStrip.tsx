@@ -38,7 +38,7 @@ export function ActivityStrip({ members }: ActivityStripProps) {
   return (
     <div
       ref={stripRef}
-      className="flex w-16 shrink-0 flex-col items-center border-l border-white/4 bg-linear-to-b from-[#0c0c0e]/50 to-[#09090b]/80 py-4"
+      className="flex w-12 shrink-0 flex-col items-center border-l border-white/4 bg-linear-to-b from-[#0c0c0e]/50 to-[#09090b]/80 py-12"
     >
       {/* Members Section */}
       <div className="scrollbar-hide flex flex-1 flex-col items-center gap-3 overflow-y-auto py-2">
@@ -79,7 +79,7 @@ export function ActivityStrip({ members }: ActivityStripProps) {
             >
               <span className="text-xs font-medium text-white">{member.username}</span>
               {member.role === 'owner' && (
-                <span className="ml-1.5 text-[10px] font-semibold text-accent">Owner</span>
+                <span className="text-accent ml-1.5 text-[10px] font-semibold">Owner</span>
               )}
             </div>
           </div>

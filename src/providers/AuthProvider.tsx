@@ -37,7 +37,16 @@ interface AuthContextType {
   refreshUser: () => Promise<void>;
   checkUsernameAvailability: (username: string) => Promise<boolean>;
   checkEmailAvailability: (email: string) => Promise<boolean>;
-  updateProfile: (data: Partial<{ username: string; email: string; avatarUrl: string; bio: string; currentPassword?: string; newPassword?: string }>) => Promise<any>;
+  updateProfile: (
+    data: Partial<{
+      username: string;
+      email: string;
+      avatarUrl: string;
+      bio: string;
+      currentPassword?: string;
+      newPassword?: string;
+    }>
+  ) => Promise<any>;
 }
 
 // =============================================================================

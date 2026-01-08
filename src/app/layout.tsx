@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   title: 'ByteMeet - Collaborative Learning Platform',
   description: 'Learn together with AI-powered tutoring and real-time collaboration.',
   icons: {
-    icon: '/logo.svg',
+    icon: '/favicon.png',
   },
 };
 

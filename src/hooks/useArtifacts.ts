@@ -158,6 +158,49 @@ export function useArtifacts(subjectId: string) {
   );
 
   /**
+   * Upload file artifact
+   */
+  const uploadArtifact = useCallback(
+    async (file: File, title?: string): Promise<Artifact | null> => {
+      try {
+        setError(null);
+
+        // Determine type from file
+        let type: ArtifactType = 'image';
+        if (file.type.includes('pdf')) type = 'pdf';
+        else if (file.name.match(/\.(js|ts|jsx|tsx|py|java|cpp|c|go|rs|rb|php|html|css|json|md)$/))
+          type = 'code';
+        else if (file.type.includes('image')) type = 'image';
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('subjectId', subjectId);
+        formData.append('type', type);
+        formData.append('title', title || file.name);
+        formData.append('fileName', file.name);
+
+        const response = await api.post('/artifacts/upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        if (response.data.success) {
+          const newArtifact = response.data.data;
+          setArtifacts((prev) => [newArtifact, ...prev]);
+          return newArtifact;
+        }
+        return null;
+      } catch (err: any) {
+        console.error('Upload artifact error:', err);
+        setError(err.response?.data?.message || 'Failed to upload file');
+        return null;
+      }
+    },
+    [subjectId]
+  );
+
+  /**
    * Delete artifact
    */
   const deleteArtifact = useCallback(
@@ -253,6 +296,7 @@ export function useArtifacts(subjectId: string) {
     fetchArtifacts,
     fetchStats,
     createArtifact,
+    uploadArtifact,
     deleteArtifact,
     openViewer,
     closeViewer,

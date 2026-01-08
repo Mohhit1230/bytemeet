@@ -106,22 +106,31 @@ router.post('/register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password } = req.body; // 'email' field can contain email or username
 
     // Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Email and password are required',
+        message: 'Email/Username and password are required',
       });
     }
 
-    // Find user
-    const user = await User.findByEmail(email).select('+password');
+    // Determine if input is email or username
+    const isEmail = email.includes('@');
+
+    // Find user by email or username
+    let user;
+    if (isEmail) {
+      user = await User.findByEmail(email).select('+password');
+    } else {
+      user = await User.findByUsername(email).select('+password');
+    }
+
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password',
+        message: 'Invalid credentials',
       });
     }
 

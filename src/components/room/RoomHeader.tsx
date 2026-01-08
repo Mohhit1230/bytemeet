@@ -49,15 +49,13 @@ export function RoomHeader({
   };
 
   return (
-    <div
-      className="flex h-16 items-center justify-between border-b border-white/4 bg-linear-to-b from-[#0f0f12]/95 to-[#09090b]/98 px-4 md:px-6"
-    >
+    <div className="flex h-16 items-center justify-between border-b border-white/4 bg-linear-to-b from-[#0f0f12]/95 to-[#09090b]/98 px-4 md:px-6">
       {/* Left: Subject Info */}
       <div className="flex min-w-0 flex-1 items-center gap-3">
         {/* Back Button */}
         <button
           onClick={() => router.push('/dashboard')}
-          className="flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 transition-all hover:bg-accent/10 hover:text-accent"
+          className="hover:bg-accent/10 hover:text-accent flex h-9 w-9 items-center justify-center rounded-xl text-gray-400 transition-all"
         >
           <svg
             className="h-5 w-5"
@@ -99,9 +97,7 @@ export function RoomHeader({
             {approvedMembers.length}
           </span>
           {isOwner && pendingRequests.length > 0 && (
-            <span
-              className="absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-accent text-xs font-bold text-white"
-            >
+            <span className="bg-accent absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold text-white">
               {pendingRequests.length}
             </span>
           )}
@@ -110,7 +106,7 @@ export function RoomHeader({
         {/* Invite */}
         <button
           onClick={handleCopyLink}
-          className="flex h-9 items-center gap-2 rounded-xl bg-accent/10 px-3 text-accent transition-all hover:bg-accent hover:text-white"
+          className="bg-accent/10 text-accent hover:bg-accent flex h-9 items-center gap-2 rounded-xl px-3 transition-all hover:text-white"
         >
           <svg
             className="h-5 w-5"
@@ -131,7 +127,7 @@ export function RoomHeader({
         {/* Audio Call */}
         <button
           onClick={onStartAudio}
-          className="flex h-9 items-center gap-2 rounded-xl bg-accent-secondary/10 px-3 text-accent-secondary transition-all hover:bg-accent-secondary hover:text-white"
+          className="bg-accent-secondary/10 text-accent-secondary hover:bg-accent-secondary flex h-9 items-center gap-2 rounded-xl px-3 transition-all hover:text-white"
         >
           <svg
             className="h-5 w-5"
@@ -238,7 +234,7 @@ export function RoomHeader({
                 <UserAvatar username={member.username} avatarUrl={member.avatar_url} size="sm" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm text-white">{member.username}</p>
-                  {member.role === 'owner' && <span className="text-xs text-accent">Owner</span>}
+                  {member.role === 'owner' && <span className="text-accent text-xs">Owner</span>}
                 </div>
               </div>
             ))}

@@ -1,19 +1,14 @@
 /**
  * Canvas Component
  *
- * Main canvas container with artifacts panel
- * Premium glassmorphic design
+ * Matching the "Canvas" design with proper functionality
  */
 
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
-import gsap from 'gsap';
-import { useArtifacts } from '@/hooks/useArtifacts';
-import { ArtifactCarousel } from './ArtifactCarousel';
+import React, { useState } from 'react';
+import { useArtifacts, ArtifactType } from '@/hooks/useArtifacts';
 import { ArtifactViewer } from './ArtifactViewer';
-import { FileUploader } from './FileUploader';
-import { ConfirmationModal } from '@/components/ui/ConfirmationModal';
 
 interface CanvasProps {
   subjectId: string;
@@ -24,58 +19,25 @@ export function Canvas({ subjectId }: CanvasProps) {
     artifacts,
     loading,
     error,
-    selectedArtifact,
-    viewerOpen,
+    fetchArtifacts,
     openViewer,
     closeViewer,
-    deleteArtifact,
+    viewerOpen,
+    selectedArtifact,
+    uploadArtifact,
     trackDownload,
-    isOwner,
-    fetchArtifacts,
   } = useArtifacts(subjectId);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
+  const [activeFilter, setActiveFilter] = useState<ArtifactType | null>(null);
+  const [uploading, setUploading] = useState(false);
 
-  // GSAP entrance animation
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(headerRef.current, {
-        y: -20,
-        opacity: 0,
-        duration: 0.5,
-        ease: 'power3.out',
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  // Handle artifact type filter
-  const [activeFilter, setActiveFilter] = React.useState<string | null>(null);
-  const [showUploader, setShowUploader] = useState(false);
-  const [artifactToDelete, setArtifactToDelete] = useState<string | null>(null);
-
-  const handleDeleteClick = (id: string) => {
-    setArtifactToDelete(id);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (artifactToDelete) {
-      await deleteArtifact(artifactToDelete);
-      setArtifactToDelete(null);
-      if (selectedArtifact && selectedArtifact._id === artifactToDelete) {
-        closeViewer();
-      }
-    }
-  };
-
+  // Filter definitions
   const filters = [
     { id: null, label: 'All', icon: '📁' },
-    { id: 'code', label: 'Code', icon: '💻' },
-    { id: 'image', label: 'Images', icon: '🖼️' },
-    { id: 'pdf', label: 'PDFs', icon: '📄' },
-    { id: 'diagram', label: 'Diagrams', icon: '📊' },
+    { id: 'code' as ArtifactType, label: 'Code', icon: '<>' },
+    { id: 'image' as ArtifactType, label: 'Images', icon: '🖼️' },
+    { id: 'pdf' as ArtifactType, label: 'PDFs', icon: '📄' },
+    { id: 'diagram' as ArtifactType, label: 'Diagrams', icon: '📊' },
   ];
 
   const filteredArtifacts = activeFilter
@@ -86,132 +48,390 @@ export function Canvas({ subjectId }: CanvasProps) {
   const codeCount = artifacts.filter((a) => a.type === 'code').length;
   const imageCount = artifacts.filter((a) => a.type === 'image').length;
 
+  // Group artifacts by type for display
+  const imageArtifacts = filteredArtifacts.filter((a) => a.type === 'image');
+  const pdfArtifacts = filteredArtifacts.filter((a) => a.type === 'pdf');
+  const codeArtifacts = filteredArtifacts.filter((a) => a.type === 'code');
+
+  // Handle file upload
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      await uploadArtifact(file);
+      // Reset file input
+      e.target.value = '';
+    } catch (err) {
+      console.error('Upload failed:', err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Format file size
+  const formatSize = (bytes?: number) => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  // Format date
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Today';
+    if (diffDays === 1) return '1d ago';
+    return `${diffDays}d ago`;
+  };
+
   return (
-    <div ref={containerRef} className="flex h-full flex-col">
-      {/* Header */}
-      <div ref={headerRef} className="shrink-0 border-b border-white/5 bg-black/20 backdrop-blur-sm px-6 py-4">
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg shadow-amber-500/20">
-              <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
-              </svg>
+    <div className="flex h-full flex-col bg-[#0f0f12] text-white">
+      {/* Canvas Header */}
+      <div className="shrink-0 pb-2">
+        <div className="rounded-2xl border border-white/5 bg-[#131316] p-2 px-4 shadow-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500">
+                <svg
+                  className="h-6 w-6 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">Canvas</h2>
+                <p className="text-sm text-gray-400">
+                  {totalArtifacts} artifacts • {codeCount} code • {imageCount} images
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold text-white">Canvas</h2>
-              <p className="text-xs text-gray-400">
-                {totalArtifacts} artifact{totalArtifacts !== 1 ? 's' : ''} • {codeCount} code • {imageCount} image{imageCount !== 1 ? 's' : ''}
-              </p>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => fetchArtifacts()}
+                className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+              </button>
+              <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-orange-500 px-4 py-1.5 font-medium text-white transition-all hover:bg-orange-600">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                  />
+                </svg>
+                {uploading ? 'Uploading...' : 'Upload'}
+                <input
+                  type="file"
+                  className="hidden"
+                  onChange={handleFileUpload}
+                  accept="image/*,.pdf,.js,.ts,.py,.java,.cpp,.c,.go,.rs,.rb,.php"
+                />
+              </label>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Refresh button */}
-            <button
-              onClick={() => fetchArtifacts()}
-              className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/5 border border-white/10 text-gray-400 transition-all hover:bg-white/10 hover:text-white"
-              title="Refresh artifacts"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-            </button>
-
-            {/* Upload button */}
-            <button
-              onClick={() => setShowUploader(true)}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-4 py-2.5 font-medium text-white shadow-lg shadow-amber-500/25 transition-all hover:shadow-amber-500/40 hover:scale-105 active:scale-95"
-              title="Upload files"
-            >
-              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-              <span className="hidden sm:inline">Upload</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Filters */}
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {filters.map((filter) => (
-            <button
-              key={filter.id || 'all'}
-              onClick={() => setActiveFilter(filter.id)}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-all ${activeFilter === filter.id
-                  ? 'bg-white/10 border border-white/20 text-white shadow-lg'
-                  : 'bg-white/5 border border-transparent text-gray-400 hover:bg-white/10 hover:text-white'
+          {/* Filters Bar */}
+          <div className="mt-2 flex flex-wrap gap-2 border-t border-white/5 pt-2">
+            {filters.map((filter) => (
+              <button
+                key={filter.id || 'all'}
+                onClick={() => setActiveFilter(filter.id)}
+                className={`flex items-center gap-2 rounded-lg border p-2 px-4 text-sm font-medium transition-all ${
+                  activeFilter === filter.id
+                    ? 'border-white/20 bg-white/10 text-white'
+                    : 'border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'
                 }`}
-            >
-              <span>{filter.icon}</span>
-              {filter.label}
-              {filter.id && (
-                <span className="text-xs opacity-60">
-                  ({artifacts.filter((a) => a.type === filter.id).length})
+              >
+                <span>{filter.icon}</span>
+                <span>{filter.label}</span>
+                <span className="ml-1 text-xs opacity-50">
+                  {filter.id
+                    ? artifacts.filter((a) => a.type === filter.id).length
+                    : artifacts.length}
                 </span>
-              )}
-            </button>
-          ))}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Content Container */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-6">
-          {loading ? (
-            <div className="flex h-full flex-col items-center justify-center">
-              <div className="relative h-12 w-12">
-                <div className="absolute inset-0 rounded-full border-2 border-amber-500/20" />
-                <div className="absolute inset-0 rounded-full border-2 border-amber-500 border-t-transparent animate-spin" />
-              </div>
-              <p className="mt-4 text-gray-400">Loading artifacts...</p>
-            </div>
-          ) : error ? (
-            <div className="flex h-full flex-col items-center justify-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10 border border-red-500/20 mb-4">
-                <svg className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                </svg>
-              </div>
-              <p className="text-red-400 font-medium">{error}</p>
-              <button
-                onClick={() => fetchArtifacts()}
-                className="mt-4 rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-white transition-all hover:bg-white/10"
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto px-6 pb-6">
+        {loading ? (
+          <div className="flex h-40 items-center justify-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+          </div>
+        ) : error ? (
+          <div className="flex h-40 items-center justify-center">
+            <p className="text-red-400">{error}</p>
+          </div>
+        ) : filteredArtifacts.length === 0 ? (
+          <div className="flex h-40 flex-col items-center justify-center text-center">
+            <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/5">
+              <svg
+                className="h-8 w-8 text-gray-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                Try Again
-              </button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
             </div>
-          ) : filteredArtifacts.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="flex h-24 w-24 items-center justify-center rounded-2xl bg-white/5 border border-white/10 mb-6">
-                <span className="text-5xl">{activeFilter ? '🔍' : '✨'}</span>
+            <p className="text-gray-400">No artifacts yet. Upload files to get started!</p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Images Section */}
+            {imageArtifacts.length > 0 && (activeFilter === 'image' || activeFilter === null) && (
+              <div>
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded bg-emerald-500/20">
+                    <svg
+                      className="h-5 w-5 text-emerald-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Images</h3>
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-400">
+                    {imageArtifacts.length}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                  {imageArtifacts.map((file) => (
+                    <div
+                      key={file._id}
+                      onClick={() => openViewer(file)}
+                      className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-[#131316] transition-all hover:border-white/20"
+                    >
+                      <div className="relative flex aspect-video items-center justify-center bg-black/50">
+                        {file.fileUrl ? (
+                          <img
+                            src={file.fileUrl}
+                            alt={file.title}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <svg
+                            className="h-12 w-12 text-gray-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="p-4">
+                        <h4 className="truncate font-medium text-white">{file.title}</h4>
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="flex items-center gap-1.5 text-xs text-emerald-400">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                            image
+                          </span>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3 text-xs text-gray-500">
+                          <span>{formatDate(file.createdAt)}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1">👁 {file.viewCount}</span>
+                            <span className="flex items-center gap-1">⬇ {file.downloadCount}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <h3 className="mb-2 text-xl font-semibold text-white">
-                {activeFilter ? 'No matching artifacts' : 'No artifacts yet'}
-              </h3>
-              <p className="max-w-sm text-gray-400">
-                {activeFilter
-                  ? `No ${activeFilter} artifacts found. Try a different filter.`
-                  : 'Start a conversation with AI Tutor or upload files to see artifacts here.'}
-              </p>
-              {activeFilter && (
-                <button
-                  onClick={() => setActiveFilter(null)}
-                  className="mt-4 rounded-xl bg-white/5 border border-white/10 px-4 py-2 text-white transition-all hover:bg-white/10"
-                >
-                  Show all artifacts
-                </button>
-              )}
-            </div>
-          ) : (
-            <ArtifactCarousel
-              artifacts={filteredArtifacts}
-              onArtifactClick={openViewer}
-              onDelete={handleDeleteClick}
-              onDownload={trackDownload}
-              isOwner={isOwner}
-            />
-          )}
-        </div>
+            )}
+
+            {/* Documents Section */}
+            {pdfArtifacts.length > 0 && (activeFilter === 'pdf' || activeFilter === null) && (
+              <div>
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded bg-red-500/20">
+                    <svg
+                      className="h-5 w-5 text-red-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Documents</h3>
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-400">
+                    {pdfArtifacts.length}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+                  {pdfArtifacts.map((file) => (
+                    <div
+                      key={file._id}
+                      onClick={() => openViewer(file)}
+                      className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-[#131316] transition-all hover:border-white/20"
+                    >
+                      <div className="flex h-32 items-center justify-center bg-[#1a1a1e]">
+                        <div className="flex h-12 w-10 items-center justify-center rounded-sm bg-white shadow-lg">
+                          <svg
+                            className="h-6 w-6 text-red-500"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between">
+                          <h4 className="flex-1 truncate font-medium text-white">{file.title}</h4>
+                          <button
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-gray-500 hover:text-white"
+                          >
+                            <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                              <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
+                            </svg>
+                          </button>
+                        </div>
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="flex items-center gap-1.5 text-xs text-red-400">
+                            <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                            document
+                          </span>
+                          {file.fileSize && (
+                            <>
+                              <span className="text-xs text-gray-600">•</span>
+                              <span className="text-xs text-gray-500">
+                                {formatSize(file.fileSize)}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                        <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3 text-xs text-gray-500">
+                          <span>{formatDate(file.createdAt)}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1">👁 {file.viewCount}</span>
+                            <span className="flex items-center gap-1">⬇ {file.downloadCount}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Code Section */}
+            {codeArtifacts.length > 0 && (activeFilter === 'code' || activeFilter === null) && (
+              <div>
+                <div className="mb-4 flex items-center gap-2">
+                  <div className="flex h-6 w-6 items-center justify-center rounded bg-blue-500/20">
+                    <svg
+                      className="h-4 w-4 text-blue-500"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                      />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">Code</h3>
+                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-gray-400">
+                    {codeArtifacts.length}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {codeArtifacts.map((file) => (
+                    <div
+                      key={file._id}
+                      onClick={() => openViewer(file)}
+                      className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-[#131316] transition-all hover:border-white/20"
+                    >
+                      <div className="h-24 overflow-hidden bg-[#0d0d0f] p-4 font-mono text-xs text-gray-400">
+                        {file.content?.substring(0, 150) || 'No preview available'}...
+                      </div>
+                      <div className="p-4">
+                        <h4 className="truncate font-medium text-white">{file.title}</h4>
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="flex items-center gap-1.5 text-xs text-blue-400">
+                            <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                            {file.language || 'code'}
+                          </span>
+                        </div>
+                        <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3 text-xs text-gray-500">
+                          <span>{formatDate(file.createdAt)}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1">👁 {file.viewCount}</span>
+                            <span className="flex items-center gap-1">⬇ {file.downloadCount}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Artifact Viewer Modal */}
@@ -219,35 +439,31 @@ export function Canvas({ subjectId }: CanvasProps) {
         <ArtifactViewer
           artifact={selectedArtifact}
           onClose={closeViewer}
-          onDelete={() => handleDeleteClick(selectedArtifact._id)}
-          onDownload={() => trackDownload(selectedArtifact._id)}
-          canDelete={isOwner(selectedArtifact)}
-        />
-      )}
-
-      {/* File Uploader Modal */}
-      {showUploader && (
-        <FileUploader
-          subjectId={subjectId}
-          onClose={() => setShowUploader(false)}
-          onUploadSuccess={() => {
-            fetchArtifacts();
+          onDownload={async () => {
+            trackDownload(selectedArtifact._id);
+            // Force download using fetch blob
+            if (selectedArtifact.fileUrl) {
+              try {
+                const response = await fetch(selectedArtifact.fileUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = selectedArtifact.fileName || selectedArtifact.title || 'download';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+              } catch (err) {
+                // Fallback: open in new tab if fetch fails (CORS)
+                window.open(selectedArtifact.fileUrl, '_blank');
+              }
+            }
           }}
+          onDelete={() => {}}
+          canDelete={false}
         />
       )}
-
-      {/* Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={!!artifactToDelete}
-        onClose={() => setArtifactToDelete(null)}
-        onConfirm={handleConfirmDelete}
-        title="Delete Artifact"
-        message="Are you sure you want to delete this artifact? This action cannot be undone."
-        confirmText="Delete"
-        isDangerous={true}
-      />
     </div>
   );
 }
-
-export default Canvas;

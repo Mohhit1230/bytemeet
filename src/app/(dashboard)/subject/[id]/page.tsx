@@ -57,9 +57,9 @@ export default function SubjectRoomPage() {
   if (loading) {
     return (
       <ProtectedRoute>
-        <div className="flex min-h-screen items-center justify-center bg-bg-500">
+        <div className="bg-bg-500 flex min-h-screen items-center justify-center">
           <div className="space-y-4 text-center">
-            <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-accent border-t-transparent" />
+            <div className="border-accent mx-auto h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
             <p className="text-gray-400">Loading subject...</p>
           </div>
         </div>
@@ -70,7 +70,7 @@ export default function SubjectRoomPage() {
   if (error || !subject) {
     return (
       <ProtectedRoute>
-        <div className="flex min-h-screen items-center justify-center bg-bg-500">
+        <div className="bg-bg-500 flex min-h-screen items-center justify-center">
           <div className="space-y-4 text-center">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
               <svg
@@ -91,7 +91,7 @@ export default function SubjectRoomPage() {
             <p className="text-gray-400">{error || 'Subject not found'}</p>
             <button
               onClick={() => router.push('/dashboard')}
-              className="rounded-lg bg-linear-to-r from-accent to-accent-dark px-6 py-3 font-semibold text-white transition-all hover:from-accent hover:to-accent-dark"
+              className="from-accent to-accent-dark hover:from-accent hover:to-accent-dark rounded-lg bg-linear-to-r px-6 py-3 font-semibold text-white transition-all"
             >
               Go to Dashboard
             </button>

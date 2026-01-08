@@ -60,10 +60,10 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
       <button
         ref={bellRef}
         onClick={handleClick}
-        className={`relative rounded-lg p-2 transition-all ${
+        className={`relative rounded-full border border-white/5 p-2 transition-all ${
           isOpen
             ? 'bg-accent/20 text-accent'
-            : 'bg-bg-100 hover:bg-bg-200 text-gray-400 hover:text-white'
+            : 'hover:bg-bg-200 bg-[#19191c] text-gray-400 hover:text-white'
         }`}
         title="Notifications"
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}

@@ -114,9 +114,9 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
 
       <div
         ref={modalRef}
-        className="relative w-full max-w-md rounded-2xl border border-bg-200 bg-bg-600 shadow-2xl"
+        className="border-bg-200 bg-bg-600 relative w-full max-w-md rounded-2xl border shadow-2xl"
       >
-        <div className="border-b border-bg-200 px-6 py-4">
+        <div className="border-bg-200 border-b px-6 py-4">
           <h2 className="text-2xl font-bold text-white">Subject Settings</h2>
         </div>
 
@@ -128,7 +128,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full rounded-lg border border-bg-200 bg-bg-100 px-4 py-3 text-white"
+              className="border-bg-200 bg-bg-100 w-full rounded-lg border px-4 py-3 text-white"
             />
           </div>
 
@@ -139,7 +139,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={3}
-              className="w-full resize-none rounded-lg border border-bg-200 bg-bg-100 px-4 py-3 text-white"
+              className="border-bg-200 bg-bg-100 w-full resize-none rounded-lg border px-4 py-3 text-white"
             />
           </div>
 
@@ -147,13 +147,13 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-300">Invite Code</label>
             <div className="flex gap-2">
-              <code className="flex-1 rounded-lg border border-bg-200 bg-bg-100 px-4 py-3 font-mono text-lg font-bold text-accent">
+              <code className="border-bg-200 bg-bg-100 text-accent flex-1 rounded-lg border px-4 py-3 font-mono text-lg font-bold">
                 {subject?.invite_code}
               </code>
               <button
                 onClick={handleRegenerateCode}
                 disabled={loading}
-                className="rounded-lg bg-bg-200 px-4 py-3 text-white transition-colors hover:bg-bg-300"
+                className="bg-bg-200 hover:bg-bg-300 rounded-lg px-4 py-3 text-white transition-colors"
               >
                 🔄
               </button>
@@ -183,7 +183,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
                   </button>
                   <button
                     onClick={() => setShowDeleteConfirm(false)}
-                    className="flex-1 rounded-lg bg-bg-200 px-4 py-2 text-white transition-colors hover:bg-bg-300"
+                    className="bg-bg-200 hover:bg-bg-300 flex-1 rounded-lg px-4 py-2 text-white transition-colors"
                   >
                     Cancel
                   </button>
@@ -193,11 +193,11 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
           </div>
         </div>
 
-        <div className="flex gap-3 border-t border-bg-200 px-6 py-4">
+        <div className="border-bg-200 flex gap-3 border-t px-6 py-4">
           <button
             onClick={handleClose}
             disabled={loading}
-            className="flex-1 rounded-lg bg-bg-200 px-4 py-3 text-white transition-colors hover:bg-bg-300"
+            className="bg-bg-200 hover:bg-bg-300 flex-1 rounded-lg px-4 py-3 text-white transition-colors"
           >
             Cancel
           </button>

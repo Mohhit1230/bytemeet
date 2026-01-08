@@ -152,7 +152,7 @@ export const authApi = {
     // If data contains a file (avatar), use FormData
     if (data.avatar instanceof File) {
       const formData = new FormData();
-      Object.keys(data).forEach(key => {
+      Object.keys(data).forEach((key) => {
         if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
           formData.append(key, data[key]);
         }

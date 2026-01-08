@@ -11,4 +11,3 @@ export { ArtifactViewer } from './ArtifactViewer';
 export { CodeArtifact } from './CodeArtifact';
 export { ImageArtifact } from './ImageArtifact';
 export { PDFArtifact } from './PDFArtifact';
-export { FileUploader } from './FileUploader';

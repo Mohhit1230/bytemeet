@@ -93,7 +93,7 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            <MessageList messages={messages} currentUserId={user?.id || ''} />
+            <MessageList messages={messages} loading={loading} />
             <div ref={messagesEndRef} />
           </div>
         )}

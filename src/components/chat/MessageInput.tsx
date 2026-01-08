@@ -58,8 +58,13 @@ export function MessageInput({ onSend }: MessageInputProps) {
       // Error shake animation
       if (containerRef.current) {
         gsap.to(containerRef.current, {
-          x: [-4, 4, -4, 4, 0],
-          duration: 0.4,
+          keyframes: [
+            { x: -4, duration: 0.08 },
+            { x: 4, duration: 0.08 },
+            { x: -4, duration: 0.08 },
+            { x: 4, duration: 0.08 },
+            { x: 0, duration: 0.08 },
+          ],
         });
       }
     } finally {

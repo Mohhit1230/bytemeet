@@ -8,7 +8,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAIChat } from '@/hooks/useAIChat';
-import { useArtifacts } from '@/hooks/useArtifacts';
+import { useUploadArtifactMutation } from '@/hooks/queries';
 import { useAuth } from '@/hooks/useAuth';
 
 interface AIChatProps {
@@ -17,7 +17,7 @@ interface AIChatProps {
 
 export function AIChat({ subjectId }: AIChatProps) {
   const { messages, sending, isStreaming, streamingContent, sendMessage } = useAIChat(subjectId);
-  const { uploadArtifact } = useArtifacts(subjectId);
+  const uploadArtifactMutation = useUploadArtifactMutation(subjectId);
   const { user } = useAuth();
   const [inputValue, setInputValue] = useState('');
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
@@ -42,7 +42,7 @@ export function AIChat({ subjectId }: AIChatProps) {
     if (attachedFile) {
       setUploading(true);
       try {
-        const artifact = await uploadArtifact(attachedFile);
+        const artifact = await uploadArtifactMutation.mutateAsync({ file: attachedFile });
         if (artifact) {
           messageText = `[Attached file: ${attachedFile.name}]\n\n${inputValue}`;
         }

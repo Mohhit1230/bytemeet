@@ -7,7 +7,13 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useArtifacts, ArtifactType } from '@/hooks/useArtifacts';
+import {
+  useArtifactsQuery,
+  useUploadArtifactMutation,
+  useTrackDownloadMutation,
+  type ArtifactType,
+  type Artifact,
+} from '@/hooks/queries';
 import { ArtifactViewer } from './ArtifactViewer';
 
 interface CanvasProps {
@@ -16,20 +22,35 @@ interface CanvasProps {
 
 export function Canvas({ subjectId }: CanvasProps) {
   const {
-    artifacts,
-    loading,
-    error,
-    fetchArtifacts,
-    openViewer,
-    closeViewer,
-    viewerOpen,
-    selectedArtifact,
-    uploadArtifact,
-    trackDownload,
-  } = useArtifacts(subjectId);
+    data: artifacts = [],
+    isLoading: loading,
+    error: queryError,
+    refetch: refetchArtifacts,
+  } = useArtifactsQuery(subjectId);
+  const uploadArtifactMutation = useUploadArtifactMutation(subjectId);
+  const trackDownloadMutation = useTrackDownloadMutation();
 
   const [activeFilter, setActiveFilter] = useState<ArtifactType | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
+
+  // Viewer handlers
+  const openViewer = (artifact: Artifact) => {
+    setSelectedArtifact(artifact);
+    setViewerOpen(true);
+  };
+
+  const closeViewer = () => {
+    setSelectedArtifact(null);
+    setViewerOpen(false);
+  };
+
+  const trackDownload = (artifactId: string) => {
+    trackDownloadMutation.mutate(artifactId);
+  };
+
+  const error = queryError?.message || null;
 
   // Filter definitions
   const filters = [
@@ -60,7 +81,7 @@ export function Canvas({ subjectId }: CanvasProps) {
 
     setUploading(true);
     try {
-      await uploadArtifact(file);
+      await uploadArtifactMutation.mutateAsync({ file });
       // Reset file input
       e.target.value = '';
     } catch (err) {
@@ -120,7 +141,7 @@ export function Canvas({ subjectId }: CanvasProps) {
 
             <div className="flex items-center gap-3">
               <button
-                onClick={() => fetchArtifacts()}
+                onClick={() => refetchArtifacts()}
                 className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
               >
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

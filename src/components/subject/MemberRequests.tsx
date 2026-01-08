@@ -8,7 +8,7 @@
 
 import React from 'react';
 import { UserAvatar } from '@/components/ui/UserAvatar';
-import { useMembership } from '@/hooks/useMembership';
+import { useApproveRequestMutation, useRejectRequestMutation } from '@/hooks/queries';
 
 interface PendingMember {
   id: string;
@@ -25,11 +25,13 @@ interface MemberRequestsProps {
 }
 
 export function MemberRequests({ subjectId, requests, onUpdate }: MemberRequestsProps) {
-  const { approveRequest, rejectRequest, loading } = useMembership();
+  const approveRequestMutation = useApproveRequestMutation();
+  const rejectRequestMutation = useRejectRequestMutation();
+  const loading = approveRequestMutation.isPending || rejectRequestMutation.isPending;
 
   const handleApprove = async (userId: string) => {
     try {
-      await approveRequest(subjectId, userId);
+      await approveRequestMutation.mutateAsync({ subjectId, userId });
       onUpdate?.();
     } catch (err) {
       console.error('Approve error:', err);
@@ -38,7 +40,7 @@ export function MemberRequests({ subjectId, requests, onUpdate }: MemberRequests
 
   const handleReject = async (userId: string) => {
     try {
-      await rejectRequest(subjectId, userId);
+      await rejectRequestMutation.mutateAsync({ subjectId, userId });
       onUpdate?.();
     } catch (err) {
       console.error('Reject error:', err);

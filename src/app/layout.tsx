@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Montserrat, Quicksand } from 'next/font/google';
 import { GSAPProvider } from '@/providers/GSAPProvider';
+import { QueryProvider } from '@/providers/QueryProvider';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import { NotificationProvider } from '@/providers/NotificationProvider';
@@ -21,6 +22,7 @@ const quicksand = Quicksand({
 export const metadata: Metadata = {
   title: 'ByteMeet - Collaborative Learning Platform',
   description: 'Learn together with AI-powered tutoring and real-time collaboration.',
+  manifest: '/site.webmanifest',
   icons: {
     icon: '/favicon.png',
   },
@@ -35,11 +37,13 @@ export default function RootLayout({
     <html lang="en" className={`${montserrat.variable} ${quicksand.variable}`}>
       <body className="antialiased">
         <GSAPProvider>
-          <AuthProvider>
-            <ToastProvider>
-              <NotificationProvider>{children}</NotificationProvider>
-            </ToastProvider>
-          </AuthProvider>
+          <QueryProvider>
+            <AuthProvider>
+              <ToastProvider>
+                <NotificationProvider>{children}</NotificationProvider>
+              </ToastProvider>
+            </AuthProvider>
+          </QueryProvider>
         </GSAPProvider>
       </body>
     </html>

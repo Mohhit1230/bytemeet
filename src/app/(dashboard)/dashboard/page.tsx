@@ -12,7 +12,7 @@ import gsap from 'gsap';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SubjectCard } from '@/components/subject/SubjectCard';
 import { CreateSubjectModal } from '@/components/subject/CreateSubjectModal';
-import { useSubjects } from '@/hooks/useSubjects';
+import { useSubjectsQuery } from '@/hooks/queries';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { NotificationBell } from '@/components/notifications';
@@ -20,7 +20,7 @@ import { SettingsView } from '@/components/dashboard/SettingsView';
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
-  const { subjects, loading, fetchSubjects } = useSubjects();
+  const { data: subjects, isLoading: loading, refetch: refetchSubjects } = useSubjectsQuery();
   const [filterType, setFilterType] = useState<'all' | 'owned' | 'joined'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,13 +31,6 @@ export default function Dashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
-
-  /**
-   * Fetch subjects on mount
-   */
-  useEffect(() => {
-    fetchSubjects();
-  }, [fetchSubjects]);
 
   /**
    * GSAP Entrance Animation
@@ -63,13 +56,14 @@ export default function Dashboard() {
    * Filter and Search Logic
    */
   const getFilteredSubjects = () => {
+    if (!subjects) return [];
     let allSubjects: any[] = [];
     if (filterType === 'all') {
-      allSubjects = [...subjects.owned, ...subjects.joined];
+      allSubjects = [...(subjects.owned || []), ...(subjects.joined || [])];
     } else if (filterType === 'owned') {
-      allSubjects = subjects.owned;
+      allSubjects = subjects.owned || [];
     } else if (filterType === 'joined') {
-      allSubjects = subjects.joined;
+      allSubjects = subjects.joined || [];
     }
 
     if (searchQuery.trim()) {
@@ -81,7 +75,7 @@ export default function Dashboard() {
   };
 
   const filteredSubjects = getFilteredSubjects();
-  const totalCount = subjects.owned.length + subjects.joined.length;
+  const totalCount = (subjects?.owned?.length || 0) + (subjects?.joined?.length || 0);
 
   // Get greeting based on time
   const getGreeting = () => {
@@ -295,7 +289,9 @@ export default function Dashboard() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-white">{subjects.owned.length}</p>
+                      <p className="text-2xl font-bold text-white">
+                        {subjects?.owned?.length || 0}
+                      </p>
                       <p className="text-sm text-gray-500">Rooms you own</p>
                     </div>
                   </div>
@@ -318,7 +314,9 @@ export default function Dashboard() {
                       </svg>
                     </div>
                     <div>
-                      <p className="text-2xl font-bold text-white">{subjects.joined.length}</p>
+                      <p className="text-2xl font-bold text-white">
+                        {subjects?.joined?.length || 0}
+                      </p>
                       <p className="text-sm text-gray-500">Rooms joined</p>
                     </div>
                   </div>
@@ -374,7 +372,7 @@ export default function Dashboard() {
         <CreateSubjectModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          onSuccess={() => fetchSubjects()}
+          onSuccess={() => refetchSubjects()}
         />
       </div>
     </ProtectedRoute>

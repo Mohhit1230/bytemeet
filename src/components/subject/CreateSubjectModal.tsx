@@ -8,7 +8,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
-import { useSubjects } from '@/hooks/useSubjects';
+import { useCreateSubjectMutation } from '@/hooks/queries';
 
 interface CreateSubjectModalProps {
   isOpen: boolean;
@@ -17,7 +17,8 @@ interface CreateSubjectModalProps {
 }
 
 export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubjectModalProps) {
-  const { createSubject, loading } = useSubjects();
+  const createSubjectMutation = useCreateSubjectMutation();
+  const loading = createSubjectMutation.isPending;
 
   const [formData, setFormData] = useState({
     name: '',
@@ -132,7 +133,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
     if (!validateForm()) return;
 
     try {
-      const subject = await createSubject({
+      const subject = await createSubjectMutation.mutateAsync({
         name: formData.name.trim(),
         description: formData.description.trim() || undefined,
       });

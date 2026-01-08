@@ -8,7 +8,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
-import { useSubjects } from '@/hooks/useSubjects';
+import {
+  useUpdateSubjectMutation,
+  useDeleteSubjectMutation,
+  useRegenerateCodeMutation,
+} from '@/hooks/queries';
 import type { Subject } from '@/types/database';
 
 interface SubjectSettingsProps {
@@ -19,7 +23,13 @@ interface SubjectSettingsProps {
 }
 
 export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectSettingsProps) {
-  const { updateSubject, deleteSubject, regenerateCode, loading } = useSubjects();
+  const updateSubjectMutation = useUpdateSubjectMutation();
+  const deleteSubjectMutation = useDeleteSubjectMutation();
+  const regenerateCodeMutation = useRegenerateCodeMutation();
+  const loading =
+    updateSubjectMutation.isPending ||
+    deleteSubjectMutation.isPending ||
+    regenerateCodeMutation.isPending;
 
   const [formData, setFormData] = useState({
     name: subject?.name || '',
@@ -75,7 +85,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
 
   const handleUpdate = async () => {
     try {
-      const updated = await updateSubject(subject.id, formData);
+      const updated = await updateSubjectMutation.mutateAsync({ id: subject.id, data: formData });
       onUpdate?.(updated);
       handleClose();
     } catch (err) {
@@ -85,7 +95,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
 
   const handleRegenerateCode = async () => {
     try {
-      const updated = await regenerateCode(subject.id);
+      const updated = await regenerateCodeMutation.mutateAsync(subject.id);
       onUpdate?.(updated);
     } catch (err) {
       console.error('Regenerate code error:', err);
@@ -94,7 +104,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
 
   const handleDelete = async () => {
     try {
-      await deleteSubject(subject.id);
+      await deleteSubjectMutation.mutateAsync(subject.id);
       handleClose();
       window.location.href = '/dashboard';
     } catch (err) {

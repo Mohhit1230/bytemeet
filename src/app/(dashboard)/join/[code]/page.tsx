@@ -6,76 +6,75 @@
 
 'use client';
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useParams } from 'next/navigation';
 import gsap from 'gsap';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { useMembership } from '@/hooks/useMembership';
+import { useJoinSubjectMutation } from '@/hooks/queries';
 
 export default function JoinPage() {
   const router = useRouter();
   const params = useParams();
-  const { joinSubject, loading } = useMembership();
+  const joinSubjectMutation = useJoinSubjectMutation();
+  const loading = joinSubjectMutation.isPending;
 
   const [inviteCode, setInviteCode] = useState((params.code as string) || '');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Refs for GSAP
+  // Refs for GSAP and auto-join tracking
   const containerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const hasAutoJoinedRef = useRef(false);
 
   /**
    * Handle join request
    */
-  const handleJoin = useCallback(
-    async (code: string) => {
-      if (!code || code.length !== 6) {
-        setError('Please enter a valid 6-character invite code');
-        return;
+  const handleJoin = async (code: string) => {
+    if (!code || code.length !== 6) {
+      setError('Please enter a valid 6-character invite code');
+      return;
+    }
+
+    try {
+      setError(null);
+      await joinSubjectMutation.mutateAsync(code.toUpperCase());
+
+      setSuccess(true);
+
+      // Success animation
+      if (formRef.current) {
+        gsap.to(formRef.current, {
+          scale: 1.05,
+          duration: 0.2,
+          yoyo: true,
+          repeat: 1,
+          onComplete: () => {
+            // Navigate to home to see pending tab
+            setTimeout(() => router.push('/dashboard'), 500);
+          },
+        });
       }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to join subject';
+      setError(errorMessage);
 
-      try {
-        setError(null);
-        await joinSubject(code.toUpperCase());
-
-        setSuccess(true);
-
-        // Success animation
-        if (formRef.current) {
-          gsap.to(formRef.current, {
-            scale: 1.05,
-            duration: 0.2,
-            yoyo: true,
-            repeat: 1,
-            onComplete: () => {
-              // Navigate to home to see pending tab
-              setTimeout(() => router.push('/dashboard'), 500);
-            },
-          });
-        }
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to join subject';
-        setError(errorMessage);
-
-        // Shake animation on error
-        if (formRef.current) {
-          gsap.to(formRef.current, {
-            keyframes: [
-              { x: -10, duration: 0.1 },
-              { x: 10, duration: 0.1 },
-              { x: -10, duration: 0.1 },
-              { x: 10, duration: 0.1 },
-              { x: 0, duration: 0.05 },
-            ],
-            ease: 'power2.inOut',
-          });
-        }
+      // Shake animation on error
+      if (formRef.current) {
+        gsap.to(formRef.current, {
+          keyframes: [
+            { x: -10, duration: 0.1 },
+            { x: 10, duration: 0.1 },
+            { x: -10, duration: 0.1 },
+            { x: 10, duration: 0.1 },
+            { x: 0, duration: 0.05 },
+          ],
+          ease: 'power2.inOut',
+        });
       }
-    },
-    [joinSubject, router]
-  );
+    }
+  };
 
   /**
    * GSAP entrance animation
@@ -91,14 +90,15 @@ export default function JoinPage() {
   }, []);
 
   /**
-   * Auto-join if code provided in URL
+   * Auto-join if code provided in URL (only once)
    */
   useEffect(() => {
-    if (params.code && typeof params.code === 'string') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (params.code && typeof params.code === 'string' && !hasAutoJoinedRef.current) {
+      hasAutoJoinedRef.current = true;
       handleJoin(params.code);
     }
-  }, [params.code, handleJoin]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.code]);
 
   /**
    * Handle form submission
@@ -110,7 +110,7 @@ export default function JoinPage() {
 
   return (
     <ProtectedRoute>
-      <div className="bg-accent-secondary/5 flex min-h-screen items-center justify-center p-4">
+      <div className="flex min-h-screen items-center justify-center bg-[#050505] p-4">
         <nav className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-6 md:px-12">
           <svg
             xmlns="http://www.w3.org/2000/svg"

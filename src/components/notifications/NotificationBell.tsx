@@ -16,7 +16,7 @@ interface NotificationBellProps {
 }
 
 export function NotificationBell({ className = '' }: NotificationBellProps) {
-  const { unreadCount, fetchNotifications } = useNotificationContext();
+  const { unreadCount, refetchNotifications } = useNotificationContext();
   const [isOpen, setIsOpen] = useState(false);
   const bellRef = useRef<HTMLButtonElement>(null);
   const badgeRef = useRef<HTMLSpanElement>(null);
@@ -50,7 +50,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
 
   const handleClick = () => {
     if (!isOpen) {
-      fetchNotifications();
+      refetchNotifications();
     }
     setIsOpen(!isOpen);
   };

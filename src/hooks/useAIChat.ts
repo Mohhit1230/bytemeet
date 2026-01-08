@@ -54,9 +54,10 @@ export function useAIChat(subjectId: string) {
       if (fetchError) throw fetchError;
 
       setMessages(data || []);
-    } catch (err: any) {
-      console.error('Fetch AI messages error:', err);
-      setError(err.message);
+    } catch (err: unknown) {
+      const e = err instanceof Error ? err : new Error('Unknown error');
+      console.error('Fetch AI messages error:', e);
+      setError(e.message);
     } finally {
       setLoading(false);
     }
@@ -144,9 +145,10 @@ export function useAIChat(subjectId: string) {
         if (extractedArtifacts.length > 0) {
           setArtifacts((prev) => [...prev, ...extractedArtifacts]);
         }
-      } catch (err: any) {
-        console.error('Send AI message error:', err);
-        setError(err.message);
+      } catch (err: unknown) {
+        const e = err instanceof Error ? err : new Error('Unknown error');
+        console.error('Send AI message error:', e);
+        setError(e.message);
         setIsStreaming(false);
         setStreamingContent('');
       } finally {

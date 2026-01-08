@@ -5,7 +5,7 @@
  * Uses HTTP-only cookies for authentication.
  */
 
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
 // Get API URL from environment or default to localhost
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -21,9 +21,13 @@ export const api: AxiosInstance = axios.create({
 
 // Flag to prevent infinite refresh loops
 let isRefreshing = false;
-let failedQueue: any[] = [];
+interface QueueItem {
+  resolve: (value: string | null | PromiseLike<string | null>) => void;
+  reject: (reason?: unknown) => void;
+}
+let failedQueue: QueueItem[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -40,7 +44,7 @@ api.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as any;
+    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
     // Handle 401 Unauthorized
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -148,13 +152,18 @@ export const authApi = {
   /**
    * Update user profile
    */
-  updateProfile: async (data: any) => {
+  updateProfile: async (data: Record<string, unknown>) => {
     // If data contains a file (avatar), use FormData
     if (data.avatar instanceof File) {
       const formData = new FormData();
       Object.keys(data).forEach((key) => {
-        if (data[key] !== undefined && data[key] !== null && data[key] !== '') {
-          formData.append(key, data[key]);
+        const value = data[key];
+        if (value !== undefined && value !== null && value !== '') {
+          if (value instanceof Blob || typeof value === 'string') {
+            formData.append(key, value);
+          } else {
+            formData.append(key, String(value));
+          }
         }
       });
 
@@ -173,7 +182,7 @@ export const authApi = {
 };
 
 // Legacy helper functions kept for compatibility but largely unused with cookies
-export const setAuthToken = (token: string) => {
+export const setAuthToken = (_token: string) => {
   // Cookies handle this automatically now
 };
 

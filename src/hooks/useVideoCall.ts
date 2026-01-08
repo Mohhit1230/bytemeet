@@ -1,15 +1,7 @@
-/**
- * useVideoCall Hook
- *
- * Higher-level hook for managing video call state and actions
- * Wrapper around useLiveKit with additional functionality
- */
-
 'use client';
-/* eslint-disable react-hooks/set-state-in-effect */
 
 import { useState, useCallback, useEffect } from 'react';
-import { useLiveKit } from './useLiveKit';
+import { useLiveKit, Participant } from './useLiveKit';
 
 interface UseVideoCallOptions {
   subjectId: string;
@@ -19,8 +11,8 @@ interface UseVideoCallOptions {
 
 interface VideoCallState {
   isInCall: boolean;
-  participants: any[];
-  localParticipant: any | null;
+  participants: Participant[];
+  localParticipant: Participant | null;
   isMuted: boolean;
   isCameraOff: boolean;
   isScreenSharing: boolean;
@@ -53,6 +45,7 @@ export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideo
     if (autoJoin && !livekit.isConnected && !livekit.isConnecting) {
       livekit.connect();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoJoin, livekit.isConnected, livekit.isConnecting, livekit.connect]);
 
   /**

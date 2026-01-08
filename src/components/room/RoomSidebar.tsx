@@ -1,23 +1,17 @@
-/**
- * Room Sidebar Component
- *
- * Vertical icon-based navigation sidebar with smooth animations,
- * glassmorphism design, and premium interactions.
- */
-
 'use client';
 
 import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { useRouter } from 'next/navigation';
 import type { ActiveSection } from './RoomLayout';
+import type { Subject } from '@/types/database';
 
 interface RoomSidebarProps {
   activeSection: ActiveSection;
   onSectionChange: (section: ActiveSection) => void;
   collapsed: boolean;
   onToggleCollapse: () => void;
-  subject: any;
+  subject: Subject;
 }
 
 interface NavItem {
@@ -153,9 +147,8 @@ export function RoomSidebar({
   return (
     <div
       ref={sidebarRef}
-      className={`flex h-full flex-col border-r border-white/5 bg-[#101010] backdrop-blur-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-        collapsed ? 'w-[80px]' : 'w-[240px]'
-      } z-20`}
+      className={`flex h-full flex-col border-r border-white/5 bg-[#101010] backdrop-blur-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${collapsed ? 'w-[80px]' : 'w-[240px]'
+        } z-20`}
     >
       {/* Header / Logo Area */}
       <div
@@ -202,9 +195,9 @@ export function RoomSidebar({
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             className="lucide lucide-panel-right-icon lucide-panel-right"
           >
             <rect width="18" height="18" x="3" y="3" rx="2" />
@@ -232,9 +225,8 @@ export function RoomSidebar({
               <button
                 key={item.id}
                 onClick={() => onSectionChange(item.id)}
-                className={`group flex h-12 w-full items-center gap-4 rounded-xl px-4 transition-all duration-200 ${
-                  isActive ? 'text-white' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
-                }`}
+                className={`group flex h-12 w-full items-center gap-4 rounded-xl px-4 transition-all duration-200 ${isActive ? 'text-white' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
+                  }`}
                 title={collapsed ? item.label : undefined}
               >
                 <span

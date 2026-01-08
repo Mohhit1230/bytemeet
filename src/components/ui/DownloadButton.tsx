@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import gsap from 'gsap';
 
 interface DownloadButtonProps {

@@ -7,6 +7,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import {
   useArtifactsQuery,
   useUploadArtifactMutation,
@@ -179,11 +180,10 @@ export function Canvas({ subjectId }: CanvasProps) {
               <button
                 key={filter.id || 'all'}
                 onClick={() => setActiveFilter(filter.id)}
-                className={`flex items-center gap-2 rounded-lg border p-2 px-4 text-sm font-medium transition-all ${
-                  activeFilter === filter.id
-                    ? 'border-white/20 bg-white/10 text-white'
-                    : 'border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'
-                }`}
+                className={`flex items-center gap-2 rounded-lg border p-2 px-4 text-sm font-medium transition-all ${activeFilter === filter.id
+                  ? 'border-white/20 bg-white/10 text-white'
+                  : 'border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'
+                  }`}
               >
                 <span>{filter.icon}</span>
                 <span>{filter.label}</span>
@@ -263,10 +263,12 @@ export function Canvas({ subjectId }: CanvasProps) {
                     >
                       <div className="relative flex aspect-video items-center justify-center bg-black/50">
                         {file.fileUrl ? (
-                          <img
+                          <Image
                             src={file.fileUrl}
                             alt={file.title}
-                            className="h-full w-full object-cover"
+                            fill
+                            sizes="20"
+                            className="object-cover"
                           />
                         ) : (
                           <svg
@@ -338,22 +340,37 @@ export function Canvas({ subjectId }: CanvasProps) {
                       onClick={() => openViewer(file)}
                       className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-[#131316] transition-all hover:border-white/20"
                     >
-                      <div className="flex h-32 items-center justify-center bg-[#1a1a1e]">
-                        <div className="flex h-12 w-10 items-center justify-center rounded-sm bg-white shadow-lg">
-                          <svg
-                            className="h-6 w-6 text-red-500"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                      <div className="relative h-32 overflow-hidden bg-[#1a1a1e]">
+                        {file.fileUrl ? (
+                          <>
+                            <iframe
+                              src={file.fileUrl}
+                              className="h-32 w-full border-0 object-cover pointer-events-none scale-[1.2] origin-center"
+                              title={file.title}
+                              
+                              
                             />
-                          </svg>
-                        </div>
+                            <div className="absolute inset-0 bg-linear-to-t from-[#1a1a1e]/60 via-transparent to-transparent" />
+                          </>
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <div className="flex h-12 w-10 items-center justify-center rounded-sm bg-white shadow-lg">
+                              <svg
+                                className="h-6 w-6 text-red-500"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                                />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
                       </div>
                       <div className="p-4">
                         <div className="flex items-start justify-between">
@@ -456,35 +473,16 @@ export function Canvas({ subjectId }: CanvasProps) {
       </div>
 
       {/* Artifact Viewer Modal */}
-      {viewerOpen && selectedArtifact && (
-        <ArtifactViewer
-          artifact={selectedArtifact}
-          onClose={closeViewer}
-          onDownload={async () => {
-            trackDownload(selectedArtifact._id);
-            // Force download using fetch blob
-            if (selectedArtifact.fileUrl) {
-              try {
-                const response = await fetch(selectedArtifact.fileUrl);
-                const blob = await response.blob();
-                const url = window.URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = selectedArtifact.fileName || selectedArtifact.title || 'download';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-              } catch (err) {
-                // Fallback: open in new tab if fetch fails (CORS)
-                window.open(selectedArtifact.fileUrl, '_blank');
-              }
-            }
-          }}
-          onDelete={() => {}}
-          canDelete={false}
-        />
-      )}
-    </div>
+      {
+        viewerOpen && selectedArtifact && (
+          <ArtifactViewer
+            artifact={selectedArtifact}
+            onClose={closeViewer}
+            onDelete={() => { }}
+            canDelete={false}
+          />
+        )
+      }
+    </div >
   );
 }

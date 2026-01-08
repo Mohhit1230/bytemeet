@@ -9,11 +9,12 @@
 import React, { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { useCreateSubjectMutation } from '@/hooks/queries';
+import type { Subject } from '@/types/database';
 
 interface CreateSubjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (subject: any) => void;
+  onSuccess?: (subject: Subject) => void;
 }
 
 export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubjectModalProps) {
@@ -152,7 +153,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
           },
         });
       }
-    } catch (err) {
+    } catch {
       // Shake animation on error
       if (modalRef.current) {
         gsap.to(modalRef.current, {
@@ -189,7 +190,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
         {/* Header */}
         <div className="border-bg-200 border-b px-6 py-4">
           <div className="flex items-center justify-between">
-            <h2 className="from-accent-light to-accent bg-gradient-to-r bg-clip-text text-2xl font-bold text-transparent">
+            <h2 className="from-accent-light to-accent bg-linear-to-r bg-clip-text text-2xl font-bold text-transparent">
               Create New Subject
             </h2>
             <button
@@ -249,7 +250,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
           {/* Info */}
           <div className="bg-accent/5 border-accent/20 rounded-lg border p-3">
             <p className="text-sm text-gray-300">
-              <span className="text-accent font-semibold">Note:</span> You'll receive a unique
+              <span className="text-accent font-semibold">Note:</span> You&apos;ll receive a unique
               invite code that you can share with your friends to join this subject.
             </p>
           </div>
@@ -267,7 +268,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
             <button
               type="submit"
               disabled={loading}
-              className="from-accent-light to-accent hover:from-accent hover:to-accent-dark focus:ring-accent/50 flex-1 transform rounded-lg bg-gradient-to-r px-4 py-3 font-semibold text-white transition-all hover:scale-[1.02] focus:ring-2 focus:outline-none active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
+              className="from-accent-light to-accent hover:from-accent hover:to-accent-dark focus:ring-accent/50 flex-1 transform rounded-lg bg-linear-to-r px-4 py-3 font-semibold text-white transition-all hover:scale-[1.02] focus:ring-2 focus:outline-none active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">

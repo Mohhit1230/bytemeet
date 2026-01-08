@@ -7,12 +7,13 @@
 
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+import type { SubjectMember } from '@/types/database';
 
 interface ActivityStripProps {
-  members: any[];
+  members: SubjectMember[];
 }
 
 export function ActivityStrip({ members }: ActivityStripProps) {

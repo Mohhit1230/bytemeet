@@ -108,7 +108,7 @@ export function MessageInput({ onSend }: MessageInputProps) {
           ref={buttonRef}
           onClick={handleSend}
           disabled={!message.trim() || sending}
-          className="group from-accent to-accent-dark shadow-accent/25 hover:shadow-accent/40 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:shadow-none disabled:hover:scale-100"
+          className="group from-accent to-accent-dark shadow-accent/25 hover:shadow-accent/40 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-linear-to-br text-white shadow-lg transition-all hover:scale-105 active:scale-95 disabled:opacity-40 disabled:shadow-none disabled:hover:scale-100"
         >
           {sending ? (
             <svg className="h-5 w-5 animate-spin" viewBox="0 0 24 24">

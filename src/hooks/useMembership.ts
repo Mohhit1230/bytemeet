@@ -24,8 +24,9 @@ export function useMembership() {
       if (response.data.success) {
         return response.data.data;
       }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to join subject';
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      const message = e.response?.data?.message || 'Failed to join subject';
       setError(message);
       throw new Error(message);
     } finally {
@@ -47,10 +48,11 @@ export function useMembership() {
         return response.data.data;
       }
       return [];
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to fetch pending requests';
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      const message = e.response?.data?.message || 'Failed to fetch pending requests';
       setError(message);
-      console.error('Get pending requests error:', err);
+      console.error('Get pending requests error:', e);
       return [];
     } finally {
       setLoading(false);
@@ -70,8 +72,9 @@ export function useMembership() {
       if (response.data.success) {
         return response.data.data;
       }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to approve request';
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      const message = e.response?.data?.message || 'Failed to approve request';
       setError(message);
       throw new Error(message);
     } finally {
@@ -92,8 +95,9 @@ export function useMembership() {
       if (response.data.success) {
         return response.data.data;
       }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to reject request';
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      const message = e.response?.data?.message || 'Failed to reject request';
       setError(message);
       throw new Error(message);
     } finally {
@@ -114,8 +118,9 @@ export function useMembership() {
       if (response.data.success) {
         return true;
       }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to remove member';
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      const message = e.response?.data?.message || 'Failed to remove member';
       setError(message);
       throw new Error(message);
     } finally {

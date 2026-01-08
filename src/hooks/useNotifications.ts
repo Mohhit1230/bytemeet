@@ -85,9 +85,10 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
           setNotifications(response.data.data.notifications);
           setUnreadCount(response.data.data.unreadCount);
         }
-      } catch (err: any) {
-        console.error('Fetch notifications error:', err);
-        setError(err.response?.data?.message || 'Failed to fetch notifications');
+      } catch (err: unknown) {
+        const e = err as { response?: { data?: { message?: string } } };
+        console.error('Fetch notifications error:', e);
+        setError(e.response?.data?.message || 'Failed to fetch notifications');
       } finally {
         setLoading(false);
       }

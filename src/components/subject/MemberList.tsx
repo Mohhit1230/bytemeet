@@ -6,7 +6,6 @@
 
 'use client';
 
-import React from 'react';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -39,13 +38,13 @@ export function MemberList({ members, isOwner, onRemoveMember }: MemberListProps
         {approvedMembers.map((member) => (
           <div
             key={member.id}
-            className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-[#262624]"
+            className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-bg-100"
           >
             <div className="flex items-center gap-3">
               <UserAvatar username={member.username} avatarUrl={member.avatar_url} size="sm" />
               <div>
                 <p className="text-sm font-medium text-white">{member.username}</p>
-                {member.role === 'owner' && <span className="text-xs text-[#e94d37]">Owner</span>}
+                {member.role === 'owner' && <span className="text-xs text-accent">Owner</span>}
                 {member.role === 'admin' && <span className="text-xs text-blue-400">Admin</span>}
               </div>
             </div>

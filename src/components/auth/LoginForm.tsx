@@ -152,7 +152,7 @@ export function LoginForm() {
     try {
       await login(formData.identifier, formData.password);
       // Navigation handled by AuthProvider
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
 
       // Shake animation on error

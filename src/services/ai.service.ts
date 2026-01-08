@@ -123,7 +123,7 @@ export async function sendToAI(
       return { content, artifacts };
     }
   } catch (error: unknown) {
-    const e = error as any;
+    const e = error instanceof Error ? error : new Error('Unknown error');
     console.error('AI service error:', e);
     throw new Error(e.message || 'Failed to get AI response');
   }

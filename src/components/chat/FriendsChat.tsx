@@ -20,7 +20,7 @@ interface FriendsChatProps {
 
 export function FriendsChat({ subjectId }: FriendsChatProps) {
   const { messages, loading, sendMessage, subscribeToMessages } = useChat(subjectId);
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

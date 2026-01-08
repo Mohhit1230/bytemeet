@@ -7,7 +7,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import gsap from 'gsap';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SubjectCard } from '@/components/subject/SubjectCard';
@@ -17,9 +16,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { NotificationBell } from '@/components/notifications';
 import { SettingsView } from '@/components/dashboard/SettingsView';
+import type { Subject } from '@/types/database';
 
 export default function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user, logout: _logout } = useAuth();
   const { data: subjects, isLoading: loading, refetch: refetchSubjects } = useSubjectsQuery();
   const [filterType, setFilterType] = useState<'all' | 'owned' | 'joined'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,7 +57,7 @@ export default function Dashboard() {
    */
   const getFilteredSubjects = () => {
     if (!subjects) return [];
-    let allSubjects: any[] = [];
+    let allSubjects: Subject[] = [];
     if (filterType === 'all') {
       allSubjects = [...(subjects.owned || []), ...(subjects.joined || [])];
     } else if (filterType === 'owned') {
@@ -118,11 +118,10 @@ export default function Dashboard() {
           <nav className="flex-1 space-y-1 border-t border-white/5 px-3 py-4">
             <button
               onClick={() => setActiveNav('dashboard')}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors ${
-                activeNav === 'dashboard'
-                  ? 'bg-accent/10 text-accent'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
-              }`}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors ${activeNav === 'dashboard'
+                ? 'bg-accent/10 text-accent'
+                : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                }`}
             >
               <svg
                 stroke="currentColor"
@@ -140,11 +139,10 @@ export default function Dashboard() {
 
             <button
               onClick={() => setActiveNav('settings')}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors ${
-                activeNav === 'settings'
-                  ? 'bg-accent/10 text-accent'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
-              }`}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors ${activeNav === 'settings'
+                ? 'bg-accent/10 text-accent'
+                : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                }`}
             >
               <svg
                 className="h-5 w-5"
@@ -215,17 +213,17 @@ export default function Dashboard() {
               <NotificationBell />
               <div className="h-9 w-[.1px] bg-white/13"></div>
               {/* User Menu */}
-              <div className="relative">
+              <div className="relative hover:scale-105 transition-transform">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
-                  className="flex items-center gap-2 rounded-full bg-white/10 p-1 pr-3 transition-colors"
+                  className="flex items-center gap-2 rounded-full bg-white/12 p-1 pr-3 transition-colors"
                 >
                   <UserAvatar
                     username={user?.username || 'U'}
                     avatarUrl={user?.avatarUrl}
                     size="sm"
                   />
-                  <span className="text-accent-dark hidden text-sm sm:block">{user?.username}</span>
+                  <span className="hidden truncate text-sm sm:block">{user?.username}</span>
                 </button>
               </div>
             </div>
@@ -252,7 +250,7 @@ export default function Dashboard() {
                   {/* Create Subject Card */}
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="border-r-accent/50 group flex items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-[#1a1a1c] px-5 transition-all hover:bg-[#1f1f21]"
+                    className="h-18 py-0 border-r-accent/50 group flex items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-[#1a1a1c] px-3 transition-all hover:bg-[#1f1f21] hover:-translate-y-1"
                   >
                     <div className="bg-accent/20 text-accent group-hover:bg-accent flex h-12 w-12 items-center justify-center rounded-xl transition-all group-hover:text-white">
                       <svg
@@ -272,7 +270,7 @@ export default function Dashboard() {
                   </button>
 
                   {/* Rooms Owned */}
-                  <div className="flex items-center gap-4 rounded-2xl border border-r-4 border-white/5 border-r-emerald-500/50 bg-[#1a1a1c] p-5">
+                  <div className="h-18 py-0 flex items-center gap-4 rounded-2xl border border-r-4 border-white/5 border-r-emerald-500/50 bg-[#1a1a1c] p-5">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/20">
                       <svg
                         className="h-6 w-6 text-emerald-400"
@@ -297,7 +295,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Rooms Joined */}
-                  <div className="border-r-accent-secondary/50 flex items-center gap-4 rounded-2xl border border-r-4 border-white/5 bg-[#1a1a1c] p-5">
+                  <div className="h-18 py-0 border-r-accent-secondary/50 flex items-center gap-4 rounded-2xl border border-r-4 border-white/5 bg-[#1a1a1c] p-5">
                     <div className="bg-accent-secondary/20 flex h-12 w-12 items-center justify-center rounded-xl">
                       <svg
                         className="text-accent-secondary h-6 w-6"
@@ -332,12 +330,11 @@ export default function Dashboard() {
                     ].map((tab) => (
                       <button
                         key={tab.id}
-                        onClick={() => setFilterType(tab.id as any)}
-                        className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
-                          filterType === tab.id
-                            ? 'bg-[#050505] text-white'
-                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                        }`}
+                        onClick={() => setFilterType(tab.id as 'all' | 'owned' | 'joined')}
+                        className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${filterType === tab.id
+                          ? 'bg-[#050505] text-white'
+                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                          }`}
                       >
                         {tab.label}
                       </button>
@@ -358,7 +355,7 @@ export default function Dashboard() {
                     <p className="mt-4 text-gray-400">Loading your workspace...</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 ">
                     {filteredSubjects.map((subject, index) => (
                       <SubjectCard key={subject.id} subject={subject} delay={index * 0.03} />
                     ))}

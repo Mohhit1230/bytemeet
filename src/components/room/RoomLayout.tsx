@@ -18,9 +18,10 @@ import { AIChat } from '../chat/AIChat';
 import { Canvas } from '../canvas/Canvas';
 import { SubjectSettings } from '../subject/SubjectSettings';
 import { useIsSmallScreen } from '@/hooks/useMediaQuery';
+import type { Subject, SubjectMember } from '@/types/database';
 
 interface RoomLayoutProps {
-  subject: any;
+  subject: Subject & { members?: SubjectMember[] };
 }
 
 export type ActiveSection = 'chat' | 'video' | 'ai' | 'canvas';
@@ -30,12 +31,17 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
   const [activeSection, setActiveSection] = useState<ActiveSection>('ai');
   const [callMode, setCallMode] = useState<'video' | 'audio' | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [manualSidebarState, setManualSidebarState] = useState<boolean | null>(null);
 
   // Panel system - for resizable side-by-side view
-  const [showRightPanel, setShowRightPanel] = useState(true);
+  const [showRightPanel, setShowRightPanel] = useState(false);
   const [rightPanelWidth, setRightPanelWidth] = useState(45); // percentage
   const [isResizing, setIsResizing] = useState(false);
+
+  // Derive sidebar collapsed state: manual override takes precedence, otherwise auto-collapse when right panel is open
+  const sidebarCollapsed = manualSidebarState !== null
+    ? manualSidebarState
+    : (!isSmallScreen && showRightPanel);
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -57,18 +63,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
     return () => ctx.revert();
   }, []);
 
-  /**
-   * Auto-collapse/expand sidebar based on right panel state
-   */
-  useEffect(() => {
-    if (!isSmallScreen) {
-      if (showRightPanel) {
-        setSidebarCollapsed(true);
-      } else {
-        setSidebarCollapsed(false);
-      }
-    }
-  }, [showRightPanel, isSmallScreen]);
+
 
   /**
    * Handle resizing
@@ -107,7 +102,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
   /**
    * Handle call actions
    */
-  const handleStartCall = useCallback((mode: 'video' | 'audio') => {
+  const _handleStartCall = useCallback((mode: 'video' | 'audio') => {
     setCallMode(mode);
     setActiveSection('video');
   }, []);
@@ -192,7 +187,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
           activeSection={activeSection}
           onSectionChange={setActiveSection}
           collapsed={sidebarCollapsed}
-          onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onToggleCollapse={() => setManualSidebarState(!sidebarCollapsed)}
           subject={subject}
         />
       )}
@@ -230,7 +225,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
             <div
               ref={resizeHandleRef}
               onMouseDown={handleMouseDown}
-              className={`group relative z-20 w-1 flex-shrink-0 cursor-col-resize ${isResizing ? 'bg-accent' : 'hover:bg-accent/50 bg-white/10'} transition-colors`}
+              className={`group relative z-20 w-1 shrink-0 cursor-col-resize ${isResizing ? 'bg-accent' : 'hover:bg-accent/50 bg-white/10'} transition-colors`}
             >
               {/* Visual indicator */}
               <div className="absolute top-1/2 left-1/2 flex h-8 w-4 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-inherit opacity-0 transition-opacity group-hover:opacity-100">
@@ -320,9 +315,9 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="lucide lucide-panel-right-icon lucide-panel-right"
               >
                 <rect width="18" height="18" x="3" y="3" rx="2" />
@@ -335,7 +330,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
           {!isSmallScreen && (
             <div className="ml-4 hidden h-full 2xl:block">
               <ActivityStrip
-                members={subject.members?.filter((m: any) => m.status === 'approved') || []}
+                members={subject.members?.filter((m: SubjectMember) => m.status === 'approved') || []}
               />
             </div>
           )}
@@ -346,7 +341,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
           <div className="border-t border-white/5 bg-black/30 px-4 py-4">
             <div className="flex items-center justify-center gap-3">
               <button
-                onClick={() => {}}
+                onClick={() => { }}
                 className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 text-white transition-colors hover:bg-white/10"
                 title="Toggle Microphone"
               >
@@ -366,7 +361,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
               </button>
               {callMode === 'video' && (
                 <button
-                  onClick={() => {}}
+                  onClick={() => { }}
                   className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 text-white transition-colors hover:bg-white/10"
                   title="Toggle Camera"
                 >

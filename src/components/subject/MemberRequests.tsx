@@ -6,7 +6,6 @@
 
 'use client';
 
-import React from 'react';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useApproveRequestMutation, useRejectRequestMutation } from '@/hooks/queries';
 
@@ -59,7 +58,7 @@ export function MemberRequests({ subjectId, requests, onUpdate }: MemberRequests
         {requests.map((request) => (
           <div
             key={request.id}
-            className="mx-2 flex items-center justify-between rounded-lg bg-[#262624] px-4 py-3"
+            className="mx-2 flex items-center justify-between rounded-lg bg-bg-100 px-4 py-3"
           >
             <div className="flex items-center gap-3">
               <UserAvatar username={request.username} avatarUrl={request.avatar_url} size="sm" />

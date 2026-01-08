@@ -36,10 +36,11 @@ export function useSubjects() {
       if (response.data.success) {
         setSubjects(response.data.data);
       }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to fetch subjects';
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      const message = e.response?.data?.message || 'Failed to fetch subjects';
       setError(message);
-      console.error('Fetch subjects error:', err);
+      console.error('Fetch subjects error:', e);
     } finally {
       setLoading(false);
     }
@@ -64,10 +65,10 @@ export function useSubjects() {
         return response.data.data;
       }
     } catch (err: unknown) {
-      const e = err as any;
+      const e = err as { response?: { data?: { message?: string } } };
       const message = e.response?.data?.message || 'Failed to create subject';
       setError(message);
-      console.error('Create subject error:', err);
+      console.error('Create subject error:', e);
       throw new Error(message);
     } finally {
       setLoading(false);
@@ -94,10 +95,10 @@ export function useSubjects() {
           return response.data.data;
         }
       } catch (err: unknown) {
-        const e = err as any;
+        const e = err as { response?: { data?: { message?: string } } };
         const message = e.response?.data?.message || 'Failed to update subject';
         setError(message);
-        console.error('Update subject error:', err);
+        console.error('Update subject error:', e);
         throw new Error(message);
       } finally {
         setLoading(false);
@@ -124,10 +125,11 @@ export function useSubjects() {
         }));
         return response.data.data;
       }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to regenerate invite code';
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      const message = e.response?.data?.message || 'Failed to regenerate invite code';
       setError(message);
-      console.error('Regenerate code error:', err);
+      console.error('Regenerate code error:', e);
       throw new Error(message);
     } finally {
       setLoading(false);
@@ -151,10 +153,11 @@ export function useSubjects() {
           owned: prev.owned.filter((s) => s.id !== id),
         }));
       }
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to delete subject';
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      const message = e.response?.data?.message || 'Failed to delete subject';
       setError(message);
-      console.error('Delete subject error:', err);
+      console.error('Delete subject error:', e);
       throw new Error(message);
     } finally {
       setLoading(false);

@@ -109,9 +109,10 @@ export function useArtifacts(subjectId: string) {
         if (response.data.success) {
           setArtifacts(response.data.data);
         }
-      } catch (err: any) {
-        console.error('Fetch artifacts error:', err);
-        setError(err.response?.data?.message || 'Failed to fetch artifacts');
+      } catch (err: unknown) {
+        const e = err as { response?: { data?: { message?: string } } };
+        console.error('Fetch artifacts error:', e);
+        setError(e.response?.data?.message || 'Failed to fetch artifacts');
       } finally {
         setLoading(false);
       }
@@ -148,9 +149,10 @@ export function useArtifacts(subjectId: string) {
           return newArtifact;
         }
         return null;
-      } catch (err: any) {
-        console.error('Create artifact error:', err);
-        setError(err.response?.data?.message || 'Failed to create artifact');
+      } catch (err: unknown) {
+        const e = err as { response?: { data?: { message?: string } } };
+        console.error('Create artifact error:', e);
+        setError(e.response?.data?.message || 'Failed to create artifact');
         return null;
       }
     },
@@ -191,9 +193,10 @@ export function useArtifacts(subjectId: string) {
           return newArtifact;
         }
         return null;
-      } catch (err: any) {
-        console.error('Upload artifact error:', err);
-        setError(err.response?.data?.message || 'Failed to upload file');
+      } catch (err: unknown) {
+        const e = err as { response?: { data?: { message?: string } } };
+        console.error('Upload artifact error:', e);
+        setError(e.response?.data?.message || 'Failed to upload file');
         return null;
       }
     },
@@ -218,9 +221,10 @@ export function useArtifacts(subjectId: string) {
           return true;
         }
         return false;
-      } catch (err: any) {
-        console.error('Delete artifact error:', err);
-        setError(err.response?.data?.message || 'Failed to delete artifact');
+      } catch (err: unknown) {
+        const e = err as { response?: { data?: { message?: string } } };
+        console.error('Delete artifact error:', e);
+        setError(e.response?.data?.message || 'Failed to delete artifact');
         return false;
       }
     },

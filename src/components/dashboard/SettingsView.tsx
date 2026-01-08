@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 
@@ -82,7 +83,7 @@ export function SettingsView() {
         setPasswordForm({ currentPassword: '', newPassword: '', confirmPassword: '' });
         setSaving(false);
       }, 1000);
-    } catch (error) {
+    } catch {
       setPasswordError('Failed to change password');
       setSaving(false);
     }
@@ -91,16 +92,17 @@ export function SettingsView() {
   return (
     <div className="mx-auto w-full max-w-4xl font-sans text-white">
       {/* Profile Card - Top */}
-      <div className="relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-[#3d2b2b] via-[#2a2a35] to-[#1c2237] p-8">
+      <div className="relative mb-6 overflow-hidden rounded-3xl bg-linear-to-r from-[#3d2b2b] via-[#2a2a35] to-[#1c2237] p-8">
         <div className="flex flex-col items-start gap-6 md:flex-row">
           {/* Avatar */}
           <div className="group relative shrink-0">
             <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-2xl border-4 border-white/5 bg-gray-300">
               {user?.avatarUrl ? (
-                <img
+                <Image
                   src={user.avatarUrl}
                   alt={user.username}
-                  className="h-full w-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-[#d1d5db]">
@@ -152,7 +154,7 @@ export function SettingsView() {
                     onChange={(e) =>
                       setProfileForm((prev) => ({ ...prev, username: e.target.value }))
                     }
-                    className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white focus:border-[#e94d37] focus:outline-none"
+                    className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white focus:border-accent focus:outline-none"
                   />
                 </div>
                 <div>
@@ -161,14 +163,14 @@ export function SettingsView() {
                     value={profileForm.bio}
                     onChange={(e) => setProfileForm((prev) => ({ ...prev, bio: e.target.value }))}
                     rows={2}
-                    className="w-full resize-none rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white focus:border-[#e94d37] focus:outline-none"
+                    className="w-full resize-none rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-white focus:border-accent focus:outline-none"
                   />
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={handleSaveProfile}
                     disabled={saving}
-                    className="rounded-lg bg-[#e94d37] px-4 py-1.5 text-sm font-medium transition-colors hover:bg-[#ff553e]"
+                    className="rounded-lg bg-accent px-4 py-1.5 text-sm font-medium transition-colors hover:bg-[#ff553e]"
                   >
                     {saving ? 'Saving...' : 'Save'}
                   </button>
@@ -211,7 +213,7 @@ export function SettingsView() {
         <div className="flex h-full flex-col rounded-3xl border border-white/5 bg-[#0f0f10] p-6">
           <div className="mb-6 flex items-center gap-2">
             <svg
-              className="h-4 w-4 text-[#e94d37]"
+              className="h-4 w-4 text-accent"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -222,7 +224,7 @@ export function SettingsView() {
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
-            <span className="text-xs font-bold tracking-widest text-[#e94d37] uppercase">
+            <span className="text-xs font-bold tracking-widest text-accent uppercase">
               ACCOUNT
             </span>
           </div>
@@ -234,7 +236,7 @@ export function SettingsView() {
                 {!isEditingEmail && (
                   <button
                     onClick={() => setIsEditingEmail(true)}
-                    className="text-xs font-medium text-[#e94d37] hover:text-[#ff6b58]"
+                    className="text-xs font-medium text-accent hover:text-[#ff6b58]"
                   >
                     Edit
                   </button>
@@ -247,12 +249,12 @@ export function SettingsView() {
                     type="email"
                     value={emailForm}
                     onChange={(e) => setEmailForm(e.target.value)}
-                    className="flex-1 rounded-lg border border-white/10 bg-[#1a1a1c] px-3 py-2 text-sm text-white focus:border-[#e94d37] focus:outline-none"
+                    className="flex-1 rounded-lg border border-white/10 bg-[#1a1a1c] px-3 py-2 text-sm text-white focus:border-accent focus:outline-none"
                   />
                   <button
                     onClick={handleSaveEmail}
                     disabled={saving}
-                    className="rounded-lg bg-[#e94d37] px-3 py-2 text-xs font-medium text-white hover:bg-[#ff553e]"
+                    className="rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white hover:bg-[#ff553e]"
                   >
                     Save
                   </button>
@@ -300,7 +302,7 @@ export function SettingsView() {
           <div className="flex-1 space-y-6">
             <div>
               <p className="mb-1 text-xs text-gray-500">Password</p>
-              <p className="pt-1 text-2xl text-base leading-none font-medium tracking-widest text-white">
+              <p className="pt-1 text-base leading-none font-medium tracking-widest text-white">
                 ...........
               </p>
             </div>
@@ -368,7 +370,7 @@ export function SettingsView() {
       <div className="mb-10 rounded-3xl border border-[#3f1818] bg-[#1a0f0f] p-6">
         <div className="mb-4 flex items-center gap-2">
           <svg
-            className="h-4 w-4 text-[#e94d37]"
+            className="h-4 w-4 text-accent"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -380,7 +382,7 @@ export function SettingsView() {
             <line x1="12" y1="9" x2="12" y2="13"></line>
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
-          <span className="text-xs font-bold tracking-widest text-[#e94d37] uppercase">
+          <span className="text-xs font-bold tracking-widest text-accent uppercase">
             DANGER ZONE
           </span>
         </div>
@@ -389,12 +391,12 @@ export function SettingsView() {
           <div>
             <p className="text-base font-semibold text-white">Sign out of your account</p>
             <p className="mt-1 text-sm text-gray-500">
-              You'll need to sign in again to access your account.
+              You&apos;ll need to sign in again to access your account.
             </p>
           </div>
           <button
             onClick={logout}
-            className="flex items-center gap-2 rounded-xl border border-[#4a1a1a] bg-[#2a1212] px-6 py-2.5 text-sm font-medium whitespace-nowrap text-[#e94d37] transition-colors hover:bg-[#3f1818]"
+            className="flex items-center gap-2 rounded-xl border border-[#4a1a1a] bg-[#2a1212] px-6 py-2.5 text-sm font-medium whitespace-nowrap text-accent transition-colors hover:bg-[#3f1818]"
           >
             <svg
               className="h-4 w-4"

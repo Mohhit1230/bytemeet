@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 
@@ -89,7 +89,7 @@ export function TypingIndicator({ username, avatarUrl }: TypingIndicatorProps) {
           <span className="text-sm font-semibold text-white">{username}</span>
         </div>
 
-        <div className="inline-block rounded-2xl bg-[#262624] px-4 py-3">
+        <div className="inline-block rounded-2xl bg-bg-100 px-4 py-3">
           <div className="flex gap-1.5">
             <div ref={dot1Ref} className="h-2 w-2 rounded-full bg-gray-500" />
             <div ref={dot2Ref} className="h-2 w-2 rounded-full bg-gray-500" />

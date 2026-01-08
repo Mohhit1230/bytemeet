@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import gsap from 'gsap';
 import type { ActiveSection } from './RoomLayout';
 
@@ -179,7 +179,7 @@ export function RoomActionBar({
             {/* End Call */}
             <button
               onClick={onEndCall}
-              className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-red-600 px-6 font-semibold text-white shadow-lg shadow-red-500/20 transition-all duration-200 hover:scale-105 hover:shadow-red-500/40 active:scale-95"
+              className="group flex h-12 items-center justify-center gap-2 rounded-xl bg-linear-to-r from-red-500 to-red-600 px-6 font-semibold text-white shadow-lg shadow-red-500/20 transition-all duration-200 hover:scale-105 hover:shadow-red-500/40 active:scale-95"
               title="End Call"
             >
               <svg
@@ -230,7 +230,7 @@ export function RoomActionBar({
             {/* Start Video Call */}
             <button
               onClick={() => onStartCall('video')}
-              className="group flex h-11 items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-5 font-semibold text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:scale-105 hover:shadow-green-500/40 active:scale-95"
+              className="group flex h-11 items-center gap-2 rounded-xl bg-linear-to-r from-emerald-500 to-green-600 px-5 font-semibold text-white shadow-lg shadow-green-500/20 transition-all duration-200 hover:scale-105 hover:shadow-green-500/40 active:scale-95"
               title="Start Video Meeting"
             >
               <svg

@@ -11,7 +11,7 @@ import React, { useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { UserAvatarGroup } from '@/components/ui/UserAvatar';
-import type { Subject } from '@/types/database';
+import type { Subject, SubjectMember } from '@/types/database';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -19,7 +19,7 @@ interface SubjectCardProps {
   subject: Subject & {
     role?: string;
     status?: string;
-    members?: any[];
+    members?: SubjectMember[];
   };
   delay?: number;
 }
@@ -31,7 +31,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
   const { user } = useAuth();
 
   const isOwner = subject.role === 'owner';
-  const roleColor = isOwner ? 'accent' : 'accent-secondary';
+  const _roleColor = isOwner ? 'accent' : 'accent-secondary';
   const displayRoleColor = isOwner ? 'text-accent' : 'text-accent-secondary';
   const borderRoleColor = isOwner ? 'border-accent/20' : 'border-accent-secondary/20';
   const bgRoleColor = isOwner ? 'bg-accent/10' : 'bg-accent-secondary/10';
@@ -70,7 +70,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
   const handleCopyLink = (e: React.MouseEvent) => {
     e.stopPropagation();
     let link = `${window.location.origin}/join/${subject.invite_code}`;
-    const ownerName = subject.role === 'owner' ? user?.username : (subject as any).owner?.username;
+    const ownerName = subject.role === 'owner' ? user?.username : (subject as Subject & { owner?: { username?: string } }).owner?.username;
 
     if (ownerName) {
       link = `${window.location.origin}/${ownerName}/${encodeURIComponent(subject.name)}/${subject.invite_code}`;
@@ -104,7 +104,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
     <div
       ref={cardRef}
       onClick={handleClick}
-      className="group relative flex h-full min-h-[220px] cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#19191c] pt-6 backdrop-blur-3xl transition-all duration-500 hover:rotate-90 hover:border-white/5 hover:shadow-2xl hover:shadow-black/50"
+      className="group relative flex h-full min-h-[220px] cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#19191c] pt-6 backdrop-blur-3xl transition-all duration-500 hover:border-white/5 hover:shadow-2xl hover:shadow-black/50 hover:skew-1 hover:scale-[1.03]! hover:-translate-y-1!"
     >
       {/* Dynamic Background Gradient */}
       {/* <div className={`absolute -top-24 -right-24 h-48 w-48 rounded-full ${isOwner ? 'bg-accent/20' : 'bg-accent-secondary/20'} blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-60`} />

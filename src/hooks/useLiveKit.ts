@@ -59,7 +59,7 @@ export function useLiveKit({ subjectId, username, audioOnly = false }: UseLiveKi
         username,
       });
       return response.data.token;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Get token error:', err);
       throw new Error('Failed to get video token');
     }
@@ -85,7 +85,7 @@ export function useLiveKit({ subjectId, username, audioOnly = false }: UseLiveKi
     });
 
     // Add remote participants (max 9 total including local)
-    room.remoteParticipants.forEach((participant, index) => {
+    room.remoteParticipants.forEach((participant, _index) => {
       if (allParticipants.length < 9) {
         const videoTrack = participant.getTrackPublication(Track.Source.Camera)?.track;
         const audioTrack = participant.getTrackPublication(Track.Source.Microphone)?.track;
@@ -160,9 +160,10 @@ export function useLiveKit({ subjectId, username, audioOnly = false }: UseLiveKi
       setRoom(newRoom);
       setIsConnected(true);
       updateParticipants(newRoom);
-    } catch (err: any) {
-      console.error('Connect error:', err);
-      setError(err.message || 'Failed to connect');
+    } catch (err: unknown) {
+      const e = err instanceof Error ? err : new Error('Failed to connect');
+      console.error('Connect error:', e);
+      setError(e.message);
     } finally {
       setIsConnecting(false);
     }

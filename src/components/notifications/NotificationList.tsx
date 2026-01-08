@@ -114,7 +114,7 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
             <span className="mb-2 text-4xl">🔔</span>
             <p className="text-gray-400">No notifications yet</p>
             <p className="mt-1 text-sm text-gray-500">
-              You'll see updates here when something happens
+              You&apos;ll see updates here when something happens
             </p>
           </div>
         ) : (
@@ -123,9 +123,8 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
               <div
                 key={notification._id}
                 onClick={() => handleNotificationClick(notification)}
-                className={`group hover:bg-bg-100/50 relative flex cursor-pointer gap-3 p-4 transition-colors ${
-                  !notification.isRead ? 'bg-accent/5' : ''
-                }`}
+                className={`group hover:bg-bg-100/50 relative flex cursor-pointer gap-3 p-4 transition-colors ${!notification.isRead ? 'bg-accent/5' : ''
+                  }`}
               >
                 {/* Unread indicator */}
                 {!notification.isRead && (

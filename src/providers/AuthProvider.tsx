@@ -46,7 +46,7 @@ interface AuthContextType {
       currentPassword?: string;
       newPassword?: string;
     }>
-  ) => Promise<any>;
+  ) => Promise<User>;
 }
 
 // =============================================================================
@@ -133,8 +133,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } else {
           setError(response.message || 'Login failed');
         }
-      } catch (err: any) {
-        const message = err.response?.data?.message || 'Login failed. Please try again.';
+      } catch (err: unknown) {
+        const e = err as { response?: { data?: { message?: string } } };
+        const message = e.response?.data?.message || 'Login failed. Please try again.';
         setError(message);
         throw new Error(message);
       } finally {
@@ -172,8 +173,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } else {
           setError(response.message || 'Registration failed');
         }
-      } catch (err: any) {
-        const message = err.response?.data?.message || 'Registration failed. Please try again.';
+      } catch (err: unknown) {
+        const e = err as { response?: { data?: { message?: string } } };
+        const message = e.response?.data?.message || 'Registration failed. Please try again.';
         setError(message);
         throw new Error(message);
       } finally {
@@ -254,7 +256,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   /**
    * Update user profile
    */
-  const updateProfile = useCallback(async (data: any) => {
+  const updateProfile = useCallback(async (data: Partial<{ username: string; email: string; avatarUrl: string; bio: string; currentPassword?: string; newPassword?: string }>) => {
     try {
       setLoading(true);
       setError(null);
@@ -267,8 +269,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
       }
       return response;
-    } catch (err: any) {
-      const message = err.response?.data?.message || 'Failed to update profile';
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      const message = e.response?.data?.message || 'Failed to update profile';
       setError(message);
       throw err;
     } finally {

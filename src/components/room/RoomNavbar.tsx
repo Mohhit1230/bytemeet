@@ -1,10 +1,3 @@
-/**
- * Room Navbar Component
- *
- * Compact top navigation bar with breadcrumbs, section title,
- * and quick actions. Features a premium glassmorphic design.
- */
-
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
@@ -15,9 +8,10 @@ import { useToast } from '@/components/ui/Toast';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { InviteModal } from '../subject/InviteModal';
 import type { ActiveSection } from './RoomLayout';
+import type { Subject } from '@/types/database';
 
 interface RoomNavbarProps {
-  subject: any;
+  subject: Subject & { role?: string };
   sectionTitle: string;
   onOpenSettings: () => void;
   isSmallScreen: boolean;
@@ -114,7 +108,7 @@ export function RoomNavbar({
 }: RoomNavbarProps) {
   const navRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
-  const { success } = useToast();
+  const { success: _success } = useToast();
   const [showInviteModal, setShowInviteModal] = useState(false);
 
   const isOwner = subject.role === 'owner';
@@ -136,9 +130,8 @@ export function RoomNavbar({
     <>
       <div
         ref={navRef}
-        className={`z-20 flex h-16 shrink-0 items-center justify-between px-6 transition-all duration-300 ${
-          isSmallScreen ? 'border-b border-white/5 bg-black/40 backdrop-blur-xl' : ''
-        }`}
+        className={`z-20 flex h-16 shrink-0 items-center justify-between px-6 transition-all duration-300 ${isSmallScreen ? 'border-b border-white/5 bg-black/40 backdrop-blur-xl' : ''
+          }`}
       >
         {/* Left: Breadcrumb / Mobile Nav */}
         <div className="flex min-w-0 items-center gap-4">
@@ -149,9 +142,8 @@ export function RoomNavbar({
                 <button
                   key={item.id}
                   onClick={() => onSectionChange(item.id)}
-                  className={`relative rounded-xl p-2.5 transition-all duration-300 ${
-                    activeSection === item.id ? 'text-white' : 'text-gray-400 hover:text-gray-200'
-                  }`}
+                  className={`relative rounded-xl p-2.5 transition-all duration-300 ${activeSection === item.id ? 'text-white' : 'text-gray-400 hover:text-gray-200'
+                    }`}
                 >
                   {/* Active Background Pill */}
                   {activeSection === item.id && (
@@ -203,13 +195,13 @@ export function RoomNavbar({
           {/* Invite Button */}
           <button
             onClick={() => setShowInviteModal(true)}
-            className="group from-accent to-accent-dark shadow-accent/25 hover:shadow-accent/40 relative overflow-hidden rounded-lg bg-gradient-to-r px-4 py-1.5 font-medium text-white shadow-lg transition-all active:scale-95"
+            className="group from-accent to-accent-dark shadow-accent/25 hover:shadow-accent/40 relative overflow-hidden rounded-lg bg-linear-to-r px-4 py-1.5 font-medium text-white shadow-lg transition-all active:scale-95"
           >
             <div className="relative z-10 flex items-center gap-2">
               <svg
                 stroke="currentColor"
                 fill="currentColor"
-                stroke-width="0"
+                strokeWidth="0"
                 viewBox="0 0 640 512"
                 height="18"
                 width="18"
@@ -220,7 +212,7 @@ export function RoomNavbar({
               <span className="hidden sm:inline">Invite</span>
             </div>
             {/* Shimmer Effect */}
-            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
+            <div className="absolute inset-0 -translate-x-full bg-linear-to-r from-transparent via-white/20 to-transparent group-hover:animate-[shimmer_1.5s_infinite]" />
           </button>
 
           {/* Notifications */}

@@ -9,7 +9,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useVideoCall } from '@/hooks/useVideoCall';
 import { useAuth } from '@/hooks/useAuth';
 import { VideoGrid } from './VideoGrid';
@@ -20,7 +20,7 @@ interface VideoCallProps {
   audioOnly?: boolean;
 }
 
-export function VideoCall({ subjectId, audioOnly = false }: VideoCallProps) {
+export function VideoCall({ subjectId, audioOnly: _audioOnly = false }: VideoCallProps) {
   const { user } = useAuth();
   const {
     join,

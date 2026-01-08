@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 interface GoogleSignInButtonProps {
   mode: 'login' | 'register';

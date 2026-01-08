@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { RoomLayout } from '@/components/room/RoomLayout';
@@ -35,7 +35,7 @@ export default function SubjectRoomPage() {
           setSubject(response.data.data);
         }
       } catch (err: unknown) {
-        const e = err as any;
+        const e = err as { response?: { status?: number; data?: { message?: string } } };
         console.error('Fetch subject error:', e);
 
         if (e.response?.status === 403 || e.response?.status === 404) {

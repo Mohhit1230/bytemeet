@@ -7,15 +7,16 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { UserAvatar, UserAvatarGroup } from '@/components/ui/UserAvatar';
 import { useAuth } from '@/hooks/useAuth';
 import { NotificationBell } from '@/components/notifications';
 import { useToast } from '@/components/ui/Toast';
+import type { Subject, SubjectMember } from '@/types/database';
 
 interface RoomHeaderProps {
-  subject: any;
+  subject: Subject & { role?: string; members?: SubjectMember[]; owner?: { username?: string } };
   onStartVideo?: () => void;
   onStartAudio?: () => void;
   onOpenSettings?: () => void;
@@ -33,8 +34,8 @@ export function RoomHeader({
   const [showMemberList, setShowMemberList] = useState(false);
 
   const isOwner = subject.role === 'owner';
-  const approvedMembers = subject.members?.filter((m: any) => m.status === 'approved') || [];
-  const pendingRequests = subject.members?.filter((m: any) => m.status === 'pending') || [];
+  const approvedMembers = subject.members?.filter((m: SubjectMember) => m.status === 'approved') || [];
+  const pendingRequests = subject.members?.filter((m: SubjectMember) => m.status === 'pending') || [];
 
   const handleCopyLink = () => {
     let link = `${window.location.origin}/join/${subject.invite_code}`;
@@ -85,7 +86,7 @@ export function RoomHeader({
           className="relative flex items-center gap-2 rounded-xl bg-white/3 px-3 py-2 transition-all hover:bg-white/6"
         >
           <UserAvatarGroup
-            users={approvedMembers.map((m: any) => ({
+            users={approvedMembers.map((m: SubjectMember) => ({
               username: m.username,
               avatarUrl: m.avatar_url,
               isOnline: false,
@@ -226,7 +227,7 @@ export function RoomHeader({
           </div>
 
           <div className="max-h-48 space-y-1 overflow-y-auto">
-            {approvedMembers.map((member: any) => (
+            {approvedMembers.map((member: SubjectMember) => (
               <div
                 key={member.id}
                 className="flex items-center gap-2 rounded-lg p-2 hover:bg-white/3"

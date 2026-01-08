@@ -24,6 +24,22 @@ import { queryKeys } from '@/lib/queryKeys';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/hooks/useAuth';
 
+// Notification data shape
+interface NotificationData {
+  subjectId?: string;
+  subjectName?: string;
+  requestId?: string;
+  artifactId?: string;
+  messageId?: string;
+  fromUser?: {
+    _id: string;
+    username: string;
+    email: string;
+  };
+  fromUsername?: string;
+  onClick?: () => void;
+}
+
 // Notification context value
 interface NotificationContextValue {
   notifications: Notification[];
@@ -37,7 +53,7 @@ interface NotificationContextValue {
   getNotificationIcon: (type: NotificationType) => string;
   getNotificationColor: (type: NotificationType) => string;
   formatTime: (dateString: string) => string;
-  showNotification: (type: NotificationType, title: string, message: string, data?: any) => void;
+  showNotification: (type: NotificationType, title: string, message: string, data?: NotificationData) => void;
 }
 
 const NotificationContext = createContext<NotificationContextValue | null>(null);
@@ -75,7 +91,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
    * Show a notification as a toast and add to list
    */
   const showNotification = useCallback(
-    (type: NotificationType, title: string, message: string, data?: any) => {
+    (type: NotificationType, title: string, message: string, data?: NotificationData) => {
       // Map notification type to toast type
       const toastTypeMap: Record<NotificationType, 'success' | 'info' | 'warning' | 'error'> = {
         join_request: 'info',
@@ -107,7 +123,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
       };
 
       // Update cache optimistically
-      queryClient.setQueryData(queryKeys.notifications.list(), (old: any) => {
+      queryClient.setQueryData(queryKeys.notifications.list(), (old: { notifications: Notification[]; unreadCount: number } | undefined) => {
         if (!old) return { notifications: [notification], unreadCount: 1 };
         return {
           notifications: [notification, ...old.notifications],
@@ -125,7 +141,7 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
       const notification = event.detail.notification;
 
       // Update cache
-      queryClient.setQueryData(queryKeys.notifications.list(), (old: any) => {
+      queryClient.setQueryData(queryKeys.notifications.list(), (old: { notifications: Notification[]; unreadCount: number } | undefined) => {
         if (!old) return { notifications: [notification], unreadCount: 1 };
         return {
           notifications: [notification, ...old.notifications],

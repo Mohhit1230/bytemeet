@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { Artifact } from '@/hooks/useArtifacts';
 import { CodeArtifact } from './CodeArtifact';
@@ -17,7 +17,6 @@ interface ArtifactViewerProps {
   artifact: Artifact;
   onClose: () => void;
   onDelete: () => void;
-  onDownload: () => void;
   canDelete: boolean;
 }
 
@@ -25,7 +24,6 @@ export function ArtifactViewer({
   artifact,
   onClose,
   onDelete,
-  onDownload,
   canDelete,
 }: ArtifactViewerProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -89,43 +87,44 @@ export function ArtifactViewer({
   };
 
   // Download artifact
-  const handleDownload = () => {
-    onDownload();
+  const handleDownload = async (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
 
     if (artifact.fileUrl) {
-      // For Cloudinary URLs, add download flag
-      let downloadUrl = artifact.fileUrl;
+      const filename = artifact.fileName || artifact.title;
 
-      // Add Cloudinary transformation to force download
-      if (downloadUrl.startsWith('http://')) {
-        downloadUrl = downloadUrl.replace('http://', 'https://');
+      try {
+        const response = await fetch(artifact.fileUrl);
+        if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error('Failed to download file:', err);
       }
-
-      // Add Cloudinary transformation to force download if not already present
-      if (downloadUrl.includes('cloudinary.com') && !downloadUrl.includes('fl_attachment')) {
-        downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
-      }
-
-      // Create and click download link
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      // Use fileName if available, otherwise just use title (browser handles extension from header)
-      a.download = artifact.fileName || artifact.title;
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
     } else if (artifact.content) {
       const blob = new Blob([artifact.content], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
+      a.style.display = 'none';
       a.href = url;
       a.download = `${artifact.title}.${artifact.language || 'txt'}`;
       document.body.appendChild(a);
       a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
     }
   };
 
@@ -215,11 +214,10 @@ export function ArtifactViewer({
             {(artifact.type === 'code' || artifact.type === 'markdown') && (
               <button
                 onClick={handleCopy}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${
-                  copied
-                    ? 'bg-green-500/20 text-green-400'
-                    : 'bg-bg-100 hover:bg-bg-200 text-gray-300'
-                }`}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${copied
+                  ? 'bg-green-500/20 text-green-400'
+                  : 'bg-bg-100 hover:bg-bg-200 text-gray-300'
+                  }`}
               >
                 {copied ? (
                   <>
@@ -306,7 +304,7 @@ export function ArtifactViewer({
         </div>
 
         {/* Content */}
-        <div className="max-h-[calc(90vh-80px)] overflow-auto">{renderContent()}</div>
+        <div className="max-h-[calc(90vh-80px)] overflow-hidden">{renderContent()}</div>
 
         {/* Footer Stats */}
         <div className="border-bg-200/50 flex items-center justify-between border-t bg-[#1a1a1b]/50 px-6 py-3 text-sm text-gray-500">

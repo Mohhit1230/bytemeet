@@ -75,7 +75,7 @@ export async function uploadFile(
       error: response.data.message || 'Upload failed',
     };
   } catch (error: unknown) {
-    const e = error as any;
+    const e = error as { response?: { data?: { message?: string }; status?: number }; request?: unknown; message?: string };
     console.error('Upload error:', e);
 
     // Provide detailed error message

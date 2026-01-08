@@ -7,7 +7,7 @@
 
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { useAuth } from '@/hooks/useAuth';
@@ -62,7 +62,7 @@ export function MessageBubble({ message, delay = 0 }: MessageBubbleProps) {
   return (
     <div
       ref={bubbleRef}
-      className={`group -mx-2 flex gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/[0.02] ${
+      className={`group -mx-2 flex gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/2 ${
         isOwnMessage ? 'flex-row-reverse' : ''
       }`}
     >
@@ -89,11 +89,11 @@ export function MessageBubble({ message, delay = 0 }: MessageBubbleProps) {
         <div
           className={`inline-block rounded-2xl px-4 py-2.5 ${
             isOwnMessage
-              ? 'from-accent to-accent-dark rounded-tr-md bg-gradient-to-br text-white'
+              ? 'from-accent to-accent-dark rounded-tr-md bg-linear-to-br text-white'
               : 'rounded-tl-md border border-white/10 bg-white/5 text-gray-200'
           }`}
         >
-          <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+          <p className="text-sm leading-relaxed wrap-break-word whitespace-pre-wrap">
             {message.content}
           </p>
         </div>

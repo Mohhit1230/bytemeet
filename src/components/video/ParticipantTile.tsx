@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { Participant } from '@/hooks/useLiveKit';
 import { SpeakingIndicator } from './SpeakingIndicator';

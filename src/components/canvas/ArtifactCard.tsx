@@ -6,7 +6,7 @@
 
 'use client';
 
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import gsap from 'gsap';
 import { Artifact } from '@/hooks/useArtifacts';
 
@@ -148,6 +148,45 @@ export function ArtifactCard({
 
   const languageColor = artifact.language ? languageColors[artifact.language] || '#666' : '#666';
 
+  // Handle download - simplified for Cloudinary
+  const handleDownload = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onDownload();
+
+    if (artifact.fileUrl) {
+      let downloadUrl = artifact.fileUrl;
+
+      // For Cloudinary URLs, add fl_attachment to force download
+      if (downloadUrl.includes('cloudinary.com')) {
+        const isSigned = downloadUrl.includes('/s--');
+
+        if (!isSigned && downloadUrl.includes('/upload/') && !downloadUrl.includes('/fl_attachment')) {
+          downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
+        }
+
+        // For Cloudinary, just open the URL - fl_attachment will force download
+        window.open(downloadUrl, '_blank');
+      } else {
+        // For non-Cloudinary URLs, just open directly
+        window.open(artifact.fileUrl, '_blank');
+      }
+    } else if (artifact.content) {
+      const blob = new Blob([artifact.content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `${artifact.title}.${artifact.language || 'txt'}`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
+  };
+
   return (
     <div
       ref={cardRef}
@@ -231,56 +270,14 @@ export function ArtifactCard({
 
       {/* Action Buttons (visible on hover) */}
       <div
-        className={`absolute top-2 right-2 flex gap-1 transition-opacity duration-200 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`absolute top-2 right-2 flex gap-1 transition-opacity duration-200 ${isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Download */}
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDownload();
-
-            // Download file
-            if (artifact.fileUrl) {
-              // For Cloudinary URLs, add download flag
-              let downloadUrl = artifact.fileUrl;
-
-              if (downloadUrl.startsWith('http://')) {
-                downloadUrl = downloadUrl.replace('http://', 'https://');
-              }
-
-              // Add Cloudinary transformation to force download
-              if (
-                downloadUrl.includes('cloudinary.com') &&
-                !downloadUrl.includes('fl_attachment')
-              ) {
-                // Insert fl_attachment before /upload/
-                downloadUrl = downloadUrl.replace('/upload/', '/upload/fl_attachment/');
-              }
-
-              // Create and click download link
-              const a = document.createElement('a');
-              a.href = downloadUrl;
-              a.download = artifact.fileName || `${artifact.title}.${artifact.type}`;
-              a.target = '_blank';
-              a.rel = 'noopener noreferrer';
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            } else if (artifact.content) {
-              const blob = new Blob([artifact.content], { type: 'text/plain' });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = `${artifact.title}.${artifact.language || 'txt'}`;
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              URL.revokeObjectURL(url);
-            }
-          }}
+          type="button"
+          onClick={handleDownload}
           className="bg-bg-100/90 hover:bg-bg-200 rounded-lg p-2 backdrop-blur-sm transition-colors"
           title="Download"
         >
@@ -302,6 +299,7 @@ export function ArtifactCard({
         {/* Copy (for code) */}
         {artifact.type === 'code' && artifact.content && (
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               navigator.clipboard.writeText(artifact.content || '');
@@ -328,6 +326,7 @@ export function ArtifactCard({
         {/* Delete (owner only) */}
         {canDelete && (
           <button
+            type="button"
             onClick={(e) => {
               e.stopPropagation();
               if (confirm('Are you sure you want to delete this artifact?')) {
@@ -356,9 +355,8 @@ export function ArtifactCard({
 
       {/* Hover Glow Effect */}
       <div
-        className={`from-accent/5 pointer-events-none absolute inset-0 bg-linear-to-t to-transparent transition-opacity duration-300 ${
-          isHovered ? 'opacity-100' : 'opacity-0'
-        }`}
+        className={`from-accent/5 pointer-events-none absolute inset-0 bg-linear-to-t to-transparent transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'
+          }`}
       />
     </div>
   );

@@ -28,7 +28,7 @@ interface Message {
 
 export function useSupabaseChat(subjectId: string) {
   const { user } = useAuth();
-  const { cachedMessages, getFromCache, saveToCache, addMessageToCache } =
+  const { cachedMessages: _cachedMessages, getFromCache, saveToCache, addMessageToCache } =
     useCachedMessages(subjectId);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -76,9 +76,10 @@ export function useSupabaseChat(subjectId: string) {
       const messageData = data || [];
       setMessages(messageData);
       saveToCache(messageData);
-    } catch (err: any) {
-      console.error('Fetch messages error:', err);
-      setError(err.message);
+    } catch (err: unknown) {
+      const e = err instanceof Error ? err : new Error('Unknown error');
+      console.error('Fetch messages error:', e);
+      setError(e.message);
     } finally {
       setLoading(false);
     }
@@ -101,7 +102,7 @@ export function useSupabaseChat(subjectId: string) {
         });
 
         if (insertError) throw insertError;
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Send message error:', err);
         throw err;
       }
@@ -136,6 +137,7 @@ export function useSupabaseChat(subjectId: string) {
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [subjectId, fetchMessages]);
 
   return {

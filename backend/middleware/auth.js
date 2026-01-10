@@ -1,18 +1,8 @@
-/**
- * Authentication Middleware
- *
- * Protects routes by verifying JWT tokens
- */
-
 const { verifyAccessToken } = require('../utils/jwt');
 const { User } = require('../models');
 
-/**
- * Middleware to authenticate requests
- */
 async function authenticate(req, res, next) {
   try {
-    // Get token from cookie or header
     let token = req.cookies?.accessToken;
 
     if (!token && req.headers.authorization?.startsWith('Bearer ')) {
@@ -26,10 +16,8 @@ async function authenticate(req, res, next) {
       });
     }
 
-    // Verify token
     const decoded = verifyAccessToken(token);
 
-    // Get user from database
     const user = await User.findById(decoded.userId).select('-password');
 
     if (!user) {
@@ -53,7 +41,6 @@ async function authenticate(req, res, next) {
       });
     }
 
-    // Attach user to request
     req.user = user;
     req.userId = user._id.toString();
 
@@ -67,9 +54,8 @@ async function authenticate(req, res, next) {
   }
 }
 
-/**
- * Optional authentication - doesn't fail if no token
- */
+// Optional authentication - doesn't fail if no token
+
 async function authenticateOptional(req, res, next) {
   try {
     let token = req.cookies?.accessToken;

@@ -1,9 +1,3 @@
-/**
- * Backend Server Entry Point
- *
- * Express API server for ByteMeet
- */
-
 require('dotenv').config({ path: '.env.local' });
 const express = require('express');
 const cors = require('cors');
@@ -17,7 +11,9 @@ const videoRoutes = require('./routes/video.routes');
 const artifactRoutes = require('./routes/artifact.routes');
 const notificationRoutes = require('./routes/notification.routes');
 
-// Initialize express app
+// GraphQL
+const { createGraphQLServer } = require('./graphql/apollo-server');
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -25,7 +21,6 @@ const PORT = process.env.PORT || 5000;
 // MIDDLEWARE
 // =============================================================================
 
-// CORS configuration
 app.use(
   cors({
     origin: process.env.CLIENT_URL || 'http://localhost:3000',
@@ -33,15 +28,15 @@ app.use(
   })
 );
 
-// Body parser
 app.use(express.json({ limit: '5mb' }));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
-// Request logging (development)
 if (process.env.NODE_ENV !== 'production') {
   app.use((req, res, next) => {
-    console.log(`${req.method} ${req.path}`);
+    if (!req.path.startsWith('/graphql')) {
+      console.log(`${req.method} ${req.path}`);
+    }
     next();
   });
 }
@@ -61,17 +56,44 @@ mongoose
   });
 
 // =============================================================================
-// API ROUTES
+// GRAPHQL SERVER SETUP
 // =============================================================================
 
-// Health check
+// Create GraphQL Yoga server
+const { yoga, httpServer } = createGraphQLServer(app);
+
+// Mount GraphQL endpoint
+app.use('/graphql', yoga);
+
+console.log('✅ GraphQL server ready at /graphql');
+
+// =============================================================================
+// REST API ROUTES (DEPRECATED - Use GraphQL at /graphql)
+// These routes are maintained for backward compatibility during migration.
+// New development should use the GraphQL API.
+// =============================================================================
+
+// Deprecation middleware for REST routes
+const deprecationMiddleware = (req, res, next) => {
+  res.set('Deprecation', 'true');
+  res.set('Sunset', '2026-06-01');
+  res.set('Link', '</graphql>; rel="successor-version"');
+  res.set('X-API-Warn', 'REST API deprecated. Use GraphQL at /graphql');
+  next();
+};
+
 app.get('/api/health', (req, res) => {
   res.json({
     success: true,
     message: 'ByteMeet API is running',
+    graphql: '/graphql',
+    deprecated: 'REST API is deprecated. Please use GraphQL at /graphql',
     timestamp: new Date().toISOString(),
   });
 });
+
+// Apply deprecation middleware to all REST routes
+app.use('/api', deprecationMiddleware);
 
 // Auth routes
 app.use('/api/auth', authRoutes);
@@ -116,6 +138,8 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 ByteMeet API server running on port ${PORT}`);
   console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔗 GraphQL: http://localhost:${PORT}/graphql`);
+  console.log(`🔗 REST API: http://localhost:${PORT}/api`);
 });
 
 // Handle unhandled promise rejections

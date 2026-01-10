@@ -1,9 +1,3 @@
-/**
- * Notification Routes
- *
- * API endpoints for managing notifications
- */
-
 const express = require('express');
 const router = express.Router();
 const Notification = require('../models/notification.model');

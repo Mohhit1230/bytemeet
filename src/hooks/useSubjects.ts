@@ -1,178 +1,204 @@
 /**
- * useSubjects Hook
+ * useSubjects Hook (GraphQL Version)
  *
- * Hook for managing subjects/rooms - create, fetch, update, delete
+ * Hook for managing subjects/rooms using GraphQL
+ * Drop-in replacement for REST-based useSubjects
  */
 
-import { useState, useCallback } from 'react';
-import api from '@/lib/api';
-import type { Subject } from '@/types/database';
+'use client';
 
-interface SubjectsData {
-  owned: Subject[];
-  joined: Subject[];
-  pending: Subject[];
+import { useCallback } from 'react';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client/react';
+import {
+  GET_MY_SUBJECTS,
+  GET_SUBJECT,
+  CREATE_SUBJECT,
+  UPDATE_SUBJECT,
+  DELETE_SUBJECT,
+  JOIN_SUBJECT,
+  REGENERATE_INVITE_CODE,
+  APPROVE_JOIN_REQUEST,
+  REJECT_JOIN_REQUEST,
+  REMOVE_MEMBER,
+} from '@/lib/graphql/operations';
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+interface SubjectOwner {
+  id: string;
+  username: string;
+  email: string;
+  avatarUrl?: string;
+}
+
+interface SubjectMember {
+  id: string;
+  user: {
+    id: string;
+    username: string;
+    email: string;
+    avatarUrl?: string;
+  };
+  role: 'owner' | 'member';
+  status: 'approved' | 'pending';
+  joinedAt: string;
+}
+
+export interface Subject {
+  id: string;
+  name: string;
+  description?: string;
+  inviteCode: string;
+  owner: SubjectOwner;
+  members: SubjectMember[];
+  memberCount: number;
+  myRole?: 'owner' | 'member';
+  myStatus?: 'approved' | 'pending';
+  createdAt: string;
 }
 
 export function useSubjects() {
-  const [subjects, setSubjects] = useState<SubjectsData>({
-    owned: [],
-    joined: [],
-    pending: [],
+  const client = useApolloClient();
+
+  // Query my subjects
+  const { data, loading, error, refetch } = useQuery<any>(GET_MY_SUBJECTS, {
+    fetchPolicy: 'cache-and-network',
   });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Fetch all subjects for current user
-   */
-  const fetchSubjects = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Mutations
+  const [createMutation] = useMutation<any>(CREATE_SUBJECT);
+  const [updateMutation] = useMutation<any>(UPDATE_SUBJECT);
+  const [deleteMutation] = useMutation<any>(DELETE_SUBJECT);
+  const [joinMutation] = useMutation<any>(JOIN_SUBJECT);
+  const [regenerateMutation] = useMutation<any>(REGENERATE_INVITE_CODE);
+  const [approveMutation] = useMutation<any>(APPROVE_JOIN_REQUEST);
+  const [rejectMutation] = useMutation<any>(REJECT_JOIN_REQUEST);
+  const [removeMutation] = useMutation<any>(REMOVE_MEMBER);
 
-      const response = await api.get('/subjects');
-
-      if (response.data.success) {
-        setSubjects(response.data.data);
-      }
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
-      const message = e.response?.data?.message || 'Failed to fetch subjects';
-      setError(message);
-      console.error('Fetch subjects error:', e);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  /**
-   * Create a new subject
-   */
-  const createSubject = useCallback(async (data: { name: string; description?: string }) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await api.post('/subjects', data);
-
-      if (response.data.success) {
-        // Add to owned subjects
-        setSubjects((prev) => ({
-          ...prev,
-          owned: [response.data.data, ...prev.owned],
-        }));
-        return response.data.data;
-      }
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
-      const message = e.response?.data?.message || 'Failed to create subject';
-      setError(message);
-      console.error('Create subject error:', e);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  /**
-   * Update a subject
-   */
-  const updateSubject = useCallback(
-    async (id: string, data: { name?: string; description?: string }) => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const response = await api.put(`/subjects/${id}`, data);
-
-        if (response.data.success) {
-          // Update in local state
-          setSubjects((prev) => ({
-            ...prev,
-            owned: prev.owned.map((s) => (s.id === id ? { ...s, ...response.data.data } : s)),
-          }));
-          return response.data.data;
-        }
-      } catch (err: unknown) {
-        const e = err as { response?: { data?: { message?: string } } };
-        const message = e.response?.data?.message || 'Failed to update subject';
-        setError(message);
-        console.error('Update subject error:', e);
-        throw new Error(message);
-      } finally {
-        setLoading(false);
-      }
+  // Create subject
+  const createSubject = useCallback(
+    async (name: string, description?: string) => {
+      const { data } = await createMutation({
+        variables: { input: { name, description } },
+        refetchQueries: [{ query: GET_MY_SUBJECTS }],
+      });
+      return data?.createSubject;
     },
-    []
+    [createMutation]
   );
 
-  /**
-   * Regenerate invite code
-   */
-  const regenerateCode = useCallback(async (id: string) => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Update subject
+  const updateSubject = useCallback(
+    async (id: string, updates: { name?: string; description?: string }) => {
+      const { data } = await updateMutation({
+        variables: { id, input: updates },
+        refetchQueries: [{ query: GET_SUBJECT, variables: { id } }],
+      });
+      return data?.updateSubject;
+    },
+    [updateMutation]
+  );
 
-      const response = await api.post(`/subjects/${id}/regenerate-code`);
+  // Delete subject
+  const deleteSubject = useCallback(
+    async (id: string) => {
+      await deleteMutation({
+        variables: { id },
+        refetchQueries: [{ query: GET_MY_SUBJECTS }],
+      });
+    },
+    [deleteMutation]
+  );
 
-      if (response.data.success) {
-        // Update in local state
-        setSubjects((prev) => ({
-          ...prev,
-          owned: prev.owned.map((s) => (s.id === id ? { ...s, ...response.data.data } : s)),
-        }));
-        return response.data.data;
-      }
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
-      const message = e.response?.data?.message || 'Failed to regenerate invite code';
-      setError(message);
-      console.error('Regenerate code error:', e);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Join subject
+  const joinSubject = useCallback(
+    async (inviteCode: string) => {
+      const { data } = await joinMutation({
+        variables: { inviteCode },
+        refetchQueries: [{ query: GET_MY_SUBJECTS }],
+      });
+      return data?.joinSubject;
+    },
+    [joinMutation]
+  );
 
-  /**
-   * Delete a subject
-   */
-  const deleteSubject = useCallback(async (id: string) => {
-    try {
-      setLoading(true);
-      setError(null);
+  // Regenerate invite code
+  const regenerateInviteCode = useCallback(
+    async (subjectId: string) => {
+      const { data } = await regenerateMutation({
+        variables: { subjectId },
+      });
+      return data?.regenerateInviteCode;
+    },
+    [regenerateMutation]
+  );
 
-      const response = await api.delete(`/subjects/${id}`);
+  // Approve join request
+  const approveJoinRequest = useCallback(
+    async (subjectId: string, userId: string) => {
+      await approveMutation({
+        variables: { subjectId, userId },
+        refetchQueries: [{ query: GET_SUBJECT, variables: { id: subjectId } }],
+      });
+    },
+    [approveMutation]
+  );
 
-      if (response.data.success) {
-        // Remove from local state
-        setSubjects((prev) => ({
-          ...prev,
-          owned: prev.owned.filter((s) => s.id !== id),
-        }));
-      }
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
-      const message = e.response?.data?.message || 'Failed to delete subject';
-      setError(message);
-      console.error('Delete subject error:', e);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Reject join request
+  const rejectJoinRequest = useCallback(
+    async (subjectId: string, userId: string) => {
+      await rejectMutation({
+        variables: { subjectId, userId },
+        refetchQueries: [{ query: GET_SUBJECT, variables: { id: subjectId } }],
+      });
+    },
+    [rejectMutation]
+  );
+
+  // Remove member
+  const removeMember = useCallback(
+    async (subjectId: string, userId: string) => {
+      await removeMutation({
+        variables: { subjectId, userId },
+        refetchQueries: [{ query: GET_SUBJECT, variables: { id: subjectId } }],
+      });
+    },
+    [removeMutation]
+  );
+
+  // Get single subject
+  const getSubject = useCallback(
+    async (id: string) => {
+      const { data } = await client.query<any>({
+        query: GET_SUBJECT,
+        variables: { id },
+        fetchPolicy: 'network-only',
+      });
+      return data?.subject;
+    },
+    [client]
+  );
 
   return {
-    subjects,
+    subjects: {
+      owned: data?.mySubjects?.owned || [],
+      joined: data?.mySubjects?.joined || [],
+      pending: data?.mySubjects?.pending || [],
+    },
     loading,
     error,
-    fetchSubjects,
+    refetch,
     createSubject,
     updateSubject,
-    regenerateCode,
     deleteSubject,
+    joinSubject,
+    regenerateInviteCode,
+    approveJoinRequest,
+    rejectJoinRequest,
+    removeMember,
+    getSubject,
   };
 }
 

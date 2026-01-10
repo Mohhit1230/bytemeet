@@ -1,9 +1,3 @@
-/**
- * Login Page
- *
- * Authentication page for user login with animated background
- */
-
 'use client';
 
 import { LoginForm } from '@/components/auth/LoginForm';
@@ -47,8 +41,8 @@ export default function LoginPage() {
       </div>
 
       {/* Decorative elements */}
-      <div className="bg-accent/15 absolute top-[-20%] left-[-10%] h-[400px] w-[400px] rounded-full blur-[120px]" />
-      <div className="bg-accent-secondary-dark/15 absolute right-[-15%] bottom-[-30%] h-[500px] w-[500px] rounded-full blur-[120px]" />
+      <div className="bg-accent/15 absolute top-[-20%] left-[-10%] h-100 w-100 rounded-full blur-[120px]" />
+      <div className="bg-accent-secondary-dark/15 absolute right-[-15%] bottom-[-30%] h-125 w-125 rounded-full blur-[120px]" />
     </div>
   );
 }

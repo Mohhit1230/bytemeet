@@ -1,141 +1,133 @@
 /**
- * Membership Hook
+ * Membership Hook (GraphQL Version)
  *
- * Hook for managing subject memberships - join, approve, reject, remove
+ * Hook for managing subject memberships using GraphQL
+ * Drop-in replacement for REST-based useMembership
  */
 
+'use client';
+
 import { useState, useCallback } from 'react';
-import api from '@/lib/api';
+import { useMutation, useApolloClient } from '@apollo/client/react';
+import {
+  JOIN_SUBJECT,
+  APPROVE_JOIN_REQUEST,
+  REJECT_JOIN_REQUEST,
+  REMOVE_MEMBER,
+  GET_SUBJECT,
+  GET_MY_SUBJECTS,
+} from '@/lib/graphql/operations';
 
 export function useMembership() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const client = useApolloClient();
 
-  /**
-   * Join a subject by invite code
-   */
-  const joinSubject = useCallback(async (inviteCode: string) => {
-    try {
+  // Mutations
+  const [joinMutation] = useMutation<any>(JOIN_SUBJECT, {
+    refetchQueries: [{ query: GET_MY_SUBJECTS }],
+  });
+
+  const [approveMutation] = useMutation<any>(APPROVE_JOIN_REQUEST);
+  const [rejectMutation] = useMutation<any>(REJECT_JOIN_REQUEST);
+  const [removeMutation] = useMutation<any>(REMOVE_MEMBER);
+
+  // Join a subject
+  const joinSubject = useCallback(
+    async (inviteCode: string) => {
       setLoading(true);
       setError(null);
+      try {
+        const { data } = await joinMutation({
+          variables: { inviteCode },
+        });
 
-      const response = await api.post('/subjects/join', { invite_code: inviteCode });
+        if (!data?.joinSubject) {
+          throw new Error('Failed to join subject');
+        }
 
-      if (response.data.success) {
-        return response.data.data;
+        return data.joinSubject;
+      } catch (err: any) {
+        const message = err.message || 'Failed to join subject';
+        setError(message);
+        throw err;
+      } finally {
+        setLoading(false);
       }
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
-      const message = e.response?.data?.message || 'Failed to join subject';
-      setError(message);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [joinMutation]
+  );
 
-  /**
-   * Get pending join requests for a subject
-   */
-  const getPendingRequests = useCallback(async (subjectId: string) => {
-    try {
+  // Approve a member
+  const approveMember = useCallback(
+    async (subjectId: string, userId: string) => {
       setLoading(true);
       setError(null);
-
-      const response = await api.get(`/subjects/${subjectId}/pending-requests`);
-
-      if (response.data.success) {
-        return response.data.data;
+      try {
+        await approveMutation({
+          variables: { subjectId, userId },
+          refetchQueries: [{ query: GET_SUBJECT, variables: { id: subjectId } }],
+        });
+      } catch (err: any) {
+        const message = err.message || 'Failed to approve member';
+        setError(message);
+        throw err;
+      } finally {
+        setLoading(false);
       }
-      return [];
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
-      const message = e.response?.data?.message || 'Failed to fetch pending requests';
-      setError(message);
-      console.error('Get pending requests error:', e);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [approveMutation]
+  );
 
-  /**
-   * Approve a join request
-   */
-  const approveRequest = useCallback(async (subjectId: string, userId: string) => {
-    try {
+  // Reject a member
+  const rejectMember = useCallback(
+    async (subjectId: string, userId: string) => {
       setLoading(true);
       setError(null);
-
-      const response = await api.post(`/subjects/${subjectId}/approve`, { user_id: userId });
-
-      if (response.data.success) {
-        return response.data.data;
+      try {
+        await rejectMutation({
+          variables: { subjectId, userId },
+          refetchQueries: [{ query: GET_SUBJECT, variables: { id: subjectId } }],
+        });
+      } catch (err: any) {
+        const message = err.message || 'Failed to reject member';
+        setError(message);
+        throw err;
+      } finally {
+        setLoading(false);
       }
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
-      const message = e.response?.data?.message || 'Failed to approve request';
-      setError(message);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [rejectMutation]
+  );
 
-  /**
-   * Reject a join request
-   */
-  const rejectRequest = useCallback(async (subjectId: string, userId: string) => {
-    try {
+  // Remove a member
+  const removeMember = useCallback(
+    async (subjectId: string, userId: string) => {
       setLoading(true);
       setError(null);
-
-      const response = await api.post(`/subjects/${subjectId}/reject`, { user_id: userId });
-
-      if (response.data.success) {
-        return response.data.data;
+      try {
+        await removeMutation({
+          variables: { subjectId, userId },
+          refetchQueries: [{ query: GET_SUBJECT, variables: { id: subjectId } }],
+        });
+      } catch (err: any) {
+        const message = err.message || 'Failed to remove member';
+        setError(message);
+        throw err;
+      } finally {
+        setLoading(false);
       }
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
-      const message = e.response?.data?.message || 'Failed to reject request';
-      setError(message);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  /**
-   * Remove a member from subject
-   */
-  const removeMember = useCallback(async (subjectId: string, userId: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await api.delete(`/subjects/${subjectId}/members/${userId}`);
-
-      if (response.data.success) {
-        return true;
-      }
-    } catch (err: unknown) {
-      const e = err as { response?: { data?: { message?: string } } };
-      const message = e.response?.data?.message || 'Failed to remove member';
-      setError(message);
-      throw new Error(message);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [removeMutation]
+  );
 
   return {
+    joinSubject,
+    approveMember,
+    rejectMember,
+    removeMember,
     loading,
     error,
-    joinSubject,
-    getPendingRequests,
-    approveRequest,
-    rejectRequest,
-    removeMember,
   };
 }
 

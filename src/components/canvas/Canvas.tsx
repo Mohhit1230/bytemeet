@@ -1,9 +1,3 @@
-/**
- * Canvas Component
- *
- * Matching the "Canvas" design with proper functionality
- */
-
 'use client';
 
 import React, { useState } from 'react';
@@ -16,6 +10,7 @@ import {
   type Artifact,
 } from '@/hooks/queries';
 import { ArtifactViewer } from './ArtifactViewer';
+import { Artifact as GraphQLArtifact } from '@/hooks/useArtifacts';
 
 interface CanvasProps {
   subjectId: string;
@@ -347,8 +342,8 @@ export function Canvas({ subjectId }: CanvasProps) {
                               src={file.fileUrl}
                               className="h-32 w-full border-0 object-cover pointer-events-none scale-[1.2] origin-center"
                               title={file.title}
-                              
-                              
+
+
                             />
                             <div className="absolute inset-0 bg-linear-to-t from-[#1a1a1e]/60 via-transparent to-transparent" />
                           </>
@@ -476,7 +471,7 @@ export function Canvas({ subjectId }: CanvasProps) {
       {
         viewerOpen && selectedArtifact && (
           <ArtifactViewer
-            artifact={selectedArtifact}
+            artifact={selectedArtifact as unknown as GraphQLArtifact}
             onClose={closeViewer}
             onDelete={() => { }}
             canDelete={false}

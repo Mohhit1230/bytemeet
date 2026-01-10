@@ -1,43 +1,25 @@
-/**
- * Artifact Model for MongoDB
- *
- * Artifacts are canvas items created by AI or uploaded by users.
- * They include code snippets, images, PDFs, diagrams, and other visual content.
- *
- * While messages are stored in Supabase for real-time sync, artifacts are stored
- * in MongoDB because they are larger and don't need real-time updates.
- */
-
 const mongoose = require('mongoose');
-
-// =============================================================================
-// SCHEMA DEFINITION
-// =============================================================================
 
 const artifactSchema = new mongoose.Schema(
   {
-    // Subject (room) this artifact belongs to
     subjectId: {
       type: String,
       required: [true, 'Subject ID is required'],
       index: true,
     },
 
-    // Message that generated this artifact (Supabase message ID)
     messageId: {
       type: String,
       required: [true, 'Message ID is required'],
       index: true,
     },
 
-    // Type of artifact
     type: {
       type: String,
       required: [true, 'Artifact type is required'],
       enum: ['code', 'image', 'pdf', 'diagram', 'markdown', 'html'],
     },
 
-    // Display title
     title: {
       type: String,
       required: [true, 'Title is required'],
@@ -45,30 +27,25 @@ const artifactSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Content (for code/markdown stored directly)
     content: {
       type: String,
-      maxlength: [500000, 'Content cannot exceed 500KB'], // ~500KB limit for code
+      maxlength: [500000, 'Content cannot exceed 500KB'],
     },
 
-    // File URL (for files stored in Cloudinary/R2)
     fileUrl: {
       type: String,
     },
 
-    // Original file name
     fileName: {
       type: String,
       trim: true,
     },
 
-    // File size in bytes
     fileSize: {
       type: Number,
       min: [0, 'File size cannot be negative'],
     },
 
-    // Programming language (for code artifacts)
     language: {
       type: String,
       enum: [
@@ -95,13 +72,11 @@ const artifactSchema = new mongoose.Schema(
       ],
     },
 
-    // Diagram type (for diagram artifacts)
     diagramType: {
       type: String,
       enum: ['mermaid', 'plantuml', 'flowchart', 'sequence', 'other'],
     },
 
-    // User who created this artifact (MongoDB user ID)
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -109,13 +84,11 @@ const artifactSchema = new mongoose.Schema(
       index: true,
     },
 
-    // Whether this is an AI-generated artifact
     isAiGenerated: {
       type: Boolean,
       default: false,
     },
 
-    // View/download count for analytics
     viewCount: {
       type: Number,
       default: 0,
@@ -128,7 +101,6 @@ const artifactSchema = new mongoose.Schema(
       min: 0,
     },
 
-    // Soft delete flag
     isDeleted: {
       type: Boolean,
       default: false,
@@ -139,7 +111,7 @@ const artifactSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Adds createdAt and updatedAt
+    timestamps: true,
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
   }
@@ -149,23 +121,18 @@ const artifactSchema = new mongoose.Schema(
 // INDEXES
 // =============================================================================
 
-// Compound index for fetching artifacts by subject
 artifactSchema.index({ subjectId: 1, createdAt: -1 });
 
-// Compound index for fetching artifacts by message
 artifactSchema.index({ messageId: 1, createdAt: -1 });
 
-// Index for user's artifacts
 artifactSchema.index({ createdBy: 1, createdAt: -1 });
 
-// Index for type filtering
 artifactSchema.index({ subjectId: 1, type: 1, createdAt: -1 });
 
 // =============================================================================
 // VIRTUAL PROPERTIES
 // =============================================================================
 
-// Virtual for display size (human-readable file size)
 artifactSchema.virtual('displaySize').get(function () {
   if (!this.fileSize) return null;
 
@@ -180,19 +147,16 @@ artifactSchema.virtual('displaySize').get(function () {
 // INSTANCE METHODS
 // =============================================================================
 
-// Increment view count
 artifactSchema.methods.incrementViewCount = async function () {
   this.viewCount += 1;
   await this.save();
 };
 
-// Increment download count
 artifactSchema.methods.incrementDownloadCount = async function () {
   this.downloadCount += 1;
   await this.save();
 };
 
-// Soft delete
 artifactSchema.methods.softDelete = async function () {
   this.isDeleted = true;
   this.deletedAt = new Date();
@@ -203,7 +167,6 @@ artifactSchema.methods.softDelete = async function () {
 // STATIC METHODS
 // =============================================================================
 
-// Find artifacts by subject (excluding deleted)
 artifactSchema.statics.findBySubject = function (subjectId, options = {}) {
   const { limit = 50, offset = 0, type = null } = options;
 
@@ -217,19 +180,16 @@ artifactSchema.statics.findBySubject = function (subjectId, options = {}) {
     .populate('createdBy', 'username email avatar');
 };
 
-// Find artifacts by message ID
 artifactSchema.statics.findByMessage = function (messageId) {
   return this.find({ messageId, isDeleted: false })
     .sort({ createdAt: 1 })
     .populate('createdBy', 'username email avatar');
 };
 
-// Get artifact count by subject
 artifactSchema.statics.getCountBySubject = function (subjectId) {
   return this.countDocuments({ subjectId, isDeleted: false });
 };
 
-// Get artifact stats by subject
 artifactSchema.statics.getStatsBySubject = async function (subjectId) {
   const stats = await this.aggregate([
     { $match: { subjectId, isDeleted: false } },
@@ -252,14 +212,11 @@ artifactSchema.statics.getStatsBySubject = async function (subjectId) {
 // MIDDLEWARE
 // =============================================================================
 
-// Pre-save: Validate content or file URL exists
 artifactSchema.pre('save', async function () {
-  // Either content or fileUrl must be present
   if (!this.content && !this.fileUrl) {
     throw new Error('Artifact must have either content or fileUrl');
   }
 
-  // Set language based on file extension if not provided
   if (this.fileName && !this.language && this.type === 'code') {
     const ext = this.fileName.split('.').pop().toLowerCase();
     const langMap = {
@@ -288,10 +245,5 @@ artifactSchema.pre('save', async function () {
   }
 });
 
-// =============================================================================
-// MODEL EXPORT
-// =============================================================================
-
 const Artifact = mongoose.model('Artifact', artifactSchema);
-
 module.exports = Artifact;

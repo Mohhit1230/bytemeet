@@ -1,9 +1,3 @@
-/**
- * Dashboard Page
- *
- * Modern dashboard matching the design specification exactly
- */
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -11,7 +5,7 @@ import gsap from 'gsap';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SubjectCard } from '@/components/subject/SubjectCard';
 import { CreateSubjectModal } from '@/components/subject/CreateSubjectModal';
-import { useSubjectsQuery } from '@/hooks/queries';
+import { useSubjects } from '@/hooks/useSubjects';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/ui/UserAvatar';
 import { NotificationBell } from '@/components/notifications';
@@ -20,7 +14,7 @@ import type { Subject } from '@/types/database';
 
 export default function Dashboard() {
   const { user, logout: _logout } = useAuth();
-  const { data: subjects, isLoading: loading, refetch: refetchSubjects } = useSubjectsQuery();
+  const { subjects, loading, refetch: refetchSubjects } = useSubjects();
   const [filterType, setFilterType] = useState<'all' | 'owned' | 'joined'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,24 +31,25 @@ export default function Dashboard() {
    */
   useEffect(() => {
     const ctx = gsap.context(() => {
-      gsap.fromTo(
-        sidebarRef.current,
-        { x: -30, opacity: 0 },
-        { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }
-      );
-      gsap.fromTo(
-        mainRef.current,
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5, delay: 0.1, ease: 'power3.out' }
-      );
+      if (sidebarRef.current) {
+        gsap.fromTo(
+          sidebarRef.current,
+          { x: -30, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }
+        );
+      }
+      if (mainRef.current) {
+        gsap.fromTo(
+          mainRef.current,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, delay: 0.1, ease: 'power3.out' }
+        );
+      }
     }, containerRef);
 
     return () => ctx.revert();
   }, []);
 
-  /**
-   * Filter and Search Logic
-   */
   const getFilteredSubjects = () => {
     if (!subjects) return [];
     let allSubjects: Subject[] = [];
@@ -77,7 +72,6 @@ export default function Dashboard() {
   const filteredSubjects = getFilteredSubjects();
   const totalCount = (subjects?.owned?.length || 0) + (subjects?.joined?.length || 0);
 
-  // Get greeting based on time
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -213,7 +207,7 @@ export default function Dashboard() {
               <NotificationBell />
               <div className="h-9 w-[.1px] bg-white/13"></div>
               {/* User Menu */}
-              <div className="relative hover:scale-105 transition-transform">
+              <div className="relative transition-transform hover:scale-105">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center gap-2 rounded-full bg-white/12 p-1 pr-3 transition-colors"
@@ -250,7 +244,7 @@ export default function Dashboard() {
                   {/* Create Subject Card */}
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="h-18 py-0 border-r-accent/50 group flex items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-[#1a1a1c] px-3 transition-all hover:bg-[#1f1f21] hover:-translate-y-1"
+                    className="border-r-accent/50 group flex h-18 items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-[#1a1a1c] px-3 py-0 transition-all hover:-translate-y-1 hover:bg-[#1f1f21]"
                   >
                     <div className="bg-accent/20 text-accent group-hover:bg-accent flex h-12 w-12 items-center justify-center rounded-xl transition-all group-hover:text-white">
                       <svg
@@ -270,7 +264,7 @@ export default function Dashboard() {
                   </button>
 
                   {/* Rooms Owned */}
-                  <div className="h-18 py-0 flex items-center gap-4 rounded-2xl border border-r-4 border-white/5 border-r-emerald-500/50 bg-[#1a1a1c] p-5">
+                  <div className="flex h-18 items-center gap-4 rounded-2xl border border-r-4 border-white/5 border-r-emerald-500/50 bg-[#1a1a1c] p-5 py-0">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/20">
                       <svg
                         className="h-6 w-6 text-emerald-400"
@@ -295,7 +289,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Rooms Joined */}
-                  <div className="h-18 py-0 border-r-accent-secondary/50 flex items-center gap-4 rounded-2xl border border-r-4 border-white/5 bg-[#1a1a1c] p-5">
+                  <div className="border-r-accent-secondary/50 flex h-18 items-center gap-4 rounded-2xl border border-r-4 border-white/5 bg-[#1a1a1c] p-5 py-0">
                     <div className="bg-accent-secondary/20 flex h-12 w-12 items-center justify-center rounded-xl">
                       <svg
                         className="text-accent-secondary h-6 w-6"
@@ -355,7 +349,7 @@ export default function Dashboard() {
                     <p className="mt-4 text-gray-400">Loading your workspace...</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 ">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
                     {filteredSubjects.map((subject, index) => (
                       <SubjectCard key={subject.id} subject={subject} delay={index * 0.03} />
                     ))}

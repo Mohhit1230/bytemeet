@@ -1,14 +1,8 @@
-/**
- * JWT Utility Functions
- *
- * Helper functions for generating and verifying JWT tokens
- */
-
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
-const JWT_EXPIRES_IN = '7d'; // Token expires in 7 days
-const REFRESH_TOKEN_EXPIRES_IN = '30d'; // Refresh token expires in 30 days
+const JWT_SECRET = process.env.JWT_SECRET || 'bytemeet-key-for-prod';
+const JWT_EXPIRES_IN = '7d'; 
+const REFRESH_TOKEN_EXPIRES_IN = '30d';
 
 /**
  * Generate access token

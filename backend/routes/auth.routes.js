@@ -1,9 +1,3 @@
-/**
- * Authentication Routes
- *
- * Handles user registration, login, logout, and token management
- */
-
 const express = require('express');
 const { User } = require('../models');
 const { generateAccessToken, generateRefreshToken, verifyRefreshToken } = require('../utils/jwt');
@@ -19,7 +13,6 @@ router.post('/register', async (req, res) => {
   try {
     const { email, username, password } = req.body;
 
-    // Validate input
     if (!email || !username || !password) {
       return res.status(400).json({
         success: false,
@@ -27,7 +20,6 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Check if email already exists
     const existingEmail = await User.findByEmail(email);
     if (existingEmail) {
       return res.status(400).json({
@@ -36,7 +28,6 @@ router.post('/register', async (req, res) => {
       });
     }
 
-    // Check if username already exists
     const existingUsername = await User.findByUsername(username);
     if (existingUsername) {
       return res.status(400).json({
@@ -49,12 +40,11 @@ router.post('/register', async (req, res) => {
     const user = new User({
       email,
       username,
-      password, // Will be hashed by pre-save middleware
+      password,
     });
 
     await user.save();
 
-    // Generate tokens
     const accessToken = generateAccessToken(user._id, user.email, user.username);
     const refreshToken = generateRefreshToken(user._id);
 
@@ -80,7 +70,6 @@ router.post('/register', async (req, res) => {
     res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie('refreshToken', refreshToken, cookieOptions);
 
-    // Return response
     res.status(201).json({
       success: true,
       message: 'Registration successful',
@@ -106,9 +95,8 @@ router.post('/register', async (req, res) => {
  */
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body; // 'email' field can contain email or username
+    const { email, password } = req.body;
 
-    // Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -116,10 +104,8 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Determine if input is email or username
     const isEmail = email.includes('@');
 
-    // Find user by email or username
     let user;
     if (isEmail) {
       user = await User.findByEmail(email).select('+password');
@@ -134,7 +120,6 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Check if account is active
     if (!user.isActive) {
       return res.status(401).json({
         success: false,
@@ -149,7 +134,6 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Verify password
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
       return res.status(401).json({
@@ -158,14 +142,11 @@ router.post('/login', async (req, res) => {
       });
     }
 
-    // Update last seen
     await user.updateLastSeen();
 
-    // Generate tokens
     const accessToken = generateAccessToken(user._id, user.email, user.username);
     const refreshToken = generateRefreshToken(user._id);
 
-    // Store refresh token
     user.refreshTokens.push({
       token: refreshToken,
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
@@ -179,7 +160,7 @@ router.post('/login', async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      maxAge: 30 * 24 * 60 * 60 * 1000,
       path: '/',
     };
 
@@ -187,7 +168,6 @@ router.post('/login', async (req, res) => {
     res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie('refreshToken', refreshToken, cookieOptions);
 
-    // Return response
     res.json({
       success: true,
       message: 'Login successful',
@@ -216,12 +196,10 @@ router.post('/logout', authenticate, async (req, res) => {
     const refreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
 
     if (refreshToken) {
-      // Remove refresh token from user
       req.user.refreshTokens = req.user.refreshTokens.filter((rt) => rt.token !== refreshToken);
       await req.user.save();
     }
 
-    // Set user offline
     await req.user.setOffline();
 
     // Clear cookies
@@ -277,10 +255,8 @@ router.post('/refresh', async (req, res) => {
       });
     }
 
-    // Verify refresh token
     const decoded = verifyRefreshToken(refreshToken);
 
-    // Find user
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(401).json({
@@ -289,7 +265,6 @@ router.post('/refresh', async (req, res) => {
       });
     }
 
-    // Check if refresh token exists in user's tokens
     const tokenExists = user.refreshTokens.some((rt) => rt.token === refreshToken);
     if (!tokenExists) {
       return res.status(401).json({
@@ -301,12 +276,11 @@ router.post('/refresh', async (req, res) => {
     // Generate new access token
     const accessToken = generateAccessToken(user._id, user.email, user.username);
 
-    // Set new access token cookie
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/',
     });
 
@@ -401,7 +375,6 @@ router.put('/profile', authenticate, upload.single('avatar'), async (req, res) =
     let { avatarUrl } = req.body;
     const user = req.user;
 
-    // Handle file upload if present - upload directly to Cloudinary
     if (req.file) {
       const result = await uploadOnCloudinary(req.file.buffer);
       if (result) {
@@ -412,22 +385,18 @@ router.put('/profile', authenticate, upload.single('avatar'), async (req, res) =
           message: 'Failed to upload avatar to Cloudinary',
         });
       }
-    }
-    // Reject base64 avatars - only Cloudinary URLs allowed
-    else if (avatarUrl && avatarUrl.startsWith('data:image')) {
+    } else if (avatarUrl && avatarUrl.startsWith('data:image')) {
       return res.status(400).json({
         success: false,
         message: 'Base64 images are not supported. Please upload an image file.',
       });
     }
 
-    // Build update object - only Cloudinary URLs are saved
     if (avatarUrl !== undefined && !avatarUrl.startsWith('blob:')) {
       user.avatarUrl = avatarUrl;
     }
     if (bio !== undefined) user.bio = bio;
 
-    // Update username if changed and unique
     if (username && username !== user.username) {
       const existingUser = await User.findByUsername(username);
       if (existingUser) {
@@ -439,7 +408,6 @@ router.put('/profile', authenticate, upload.single('avatar'), async (req, res) =
       user.username = username;
     }
 
-    // Update email if changed and unique
     if (email && email !== user.email) {
       const existingEmail = await User.findByEmail(email);
       if (existingEmail) {
@@ -451,7 +419,6 @@ router.put('/profile', authenticate, upload.single('avatar'), async (req, res) =
       user.email = email;
     }
 
-    // Update password if provided
     if (newPassword) {
       if (!currentPassword) {
         return res.status(400).json({
@@ -460,7 +427,6 @@ router.put('/profile', authenticate, upload.single('avatar'), async (req, res) =
         });
       }
 
-      // Verify current password
       const isMatch = await user.comparePassword(currentPassword);
       if (!isMatch) {
         return res.status(401).json({
@@ -538,7 +504,6 @@ router.get('/google/callback', async (req, res) => {
       return res.redirect(`${CLIENT_URL}/login?error=no_code`);
     }
 
-    // Exchange code for tokens
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -558,7 +523,6 @@ router.get('/google/callback', async (req, res) => {
       return res.redirect(`${CLIENT_URL}/login?error=token_exchange_failed`);
     }
 
-    // Get user info from Google
     const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     });
@@ -569,18 +533,14 @@ router.get('/google/callback', async (req, res) => {
       return res.redirect(`${CLIENT_URL}/login?error=no_email`);
     }
 
-    // Check if user exists
     let user = await User.findByEmail(googleUser.email);
 
     if (!user) {
-      // Create new user from Google data
-      // Generate a unique username from email or Google name
       let baseUsername =
         googleUser.name?.replace(/\s+/g, '').toLowerCase() || googleUser.email.split('@')[0];
       let username = baseUsername;
       let counter = 1;
 
-      // Ensure unique username
       while (await User.findByUsername(username)) {
         username = `${baseUsername}${counter}`;
         counter++;
@@ -589,7 +549,7 @@ router.get('/google/callback', async (req, res) => {
       user = new User({
         email: googleUser.email,
         username,
-        password: Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16), // Random password for OAuth users
+        password: Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16),
         avatarUrl: googleUser.picture || null,
         googleId: googleUser.id,
         isEmailVerified: googleUser.verified_email || false,
@@ -597,7 +557,6 @@ router.get('/google/callback', async (req, res) => {
 
       await user.save();
     } else {
-      // Update existing user with Google info if not already linked
       if (!user.googleId) {
         user.googleId = googleUser.id;
         if (!user.avatarUrl && googleUser.picture) {
@@ -611,7 +570,6 @@ router.get('/google/callback', async (req, res) => {
     const accessToken = generateAccessToken(user._id, user.email, user.username);
     const refreshToken = generateRefreshToken(user._id);
 
-    // Store refresh token
     user.refreshTokens.push({
       token: refreshToken,
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
@@ -620,7 +578,6 @@ router.get('/google/callback', async (req, res) => {
     });
     await user.save();
 
-    // Update last seen
     await user.updateLastSeen();
 
     // Cookie options
@@ -631,14 +588,12 @@ router.get('/google/callback', async (req, res) => {
       path: '/',
     };
 
-    // Set cookies
     res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie('refreshToken', refreshToken, {
       ...cookieOptions,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    // Redirect to frontend with success
     res.redirect(`${CLIENT_URL}/dashboard?auth=success`);
   } catch (error) {
     console.error('Google OAuth callback error:', error);

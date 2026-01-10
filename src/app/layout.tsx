@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Montserrat, Quicksand } from 'next/font/google';
 import { GSAPProvider } from '@/providers/GSAPProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
+import { GraphQLProvider } from '@/providers/GraphQLProvider';
 import { AuthProvider } from '@/providers/AuthProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import { NotificationProvider } from '@/providers/NotificationProvider';
@@ -37,15 +38,18 @@ export default function RootLayout({
     <html lang="en" className={`${montserrat.variable} ${quicksand.variable}`}>
       <body className="antialiased">
         <GSAPProvider>
-          <QueryProvider>
-            <AuthProvider>
-              <ToastProvider>
-                <NotificationProvider>{children}</NotificationProvider>
-              </ToastProvider>
-            </AuthProvider>
-          </QueryProvider>
+          <GraphQLProvider>
+            <QueryProvider>
+              <AuthProvider>
+                <ToastProvider>
+                  <NotificationProvider>{children}</NotificationProvider>
+                </ToastProvider>
+              </AuthProvider>
+            </QueryProvider>
+          </GraphQLProvider>
         </GSAPProvider>
       </body>
     </html>
   );
 }
+

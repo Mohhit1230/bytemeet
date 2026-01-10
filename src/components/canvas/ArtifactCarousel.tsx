@@ -155,8 +155,8 @@ export function ArtifactCarousel({
                   <ArtifactCard
                     artifact={artifact}
                     onClick={() => onArtifactClick(artifact)}
-                    onDelete={() => onDelete(artifact._id)}
-                    onDownload={() => onDownload(artifact._id)}
+                    onDelete={() => artifact._id && onDelete(artifact._id)}
+                    onDownload={() => artifact._id && onDownload(artifact._id)}
                     canDelete={isOwner(artifact)}
                   />
                 </div>
@@ -195,8 +195,8 @@ export function ArtifactCarousel({
               <ArtifactCard
                 artifact={artifact}
                 onClick={() => onArtifactClick(artifact)}
-                onDelete={() => onDelete(artifact._id)}
-                onDownload={() => onDownload(artifact._id)}
+                onDelete={() => artifact._id && onDelete(artifact._id)}
+                onDownload={() => artifact._id && onDownload(artifact._id)}
                 canDelete={isOwner(artifact)}
               />
             </div>

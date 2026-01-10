@@ -1,9 +1,3 @@
-/**
- * Subject Routes
- *
- * API endpoints for creating and managing study subjects/rooms
- */
-
 const express = require('express');
 const { authenticate } = require('../middleware/auth');
 const { createClient } = require('@supabase/supabase-js');
@@ -11,19 +5,18 @@ const Notification = require('../models/notification.model');
 
 const router = express.Router();
 
-// Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_KEY
 );
 
 /**
- * Generate random invite code (6 characters)
+ * Generate random invite code (10 characters)
  */
 function generateInviteCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 10; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return code;
@@ -39,7 +32,6 @@ router.post('/', authenticate, async (req, res) => {
     const userId = req.userId;
     const username = req.user.username;
 
-    // Validate input
     if (!name || name.trim().length === 0) {
       return res.status(400).json({
         success: false,
@@ -47,7 +39,6 @@ router.post('/', authenticate, async (req, res) => {
       });
     }
 
-    // Generate unique invite code
     let inviteCode = generateInviteCode();
     let isUnique = false;
     let attempts = 0;
@@ -67,7 +58,6 @@ router.post('/', authenticate, async (req, res) => {
       }
     }
 
-    // Create subject in Supabase
     const { data: subject, error: subjectError } = await supabase
       .from('subjects')
       .insert({
@@ -84,7 +74,6 @@ router.post('/', authenticate, async (req, res) => {
       throw subjectError;
     }
 
-    // Add creator as owner in subject_members
     const { error: memberError } = await supabase.from('subject_members').insert({
       subject_id: subject.id,
       user_id: userId,
@@ -94,7 +83,6 @@ router.post('/', authenticate, async (req, res) => {
     });
 
     if (memberError) {
-      // Rollback: delete the subject
       await supabase.from('subjects').delete().eq('id', subject.id);
       throw memberError;
     }
@@ -122,7 +110,6 @@ router.get('/', authenticate, async (req, res) => {
   try {
     const userId = req.userId;
 
-    // Get all subjects where user is a member
     const { data: memberships, error: memberError } = await supabase
       .from('subject_members')
       .select('*, subjects(*)')
@@ -133,7 +120,6 @@ router.get('/', authenticate, async (req, res) => {
       throw memberError;
     }
 
-    // Separate into owned, joined, and pending
     const owned = [];
     const joined = [];
     const pending = [];
@@ -184,7 +170,6 @@ router.get('/:id', authenticate, async (req, res) => {
     const { id } = req.params;
     const userId = req.userId;
 
-    // Get subject
     const { data: subject, error: subjectError } = await supabase
       .from('subjects')
       .select('*')
@@ -198,7 +183,6 @@ router.get('/:id', authenticate, async (req, res) => {
       });
     }
 
-    // Check if user is a member
     const { data: membership, error: memberError } = await supabase
       .from('subject_members')
       .select('*')
@@ -213,7 +197,6 @@ router.get('/:id', authenticate, async (req, res) => {
       });
     }
 
-    // Get all members
     const { data: members, error: membersError } = await supabase
       .from('subject_members')
       .select('*')
@@ -309,7 +292,6 @@ router.post('/:id/regenerate-code', authenticate, async (req, res) => {
     const { id } = req.params;
     const userId = req.userId;
 
-    // Check if user is owner
     const { data: membership } = await supabase
       .from('subject_members')
       .select('role')
@@ -324,7 +306,6 @@ router.post('/:id/regenerate-code', authenticate, async (req, res) => {
       });
     }
 
-    // Generate new invite code
     const inviteCode = generateInviteCode();
 
     const { data: subject, error } = await supabase
@@ -362,7 +343,6 @@ router.delete('/:id', authenticate, async (req, res) => {
     const { id } = req.params;
     const userId = req.userId;
 
-    // Check if user is owner
     const { data: membership } = await supabase
       .from('subject_members')
       .select('role')
@@ -377,7 +357,6 @@ router.delete('/:id', authenticate, async (req, res) => {
       });
     }
 
-    // Soft delete (set is_active to false)
     const { error } = await supabase.from('subjects').update({ is_active: false }).eq('id', id);
 
     if (error) {
@@ -430,7 +409,6 @@ router.post('/join', authenticate, async (req, res) => {
       });
     }
 
-    // Check if already a member
     const { data: existing } = await supabase
       .from('subject_members')
       .select('*')
@@ -450,7 +428,6 @@ router.post('/join', authenticate, async (req, res) => {
           message: 'Your join request is pending approval',
         });
       } else if (existing.status === 'rejected') {
-        // Allow re-requesting
         const { error: updateError } = await supabase
           .from('subject_members')
           .update({ status: 'pending' })
@@ -480,7 +457,6 @@ router.post('/join', authenticate, async (req, res) => {
       throw memberError;
     }
 
-    // Notify the subject owner about the join request
     try {
       await Notification.createNotification({
         userId: subject.created_by,
@@ -496,7 +472,6 @@ router.post('/join', authenticate, async (req, res) => {
       });
     } catch (notifError) {
       console.error('Failed to create join request notification:', notifError);
-      // Don't fail the request if notification fails
     }
 
     res.json({
@@ -523,7 +498,6 @@ router.get('/:id/pending-requests', authenticate, async (req, res) => {
     const { id } = req.params;
     const userId = req.userId;
 
-    // Check if user is owner or admin
     const { data: membership } = await supabase
       .from('subject_members')
       .select('role')
@@ -538,7 +512,6 @@ router.get('/:id/pending-requests', authenticate, async (req, res) => {
       });
     }
 
-    // Get pending requests
     const { data: requests, error } = await supabase
       .from('subject_members')
       .select('*')
@@ -574,7 +547,6 @@ router.post('/:id/approve', authenticate, async (req, res) => {
     const { user_id } = req.body;
     const currentUserId = req.userId;
 
-    // Check if current user is owner or admin
     const { data: membership } = await supabase
       .from('subject_members')
       .select('role')
@@ -589,7 +561,6 @@ router.post('/:id/approve', authenticate, async (req, res) => {
       });
     }
 
-    // Approve the request
     const { data: approved, error } = await supabase
       .from('subject_members')
       .update({ status: 'approved' })
@@ -605,7 +576,6 @@ router.post('/:id/approve', authenticate, async (req, res) => {
     // Get subject name for notification
     const { data: subject } = await supabase.from('subjects').select('name').eq('id', id).single();
 
-    // Create notification for the approved user
     try {
       await Notification.createNotification({
         userId: user_id,
@@ -621,7 +591,6 @@ router.post('/:id/approve', authenticate, async (req, res) => {
       });
     } catch (notifError) {
       console.error('Failed to create approval notification:', notifError);
-      // Don't fail the request if notification fails
     }
 
     res.json({
@@ -649,7 +618,6 @@ router.post('/:id/reject', authenticate, async (req, res) => {
     const { user_id } = req.body;
     const currentUserId = req.userId;
 
-    // Check if current user is owner or admin
     const { data: membership } = await supabase
       .from('subject_members')
       .select('role')
@@ -678,7 +646,6 @@ router.post('/:id/reject', authenticate, async (req, res) => {
       throw error;
     }
 
-    // Create notification for the rejected user
     try {
       await Notification.createNotification({
         userId: user_id,
@@ -692,7 +659,6 @@ router.post('/:id/reject', authenticate, async (req, res) => {
       });
     } catch (notifError) {
       console.error('Failed to create rejection notification:', notifError);
-      // Don't fail the request if notification fails
     }
 
     res.json({
@@ -718,7 +684,6 @@ router.delete('/:id/members/:userId', authenticate, async (req, res) => {
     const { id, userId } = req.params;
     const currentUserId = req.userId;
 
-    // Check if current user is owner or admin
     const { data: membership } = await supabase
       .from('subject_members')
       .select('role')

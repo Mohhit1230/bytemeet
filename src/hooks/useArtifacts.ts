@@ -1,16 +1,30 @@
 /**
- * useArtifacts Hook
+ * useArtifacts Hook (GraphQL Version)
  *
- * Hook for managing canvas artifacts with real-time sync
+ * Hook for managing canvas artifacts using GraphQL
+ * Drop-in replacement for REST-based useArtifacts
  */
 
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import api from '@/lib/api';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client/react';
+import { useAuth } from '@/providers/AuthProvider';
+import {
+  GET_ARTIFACTS,
+  GET_MY_ARTIFACTS,
+  GET_ARTIFACT,
+  GET_ARTIFACT_STATS,
+  CREATE_ARTIFACT,
+  DELETE_ARTIFACT,
+  TRACK_ARTIFACT_VIEW,
+  TRACK_ARTIFACT_DOWNLOAD,
+} from '@/lib/graphql/operations';
 
-// Artifact types
+// =============================================================================
+// TYPES
+// =============================================================================
+
 export type ArtifactType = 'code' | 'image' | 'pdf' | 'diagram' | 'markdown' | 'html';
 
 export type ProgrammingLanguage =
@@ -18,295 +32,228 @@ export type ProgrammingLanguage =
   | 'typescript'
   | 'python'
   | 'java'
-  | 'cpp'
-  | 'c'
   | 'csharp'
+  | 'cpp'
   | 'go'
   | 'rust'
-  | 'ruby'
   | 'php'
+  | 'ruby'
   | 'swift'
   | 'kotlin'
   | 'sql'
   | 'html'
   | 'css'
   | 'json'
+  | 'yaml'
   | 'markdown'
   | 'shell'
-  | 'mermaid'
-  | 'other';
+  | 'plaintext';
 
 export interface Artifact {
-  _id: string;
-  id?: string;
-  subjectId: string;
-  messageId?: string;
+  _id: string; // Maintain _id for backward compatibility with UI components
+  id: string;
   type: ArtifactType;
   title: string;
-  content?: string;
-  fileUrl?: string;
-  fileName?: string;
-  fileSize?: number;
+  content: string;
+  description?: string;
   language?: ProgrammingLanguage;
-  diagramType?: 'mermaid' | 'plantuml' | 'flowchart' | 'sequence' | 'other';
-  createdBy: {
-    _id: string;
-    username: string;
-    email: string;
-  };
-  isAiGenerated: boolean;
-  viewCount: number;
-  downloadCount: number;
+  fileName?: string;
+  fileUrl?: string;
+  fileSize?: number;
   displaySize?: string;
-  createdAt: string;
-  updatedAt?: string;
-}
-
-export interface CreateArtifactInput {
-  subjectId: string;
-  messageId?: string;
-  type: ArtifactType;
-  title: string;
-  content?: string;
-  fileUrl?: string;
-  fileName?: string;
-  fileSize?: number;
-  language?: ProgrammingLanguage;
   diagramType?: string;
   isAiGenerated?: boolean;
-}
-
-interface ArtifactStats {
-  [key: string]: {
-    count: number;
-    totalSize: number;
+  metadata?: {
+    width?: number;
+    height?: number;
+    size?: number;
+    pageCount?: number;
+    duration?: number;
+    mimeType?: string;
+    thumbnailUrl?: string;
+    url?: string;
+    lastModified?: string;
+    author?: string;
+    tags?: string[];
   };
+  createdBy: {
+    id: string;
+    username: string;
+    email: string;
+    avatarUrl?: string;
+  };
+  subjectId?: string;
+  viewCount: number;
+  downloadCount: number;
+  tags: string[];
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export function useArtifacts(subjectId: string) {
+export function useArtifacts(subjectId?: string) {
+  const [activeArtifact, setActiveArtifact] = useState<Artifact | null>(null);
+  const client = useApolloClient();
   const { user } = useAuth();
-  const [artifacts, setArtifacts] = useState<Artifact[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState<ArtifactStats>({});
-  const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
-  const [viewerOpen, setViewerOpen] = useState(false);
 
-  /**
-   * Fetch artifacts for subject
-   */
-  const fetchArtifacts = useCallback(
-    async (type?: ArtifactType) => {
-      try {
-        setLoading(true);
-        setError(null);
+  // Queries
+  const { data: artifactsData, loading, error, refetch } = useQuery<any>(
+    subjectId ? GET_ARTIFACTS : GET_MY_ARTIFACTS,
+    {
+      variables: {
+        subjectId: subjectId || '',
+        filter: {}
+      },
+      skip: !subjectId,
+      fetchPolicy: 'cache-and-network',
+    });
 
-        const params = new URLSearchParams();
-        if (type) params.append('type', type);
+  const normalizeArtifact = useCallback((artifact: any): Artifact => {
+    return {
+      _id: artifact.id, // Ensure internal _id is mapped from GraphQL id
+      id: artifact.id,
+      type: artifact.type,
+      title: artifact.title,
+      content: artifact.content,
+      fileUrl: artifact.fileUrl,
+      fileName: artifact.fileName,
+      fileSize: artifact.fileSize,
+      displaySize: artifact.displaySize,
+      diagramType: artifact.diagramType,
+      language: artifact.language,
+      isAiGenerated: artifact.isAiGenerated,
+      createdBy: {
+        id: artifact.createdBy?.id || '',
+        username: artifact.createdBy?.username || 'Unknown',
+        email: '', // Not returned by default fragment
+        avatarUrl: artifact.createdBy?.avatarUrl,
+      },
+      viewCount: artifact.viewCount || 0,
+      downloadCount: artifact.downloadCount || 0,
+      tags: [],
+      isPublic: false,
+      createdAt: artifact.createdAt,
+      updatedAt: artifact.createdAt,
+    };
+  }, []);
 
-        const response = await api.get(`/artifacts/subject/${subjectId}?${params.toString()}`);
+  // Mutations
+  const [createMutation] = useMutation<any>(CREATE_ARTIFACT);
+  const [deleteMutation] = useMutation(DELETE_ARTIFACT);
+  const [trackViewMutation] = useMutation(TRACK_ARTIFACT_VIEW);
+  const [trackDownloadMutation] = useMutation(TRACK_ARTIFACT_DOWNLOAD);
 
-        if (response.data.success) {
-          setArtifacts(response.data.data);
-        }
-      } catch (err: unknown) {
-        const e = err as { response?: { data?: { message?: string } } };
-        console.error('Fetch artifacts error:', e);
-        setError(e.response?.data?.message || 'Failed to fetch artifacts');
-      } finally {
-        setLoading(false);
-      }
-    },
-    [subjectId]
-  );
-
-  /**
-   * Fetch artifact stats
-   */
-  const fetchStats = useCallback(async () => {
-    try {
-      const response = await api.get(`/artifacts/subject/${subjectId}/stats`);
-      if (response.data.success) {
-        setStats(response.data.data);
-      }
-    } catch (err) {
-      console.error('Fetch artifact stats error:', err);
-    }
-  }, [subjectId]);
-
-  /**
-   * Create artifact
-   */
+  // Create Artifact
   const createArtifact = useCallback(
-    async (input: CreateArtifactInput): Promise<Artifact | null> => {
+    async (input: any) => {
       try {
-        setError(null);
-        const response = await api.post('/artifacts', input);
+        const { data } = await createMutation({
+          variables: { input: { ...input, subjectId } },
+          update: (cache, { data: { createArtifact } }) => {
+            if (!subjectId) return;
 
-        if (response.data.success) {
-          const newArtifact = response.data.data;
-          setArtifacts((prev) => [newArtifact, ...prev]);
-          return newArtifact;
-        }
-        return null;
-      } catch (err: unknown) {
-        const e = err as { response?: { data?: { message?: string } } };
-        console.error('Create artifact error:', e);
-        setError(e.response?.data?.message || 'Failed to create artifact');
-        return null;
+            const existing = cache.readQuery({
+              query: GET_ARTIFACTS,
+              variables: { subjectId, filter: {} }
+            }) as any;
+
+            if (existing && existing.artifacts) {
+              cache.writeQuery({
+                query: GET_ARTIFACTS,
+                variables: { subjectId, filter: {} },
+                data: {
+                  artifacts: [createArtifact, ...existing.artifacts]
+                }
+              });
+            }
+          }
+        });
+        return normalizeArtifact(data.createArtifact);
+      } catch (err) {
+        console.error('Error creating artifact:', err);
+        throw err;
       }
     },
-    []
+    [createMutation, normalizeArtifact, subjectId]
   );
 
-  /**
-   * Upload file artifact
-   */
-  const uploadArtifact = useCallback(
-    async (file: File, title?: string): Promise<Artifact | null> => {
+  // Delete Artifact
+  const deleteArtifact = useCallback(
+    async (id: string) => {
+      await deleteMutation({
+        variables: { id },
+      });
+    },
+    [deleteMutation]
+  );
+
+  // Get Single Artifact
+  const getArtifact = useCallback(
+    async (id: string) => {
       try {
-        setError(null);
-
-        // Determine type from file
-        let type: ArtifactType = 'image';
-        if (file.type.includes('pdf')) type = 'pdf';
-        else if (file.name.match(/\.(js|ts|jsx|tsx|py|java|cpp|c|go|rs|rb|php|html|css|json|md)$/))
-          type = 'code';
-        else if (file.type.includes('image')) type = 'image';
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('subjectId', subjectId);
-        formData.append('type', type);
-        formData.append('title', title || file.name);
-        formData.append('fileName', file.name);
-
-        const response = await api.post('/artifacts/upload', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+        const { data } = await client.query<any>({
+          query: GET_ARTIFACT,
+          variables: { id },
+          fetchPolicy: 'network-only',
         });
 
-        if (response.data.success) {
-          const newArtifact = response.data.data;
-          setArtifacts((prev) => [newArtifact, ...prev]);
-          return newArtifact;
+        if (data?.artifact) {
+          const artifact = normalizeArtifact(data.artifact);
+          setActiveArtifact(artifact);
+          return artifact;
         }
         return null;
-      } catch (err: unknown) {
-        const e = err as { response?: { data?: { message?: string } } };
-        console.error('Upload artifact error:', e);
-        setError(e.response?.data?.message || 'Failed to upload file');
+      } catch (err) {
+        console.error('Error fetching artifact:', err);
         return null;
       }
     },
-    [subjectId]
+    [client, normalizeArtifact]
   );
 
-  /**
-   * Delete artifact
-   */
-  const deleteArtifact = useCallback(
-    async (artifactId: string): Promise<boolean> => {
+  // Track View
+  const trackView = useCallback(
+    async (id: string) => {
       try {
-        setError(null);
-        const response = await api.delete(`/artifacts/${artifactId}`);
-
-        if (response.data.success) {
-          setArtifacts((prev) => prev.filter((a) => a._id !== artifactId));
-          if (selectedArtifact?._id === artifactId) {
-            setSelectedArtifact(null);
-            setViewerOpen(false);
-          }
-          return true;
-        }
-        return false;
-      } catch (err: unknown) {
-        const e = err as { response?: { data?: { message?: string } } };
-        console.error('Delete artifact error:', e);
-        setError(e.response?.data?.message || 'Failed to delete artifact');
-        return false;
+        await trackViewMutation({
+          variables: { id },
+          optimisticResponse: (vars: any) => ({
+            trackArtifactView: true
+          }),
+        });
+      } catch (err) {
+        console.error('Error tracking view:', err);
       }
     },
-    [selectedArtifact]
+    [trackViewMutation]
   );
 
-  /**
-   * Open artifact viewer
-   */
-  const openViewer = useCallback((artifact: Artifact) => {
-    setSelectedArtifact(artifact);
-    setViewerOpen(true);
-
-    // Track view
-    api.post(`/artifacts/${artifact._id}/view`).catch(console.error);
-  }, []);
-
-  /**
-   * Close artifact viewer
-   */
-  const closeViewer = useCallback(() => {
-    setSelectedArtifact(null);
-    setViewerOpen(false);
-  }, []);
-
-  /**
-   * Track download
-   */
-  const trackDownload = useCallback(async (artifactId: string) => {
-    try {
-      await api.post(`/artifacts/${artifactId}/download`);
-    } catch (err) {
-      console.error('Track download error:', err);
-    }
-  }, []);
-
-  /**
-   * Add artifact from AI response
-   */
-  const addFromAIResponse = useCallback(
-    async (content: string, type: ArtifactType, language?: ProgrammingLanguage, title?: string) => {
-      const input: CreateArtifactInput = {
-        subjectId,
-        type,
-        title: title || `${type.charAt(0).toUpperCase() + type.slice(1)} Artifact`,
-        content,
-        language,
-        isAiGenerated: true,
-      };
-
-      return createArtifact(input);
+  // Track Download
+  const trackDownload = useCallback(
+    async (id: string) => {
+      try {
+        await trackDownloadMutation({
+          variables: { id },
+        });
+      } catch (err) {
+        console.error('Error tracking download:', err);
+      }
     },
-    [subjectId, createArtifact]
+    [trackDownloadMutation]
   );
-
-  /**
-   * Initial fetch
-   */
-  useEffect(() => {
-    if (subjectId) {
-      fetchArtifacts();
-      fetchStats();
-    }
-  }, [subjectId, fetchArtifacts, fetchStats]);
 
   return {
-    artifacts,
+    artifacts: (artifactsData?.artifacts?.nodes || artifactsData?.artifacts || artifactsData?.myArtifacts || []).map(normalizeArtifact),
+    activeArtifact,
     loading,
     error,
-    stats,
-    selectedArtifact,
-    viewerOpen,
-    fetchArtifacts,
-    fetchStats,
     createArtifact,
-    uploadArtifact,
     deleteArtifact,
-    openViewer,
-    closeViewer,
+    getArtifact,
+    setActiveArtifact,
+    trackView,
     trackDownload,
-    addFromAIResponse,
-    isOwner: (artifact: Artifact) => artifact.createdBy._id === user?._id,
+    refetch,
   };
 }
 

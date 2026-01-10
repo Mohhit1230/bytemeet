@@ -1,9 +1,3 @@
-/**
- * Join Subject Page
- *
- * Page for joining a subject using an invite code
- */
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -28,9 +22,6 @@ export default function JoinPage() {
   const formRef = useRef<HTMLFormElement>(null);
   const hasAutoJoinedRef = useRef(false);
 
-  /**
-   * Handle join request
-   */
   const handleJoin = async (code: string) => {
     if (!code || code.length !== 6) {
       setError('Please enter a valid 6-character invite code');
@@ -43,7 +34,6 @@ export default function JoinPage() {
 
       setSuccess(true);
 
-      // Success animation
       if (formRef.current) {
         gsap.to(formRef.current, {
           scale: 1.05,
@@ -51,7 +41,6 @@ export default function JoinPage() {
           yoyo: true,
           repeat: 1,
           onComplete: () => {
-            // Navigate to home to see pending tab
             setTimeout(() => router.push('/dashboard'), 500);
           },
         });
@@ -100,9 +89,6 @@ export default function JoinPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.code]);
 
-  /**
-   * Handle form submission
-   */
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleJoin(inviteCode);
@@ -155,7 +141,7 @@ export default function JoinPage() {
               <span>Back to Dashboard</span>
             </button>
           </div>
-          <div className="bg-[#191919] border-bg-200 mt-8 rounded-2xl border p-8 shadow-2xl">
+          <div className="border-bg-200 mt-8 rounded-2xl border bg-[#191919] p-8 shadow-2xl">
             {/* Icon */}
             <div className="mb-6 flex justify-center">
               <div className="from-accent-light to-accent flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br">

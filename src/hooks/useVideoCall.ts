@@ -20,7 +20,7 @@ interface VideoCallState {
 }
 
 export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideoCallOptions) {
-  const livekit = useLiveKit({ subjectId, username });
+  const livekit = useLiveKit({ roomName: subjectId, username });
 
   const [activeSpeaker, setActiveSpeaker] = useState<string | null>(null);
   const [pinnedParticipant, setPinnedParticipant] = useState<string | null>(null);

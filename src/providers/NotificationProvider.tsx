@@ -1,62 +1,161 @@
 /**
- * Notification Provider
+ * Notification Provider (GraphQL Version)
  *
- * Context provider for managing notifications across the app
- * Updated to use TanStack Query for optimized data fetching
+ * Context provider for managing notifications using GraphQL.
+ * Uses Apollo Client with polling for near-real-time updates.
  */
 
 'use client';
 
-import React, { createContext, useContext, useEffect, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import React, { createContext, useContext, useCallback } from 'react';
+import { useQuery, useMutation, useApolloClient } from '@apollo/client/react';
 import {
-  useNotificationsQuery,
-  useMarkAsReadMutation,
-  useMarkAllAsReadMutation,
-  useDeleteNotificationMutation,
-  getNotificationIcon,
-  getNotificationColor,
-  formatNotificationTime,
-  type Notification,
-  type NotificationType,
-} from '@/hooks/queries';
-import { queryKeys } from '@/lib/queryKeys';
+  GET_NOTIFICATIONS,
+  GET_UNREAD_COUNT,
+  MARK_NOTIFICATIONS_READ,
+  MARK_ALL_READ,
+  DELETE_NOTIFICATION,
+} from '@/lib/graphql/operations';
 import { useToast } from '@/components/ui/Toast';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from './AuthProvider';
 
-// Notification data shape
-interface NotificationData {
-  subjectId?: string;
-  subjectName?: string;
-  requestId?: string;
-  artifactId?: string;
-  messageId?: string;
-  fromUser?: {
-    _id: string;
-    username: string;
-    email: string;
+// =============================================================================
+// TYPES
+// =============================================================================
+
+type NotificationType =
+  | 'JOIN_REQUEST'
+  | 'REQUEST_APPROVED'
+  | 'REQUEST_REJECTED'
+  | 'MESSAGE_MENTION'
+  | 'SUBJECT_UPDATE'
+  | 'NEW_ARTIFACT'
+  | 'SYSTEM';
+
+interface Notification {
+  id: string;
+  _id: string; // Backward compatibility
+  type: NotificationType;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  data?: {
+    subjectId?: string;
+    subjectName?: string;
+    artifactId?: string;
+    fromUser?: {
+      id: string;
+      username: string;
+      avatarUrl?: string;
+    };
   };
-  fromUsername?: string;
-  onClick?: () => void;
 }
 
-// Notification context value
-interface NotificationContextValue {
+interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
   loading: boolean;
-  error: string | null;
-  refetchNotifications: () => void;
-  markAsRead: (notificationIds: string[]) => Promise<void>;
+  markAsRead: (ids: string[]) => Promise<void>;
   markAllAsRead: () => Promise<void>;
-  deleteNotification: (notificationId: string) => Promise<void>;
+  deleteNotification: (id: string) => Promise<void>;
+  refetch: () => void;
+  refetchNotifications: () => void;
   getNotificationIcon: (type: NotificationType) => string;
   getNotificationColor: (type: NotificationType) => string;
   formatTime: (dateString: string) => string;
-  showNotification: (type: NotificationType, title: string, message: string, data?: NotificationData) => void;
 }
 
-const NotificationContext = createContext<NotificationContextValue | null>(null);
+// =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
+
+function getNotificationIcon(type: NotificationType): string {
+  const icons: Record<NotificationType, string> = {
+    JOIN_REQUEST: '👋',
+    REQUEST_APPROVED: '✅',
+    REQUEST_REJECTED: '❌',
+    MESSAGE_MENTION: '💬',
+    NEW_ARTIFACT: '📁',
+    SUBJECT_UPDATE: '📩',
+    SYSTEM: '🔔',
+  } as any;
+  return icons[type] || '🔔';
+}
+
+function getNotificationColor(type: NotificationType): string {
+  const colors: Record<NotificationType, string> = {
+    JOIN_REQUEST: 'text-blue-400',
+    REQUEST_APPROVED: 'text-green-400',
+    REQUEST_REJECTED: 'text-red-400',
+    MESSAGE_MENTION: 'text-purple-400',
+    NEW_ARTIFACT: 'text-yellow-400',
+    SUBJECT_UPDATE: 'text-pink-400',
+    SYSTEM: 'text-gray-400',
+  } as any;
+  return colors[type] || 'text-gray-400';
+}
+
+function formatTime(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return 'Just now';
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+}
+
+// =============================================================================
+// GRAPHQL RESPONSE TYPES
+// =============================================================================
+
+interface NotificationFromUser {
+  id: string;
+  username: string;
+  avatarUrl?: string;
+}
+
+interface NotificationData {
+  subjectId?: string;
+  subjectName?: string;
+  artifactId?: string;
+}
+
+interface NotificationNode {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  data?: NotificationData;
+  fromUser?: NotificationFromUser;
+}
+
+interface GetNotificationsResponse {
+  notifications: {
+    nodes: NotificationNode[];
+    totalCount: number;
+    unreadCount: number;
+    hasMore: boolean;
+  };
+}
+
+// =============================================================================
+// CONTEXT
+// =============================================================================
+
+const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+
+// =============================================================================
+// PROVIDER COMPONENT
+// =============================================================================
 
 interface NotificationProviderProps {
   children: React.ReactNode;
@@ -64,165 +163,174 @@ interface NotificationProviderProps {
 
 export function NotificationProvider({ children }: NotificationProviderProps) {
   const { user } = useAuth();
-  const isAuthenticated = !!user;
-  const toast = useToast();
-  const queryClient = useQueryClient();
+  const { error: showError, success: showSuccess } = useToast();
+  const client = useApolloClient();
 
-  // Use TanStack Query for notifications with built-in polling
-  const {
-    data: notificationsData,
-    isLoading: loading,
-    error: queryError,
-    refetch,
-  } = useNotificationsQuery({
-    pollInterval: isAuthenticated ? 30000 : 0, // Poll every 30 seconds if authenticated
-    enabled: isAuthenticated,
-  });
+  // =============================================================================
+  // GRAPHQL OPERATIONS
+  // =============================================================================
 
-  const markAsReadMutation = useMarkAsReadMutation();
-  const markAllAsReadMutation = useMarkAllAsReadMutation();
-  const deleteNotificationMutation = useDeleteNotificationMutation();
-
-  const notifications = notificationsData?.notifications || [];
-  const unreadCount = notificationsData?.unreadCount || 0;
-  const error = queryError?.message || null;
-
-  /**
-   * Show a notification as a toast and add to list
-   */
-  const showNotification = useCallback(
-    (type: NotificationType, title: string, message: string, data?: NotificationData) => {
-      // Map notification type to toast type
-      const toastTypeMap: Record<NotificationType, 'success' | 'info' | 'warning' | 'error'> = {
-        join_request: 'info',
-        request_approved: 'success',
-        request_rejected: 'error',
-        message_mention: 'info',
-        artifact_shared: 'info',
-        member_joined: 'info',
-        subject_invite: 'info',
-        system: 'info',
-      };
-
-      // Show toast
-      toast[toastTypeMap[type]](title, message, {
-        onClick: data?.onClick,
-      });
-
-      // Add to notification list locally (for real-time notifications)
-      const notification: Notification = {
-        _id: Math.random().toString(36).substr(2, 9),
-        userId: '',
-        type,
-        title,
-        message,
-        data: data || {},
-        isRead: false,
-        isActioned: false,
-        createdAt: new Date().toISOString(),
-      };
-
-      // Update cache optimistically
-      queryClient.setQueryData(queryKeys.notifications.list(), (old: { notifications: Notification[]; unreadCount: number } | undefined) => {
-        if (!old) return { notifications: [notification], unreadCount: 1 };
-        return {
-          notifications: [notification, ...old.notifications],
-          unreadCount: old.unreadCount + 1,
-        };
-      });
-    },
-    [toast, queryClient]
+  // Query notifications with polling for real-time updates
+  const { data: notificationsData, loading: notificationsLoading, refetch: refetchNotifications } = useQuery<GetNotificationsResponse>(
+    GET_NOTIFICATIONS,
+    {
+      variables: {
+        filter: {
+          unreadOnly: false,
+          limit: 50,
+          skip: 0,
+        },
+      },
+      skip: !user,
+      pollInterval: 30000, // Poll every 30 seconds
+      fetchPolicy: 'cache-and-network',
+    }
   );
 
-  // Listen for real-time notifications (can be extended with WebSocket/Socket.io)
-  useEffect(() => {
-    // Custom event listener for real-time notifications
-    const handleNewNotification = (event: CustomEvent<{ notification: Notification }>) => {
-      const notification = event.detail.notification;
+  // Query unread count
+  const { data: unreadData, refetch: refetchUnread } = useQuery<{ unreadNotificationCount: number }>(GET_UNREAD_COUNT, {
+    skip: !user,
+    pollInterval: 30000,
+    fetchPolicy: 'cache-and-network',
+  });
 
-      // Update cache
-      queryClient.setQueryData(queryKeys.notifications.list(), (old: { notifications: Notification[]; unreadCount: number } | undefined) => {
-        if (!old) return { notifications: [notification], unreadCount: 1 };
-        return {
-          notifications: [notification, ...old.notifications],
-          unreadCount: notification.isRead ? old.unreadCount : old.unreadCount + 1,
-        };
+  // Mutations
+  const [markReadMutation] = useMutation(MARK_NOTIFICATIONS_READ);
+  const [markAllMutation] = useMutation(MARK_ALL_READ);
+  const [deleteMutation] = useMutation(DELETE_NOTIFICATION);
+
+  // =============================================================================
+  // HANDLERS
+  // =============================================================================
+
+  const markAsRead = useCallback(
+    async (ids: string[]) => {
+      try {
+        await markReadMutation({
+          variables: { ids },
+          optimisticResponse: {
+            markNotificationsRead: {
+              success: true,
+              message: 'Marked as read',
+              __typename: 'MutationResponse',
+            },
+          },
+          update: (cache) => {
+            // Update cache optimistically
+            ids.forEach((id) => {
+              cache.modify({
+                id: cache.identify({ __typename: 'Notification', id }),
+                fields: {
+                  isRead: () => true,
+                },
+              });
+            });
+          },
+        });
+
+        // Refetch unread count
+        refetchUnread();
+      } catch (error) {
+        console.error('Failed to mark notifications as read:', error);
+        showError('Failed to mark as read');
+      }
+    },
+    [markReadMutation, refetchUnread, showError]
+  );
+
+  const markAllAsRead = useCallback(async () => {
+    try {
+      await markAllMutation({
+        optimisticResponse: {
+          markAllNotificationsRead: {
+            success: true,
+            message: 'All marked as read',
+            __typename: 'MutationResponse',
+          },
+        },
       });
 
-      const toastTypeMap: Record<NotificationType, 'success' | 'info' | 'warning' | 'error'> = {
-        join_request: 'info',
-        request_approved: 'success',
-        request_rejected: 'error',
-        message_mention: 'info',
-        artifact_shared: 'info',
-        member_joined: 'info',
-        subject_invite: 'info',
-        system: 'info',
-      };
+      // Refetch to get updated data
+      refetchNotifications();
+      refetchUnread();
+    } catch (error) {
+      console.error('Failed to mark all as read:', error);
+      showError('Failed to mark all as read');
+    }
+  }, [markAllMutation, refetchNotifications, refetchUnread, showError]);
 
-      toast[toastTypeMap[notification.type]](notification.title, notification.message);
-    };
+  const deleteNotification = useCallback(
+    async (id: string) => {
+      try {
+        await deleteMutation({
+          variables: { id },
+          optimisticResponse: {
+            deleteNotification: {
+              success: true,
+              message: 'Notification deleted',
+              __typename: 'MutationResponse',
+            },
+          },
+          update: (cache) => {
+            // Remove from cache
+            cache.evict({ id: cache.identify({ __typename: 'Notification', id }) });
+            cache.gc();
+          },
+        });
 
-    window.addEventListener('bytemeet:notification', handleNewNotification as EventListener);
+        showSuccess('Notification deleted');
+      } catch (error) {
+        console.error('Failed to delete notification:', error);
+        showError('Failed to delete notification');
+      }
+    },
+    [deleteMutation, showSuccess, showError]
+  );
 
-    return () => {
-      window.removeEventListener('bytemeet:notification', handleNewNotification as EventListener);
-    };
-  }, [queryClient, toast]);
+  const refetch = useCallback(() => {
+    refetchNotifications();
+    refetchUnread();
+  }, [refetchNotifications, refetchUnread]);
 
-  const value: NotificationContextValue = {
-    notifications,
-    unreadCount,
-    loading,
-    error,
+  // =============================================================================
+  // CONTEXT VALUE
+  // =============================================================================
+
+  const value: NotificationContextType = {
+    notifications: (notificationsData?.notifications?.nodes || []).map((n: NotificationNode) => ({
+      ...n,
+      _id: n.id,
+    })),
+    unreadCount: unreadData?.unreadNotificationCount || 0,
+    loading: notificationsLoading,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    refetch,
     refetchNotifications: refetch,
-    markAsRead: async (ids: string[]) => {
-      await markAsReadMutation.mutateAsync(ids);
-    },
-    markAllAsRead: async () => {
-      await markAllAsReadMutation.mutateAsync();
-    },
-    deleteNotification: async (id: string) => {
-      await deleteNotificationMutation.mutateAsync(id);
-    },
     getNotificationIcon,
     getNotificationColor,
-    formatTime: formatNotificationTime,
-    showNotification,
+    formatTime,
   };
 
   return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;
 }
 
-/**
- * Hook to use notification context
- */
-export function useNotificationContext(): NotificationContextValue {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotificationContext must be used within a NotificationProvider');
-  }
-  return context;
-}
+// =============================================================================
+// HOOK
+// =============================================================================
 
 /**
- * Utility to dispatch custom notification event
- * Can be called from anywhere in the app
+ * Hook to access notification context
  */
-export function dispatchNotification(
-  notification: Omit<Notification, '_id' | 'userId' | 'createdAt'>
-) {
-  const event = new CustomEvent('bytemeet:notification', {
-    detail: {
-      notification: {
-        ...notification,
-        _id: Math.random().toString(36).substr(2, 9),
-        userId: '',
-        createdAt: new Date().toISOString(),
-      },
-    },
-  });
-  window.dispatchEvent(event);
+export function useNotificationContext() {
+  const context = useContext(NotificationContext);
+
+  if (context === undefined) {
+    throw new Error('useNotificationContext must be used within a NotificationProvider');
+  }
+
+  return context;
 }
 
 export default NotificationProvider;

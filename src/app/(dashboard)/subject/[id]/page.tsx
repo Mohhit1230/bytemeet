@@ -1,9 +1,3 @@
-/**
- * Subject Room Page
- *
- * Main subject/room page with 3-panel layout
- */
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -22,9 +16,6 @@ export default function SubjectRoomPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  /**
-   * Fetch subject data
-   */
   useEffect(() => {
     const fetchSubject = async () => {
       try {

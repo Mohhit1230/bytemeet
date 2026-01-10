@@ -1,9 +1,3 @@
-/**
- * Artifact Routes
- *
- * API endpoints for managing canvas artifacts
- */
-
 const express = require('express');
 const router = express.Router();
 const Artifact = require('../models/artifact.model');
@@ -22,7 +16,7 @@ cloudinary.config({
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 10 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
     const allowedTypes = [
@@ -170,7 +164,6 @@ router.post('/', authenticate, async (req, res) => {
       isAiGenerated,
     } = req.body;
 
-    // Validate required fields
     if (!subjectId || !type || !title) {
       return res.status(400).json({
         success: false,
@@ -178,7 +171,6 @@ router.post('/', authenticate, async (req, res) => {
       });
     }
 
-    // Either content or fileUrl must be provided
     if (!content && !fileUrl) {
       return res.status(400).json({
         success: false,
@@ -203,7 +195,6 @@ router.post('/', authenticate, async (req, res) => {
 
     await artifact.save();
 
-    // Populate creator info
     await artifact.populate('createdBy', 'username email avatar');
 
     res.status(201).json({
@@ -239,7 +230,6 @@ router.delete('/:id', authenticate, async (req, res) => {
       });
     }
 
-    // Check ownership
     if (artifact.createdBy.toString() !== req.user._id.toString()) {
       return res.status(403).json({
         success: false,
@@ -247,13 +237,10 @@ router.delete('/:id', authenticate, async (req, res) => {
       });
     }
 
-    // Soft delete
     await artifact.softDelete();
 
-    // Delete from Cloudinary if it's a file
     if (artifact.fileUrl && artifact.fileUrl.includes('cloudinary')) {
       try {
-        // Extract public ID from URL
         const urlParts = artifact.fileUrl.split('/');
         const publicIdWithExt = urlParts.slice(-2).join('/');
         const publicId = publicIdWithExt.split('.')[0];
@@ -365,10 +352,8 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       });
     }
 
-    // Get form fields from multipart request
     const { subjectId, type, title, fileName } = req.body;
 
-    // Validate required fields
     if (!subjectId || !type || !title) {
       return res.status(400).json({
         success: false,
@@ -378,7 +363,6 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
 
     const folder = req.body.folder || 'bytemeet/artifacts';
 
-    // Upload to Cloudinary
     const result = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
@@ -395,7 +379,6 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
       uploadStream.end(req.file.buffer);
     });
 
-    // Create artifact in database
     const artifact = new Artifact({
       subjectId,
       messageId: `upload-${Date.now()}`,
@@ -410,7 +393,6 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
 
     await artifact.save();
 
-    // Populate creator info
     await artifact.populate('createdBy', 'username email');
 
     res.json({
@@ -420,7 +402,6 @@ router.post('/upload', authenticate, upload.single('file'), async (req, res) => 
   } catch (error) {
     console.error('Upload error:', error);
 
-    // Provide specific error message
     let errorMessage = 'Failed to upload file';
 
     if (error.message) {

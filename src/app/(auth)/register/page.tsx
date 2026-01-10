@@ -1,9 +1,3 @@
-/**
- * Register Page
- *
- * Authentication page for user registration with animated background
- */
-
 'use client';
 
 import { RegisterForm } from '@/components/auth/RegisterForm';

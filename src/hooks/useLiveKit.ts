@@ -1,7 +1,7 @@
 /**
- * useLiveKit Hook
+ * useLiveKit Hook (GraphQL Version)
  *
- * Hook for managing LiveKit video call functionality
+ * Hook for managing LiveKit video call functionality using GraphQL for token
  */
 
 'use client';
@@ -17,7 +17,8 @@ import {
   LocalAudioTrack,
   Track,
 } from 'livekit-client';
-import api from '@/lib/api';
+import { useMutation } from '@apollo/client/react';
+import { GENERATE_VIDEO_TOKEN } from '@/lib/graphql/operations';
 
 export interface Participant {
   id: string;
@@ -31,12 +32,13 @@ export interface Participant {
 }
 
 interface UseLiveKitOptions {
-  subjectId: string;
+  roomName: string;
   username: string;
-  audioOnly?: boolean;
+  onParticipantJoined?: (participant: Participant) => void;
+  onParticipantLeft?: (participantId: string) => void;
 }
 
-export function useLiveKit({ subjectId, username, audioOnly = false }: UseLiveKitOptions) {
+export function useLiveKit({ roomName, username, onParticipantJoined, onParticipantLeft }: UseLiveKitOptions) {
   const [room, setRoom] = useState<Room | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -45,82 +47,69 @@ export function useLiveKit({ subjectId, username, audioOnly = false }: UseLiveKi
   const [isCameraOff, setIsCameraOff] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [localVideoTrack, setLocalVideoTrack] = useState<LocalVideoTrack | null>(null);
   const [localAudioTrack, setLocalAudioTrack] = useState<LocalAudioTrack | null>(null);
 
-  /**
-   * Get token from backend
-   */
-  const getToken = useCallback(async () => {
-    try {
-      const response = await api.post('/video/token', {
-        room_name: subjectId,
-        username,
-      });
-      return response.data.token;
-    } catch (err: unknown) {
-      console.error('Get token error:', err);
-      throw new Error('Failed to get video token');
-    }
-  }, [subjectId, username]);
+  // GraphQL mutation for token generation
+  const [generateTokenMutation] = useMutation<any>(GENERATE_VIDEO_TOKEN);
 
-  /**
-   * Update participants list
-   */
-  const updateParticipants = useCallback((room: Room) => {
-    const allParticipants: Participant[] = [];
+  // =============================================================================
+  // PARTICIPANT MANAGEMENT
+  // =============================================================================
 
-    // Add local participant
-    const local = room.localParticipant;
-    allParticipants.push({
-      id: local.identity,
-      username: local.identity,
+  const updateParticipants = useCallback((currentRoom: Room) => {
+    const remoteParticipants = Array.from(currentRoom.remoteParticipants.values()).map((p) => ({
+      id: p.sid,
+      username: p.identity,
+      isLocal: false,
+      isSpeaking: p.isSpeaking,
+      isMuted: p.isMicrophoneEnabled === false,
+      isCameraOff: p.isCameraEnabled === false,
+      videoTrack: p.videoTrackPublications.size > 0
+        ? Array.from(p.videoTrackPublications.values())[0]?.track || null
+        : null,
+      audioTrack: p.audioTrackPublications.size > 0
+        ? Array.from(p.audioTrackPublications.values())[0]?.track || null
+        : null,
+    }));
+
+    const localParticipant: Participant = {
+      id: currentRoom.localParticipant.sid,
+      username: currentRoom.localParticipant.identity,
       isLocal: true,
-      isSpeaking: local.isSpeaking,
-      isMuted: !local.isMicrophoneEnabled,
-      isCameraOff: !local.isCameraEnabled,
-      videoTrack: local.getTrackPublication(Track.Source.Camera)?.track || null,
-      audioTrack: local.getTrackPublication(Track.Source.Microphone)?.track || null,
-    });
+      isSpeaking: currentRoom.localParticipant.isSpeaking,
+      isMuted,
+      isCameraOff,
+      videoTrack: localVideoTrack,
+      audioTrack: localAudioTrack,
+    };
 
-    // Add remote participants (max 9 total including local)
-    room.remoteParticipants.forEach((participant, _index) => {
-      if (allParticipants.length < 9) {
-        const videoTrack = participant.getTrackPublication(Track.Source.Camera)?.track;
-        const audioTrack = participant.getTrackPublication(Track.Source.Microphone)?.track;
+    setParticipants([localParticipant, ...remoteParticipants]);
+  }, [isMuted, isCameraOff, localVideoTrack, localAudioTrack]);
 
-        allParticipants.push({
-          id: participant.identity,
-          username: participant.identity,
-          isLocal: false,
-          isSpeaking: participant.isSpeaking,
-          isMuted: !audioTrack,
-          isCameraOff: !videoTrack,
-          videoTrack: videoTrack || null,
-          audioTrack: audioTrack || null,
-        });
-      }
-    });
+  // =============================================================================
+  // CONNECTION
+  // =============================================================================
 
-    setParticipants(allParticipants);
-  }, []);
-
-  /**
-   * Connect to room
-   */
   const connect = useCallback(async () => {
+    if (isConnecting || isConnected) return;
+
+    setIsConnecting(true);
+    setError(null);
+
     try {
-      setIsConnecting(true);
-      setError(null);
+      // Get token from GraphQL API
+      const { data } = await generateTokenMutation({
+        variables: { roomName },
+      });
 
-      const token = await getToken();
-      const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL;
-
-      if (!livekitUrl) {
-        throw new Error('LiveKit URL not configured');
+      if (!data?.generateVideoToken?.success || !data?.generateVideoToken?.token) {
+        throw new Error('Failed to get video token');
       }
 
+      const token = data.generateVideoToken.token;
+
+      // Create room instance
       const newRoom = new Room({
         adaptiveStream: true,
         dynacast: true,
@@ -129,98 +118,120 @@ export function useLiveKit({ subjectId, username, audioOnly = false }: UseLiveKi
         },
       });
 
-      // Set up event listeners
-      newRoom.on(RoomEvent.ParticipantConnected, () => updateParticipants(newRoom));
-      newRoom.on(RoomEvent.ParticipantDisconnected, () => updateParticipants(newRoom));
-      newRoom.on(RoomEvent.TrackSubscribed, () => updateParticipants(newRoom));
-      newRoom.on(RoomEvent.TrackUnsubscribed, () => updateParticipants(newRoom));
-      newRoom.on(RoomEvent.ActiveSpeakersChanged, () => updateParticipants(newRoom));
-      newRoom.on(RoomEvent.LocalTrackPublished, () => updateParticipants(newRoom));
-      newRoom.on(RoomEvent.Disconnected, () => {
-        setIsConnected(false);
-        setParticipants([]);
+      // Create local tracks
+      const videoTrack = await createLocalVideoTrack({
+        resolution: VideoPresets.h720.resolution,
       });
+      const audioTrack = await createLocalAudioTrack();
+
+      setLocalVideoTrack(videoTrack);
+      setLocalAudioTrack(audioTrack);
+
+      // Set up event listeners
+      newRoom
+        .on(RoomEvent.Connected, () => {
+          setIsConnected(true);
+          setIsConnecting(false);
+          updateParticipants(newRoom);
+        })
+        .on(RoomEvent.Disconnected, () => {
+          setIsConnected(false);
+          setParticipants([]);
+        })
+        .on(RoomEvent.ParticipantConnected, (participant) => {
+          updateParticipants(newRoom);
+          if (onParticipantJoined) {
+            onParticipantJoined({
+              id: participant.sid,
+              username: participant.identity,
+              isLocal: false,
+              isSpeaking: false,
+              isMuted: true,
+              isCameraOff: true,
+              videoTrack: null,
+              audioTrack: null,
+            });
+          }
+        })
+        .on(RoomEvent.ParticipantDisconnected, (participant) => {
+          updateParticipants(newRoom);
+          if (onParticipantLeft) {
+            onParticipantLeft(participant.sid);
+          }
+        })
+        .on(RoomEvent.TrackSubscribed, () => {
+          updateParticipants(newRoom);
+        })
+        .on(RoomEvent.TrackUnsubscribed, () => {
+          updateParticipants(newRoom);
+        })
+        .on(RoomEvent.ActiveSpeakersChanged, () => {
+          updateParticipants(newRoom);
+        });
 
       // Connect to room
+      const livekitUrl = process.env.NEXT_PUBLIC_LIVEKIT_URL || 'ws://localhost:7880';
       await newRoom.connect(livekitUrl, token);
 
       // Publish local tracks
-      if (!audioOnly) {
-        const videoTrack = await createLocalVideoTrack({
-          resolution: VideoPresets.h720.resolution,
-        });
-        await newRoom.localParticipant.publishTrack(videoTrack);
-        setLocalVideoTrack(videoTrack);
-      }
-
-      const audioTrack = await createLocalAudioTrack();
+      await newRoom.localParticipant.publishTrack(videoTrack);
       await newRoom.localParticipant.publishTrack(audioTrack);
 
-      setLocalAudioTrack(audioTrack);
       setRoom(newRoom);
-      setIsConnected(true);
-      updateParticipants(newRoom);
-    } catch (err: unknown) {
-      const e = err instanceof Error ? err : new Error('Failed to connect');
-      console.error('Connect error:', e);
-      setError(e.message);
-    } finally {
+    } catch (err) {
+      console.error('Failed to connect to room:', err);
+      setError(err instanceof Error ? err.message : 'Failed to connect');
       setIsConnecting(false);
     }
-  }, [getToken, updateParticipants, audioOnly]);
+  }, [isConnecting, isConnected, roomName, generateTokenMutation, updateParticipants, onParticipantJoined, onParticipantLeft]);
 
-  /**
-   * Disconnect from room
-   */
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback(async () => {
     if (room) {
       room.disconnect();
-      localVideoTrack?.stop();
-      localAudioTrack?.stop();
       setRoom(null);
-      setLocalVideoTrack(null);
-      setLocalAudioTrack(null);
       setIsConnected(false);
       setParticipants([]);
     }
+
+    if (localVideoTrack) {
+      localVideoTrack.stop();
+      setLocalVideoTrack(null);
+    }
+
+    if (localAudioTrack) {
+      localAudioTrack.stop();
+      setLocalAudioTrack(null);
+    }
   }, [room, localVideoTrack, localAudioTrack]);
 
-  /**
-   * Toggle microphone
-   */
+  // =============================================================================
+  // CONTROLS
+  // =============================================================================
+
   const toggleMute = useCallback(async () => {
-    if (room) {
-      await room.localParticipant.setMicrophoneEnabled(isMuted);
-      setIsMuted(!isMuted);
-      updateParticipants(room);
-    }
+    if (!room) return;
+
+    const enabled = !isMuted;
+    await room.localParticipant.setMicrophoneEnabled(enabled);
+    setIsMuted(!enabled);
+    updateParticipants(room);
   }, [room, isMuted, updateParticipants]);
 
-  /**
-   * Toggle camera
-   */
   const toggleCamera = useCallback(async () => {
-    if (room) {
-      await room.localParticipant.setCameraEnabled(isCameraOff);
-      setIsCameraOff(!isCameraOff);
-      updateParticipants(room);
-    }
+    if (!room) return;
+
+    const enabled = !isCameraOff;
+    await room.localParticipant.setCameraEnabled(enabled);
+    setIsCameraOff(!enabled);
+    updateParticipants(room);
   }, [room, isCameraOff, updateParticipants]);
 
-  /**
-   * Toggle screen share
-   */
   const toggleScreenShare = useCallback(async () => {
     if (!room) return;
 
     try {
       if (isScreenSharing) {
-        const tracks = room.localParticipant.getTrackPublications();
-        tracks.forEach((pub) => {
-          if (pub.source === Track.Source.ScreenShare && pub.track) {
-            room.localParticipant.unpublishTrack(pub.track as LocalVideoTrack);
-          }
-        });
+        await room.localParticipant.setScreenShareEnabled(false);
         setIsScreenSharing(false);
       } else {
         await room.localParticipant.setScreenShareEnabled(true);
@@ -229,12 +240,14 @@ export function useLiveKit({ subjectId, username, audioOnly = false }: UseLiveKi
       updateParticipants(room);
     } catch (err) {
       console.error('Screen share error:', err);
+      setError('Failed to share screen');
     }
   }, [room, isScreenSharing, updateParticipants]);
 
-  /**
-   * Cleanup on unmount
-   */
+  // =============================================================================
+  // CLEANUP
+  // =============================================================================
+
   useEffect(() => {
     return () => {
       disconnect();
@@ -250,6 +263,8 @@ export function useLiveKit({ subjectId, username, audioOnly = false }: UseLiveKi
     isCameraOff,
     isScreenSharing,
     error,
+    localVideoTrack,
+    localAudioTrack,
     connect,
     disconnect,
     toggleMute,

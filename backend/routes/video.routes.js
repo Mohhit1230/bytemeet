@@ -1,9 +1,3 @@
-/**
- * Video Routes
- *
- * API endpoints for video calling with LiveKit
- */
-
 const express = require('express');
 const { AccessToken } = require('livekit-server-sdk');
 const { authenticate } = require('../middleware/auth');

@@ -121,8 +121,8 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
           <div className="divide-bg-200/30 divide-y">
             {notifications.map((notification) => (
               <div
-                key={notification._id}
-                onClick={() => handleNotificationClick(notification)}
+                key={(notification as any)._id}
+                onClick={() => handleNotificationClick(notification as any)}
                 className={`group hover:bg-bg-100/50 relative flex cursor-pointer gap-3 p-4 transition-colors ${!notification.isRead ? 'bg-accent/5' : ''
                   }`}
               >
@@ -153,7 +153,7 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
 
                 {/* Delete button */}
                 <button
-                  onClick={(e) => handleDelete(e, notification._id)}
+                  onClick={(e) => handleDelete(e, (notification as any)._id)}
                   className="hover:bg-bg-200 absolute top-2 right-2 rounded-lg p-1 text-gray-500 opacity-0 transition-all group-hover:opacity-100 hover:text-white"
                   title="Delete notification"
                 >

@@ -1,0 +1,628 @@
+# =============================================================================
+# BYTEMEET GRAPHQL SCHEMA
+# Version: 1.0.0
+# Generated: January 9, 2026
+# =============================================================================
+
+# =============================================================================
+# CUSTOM SCALARS
+# =============================================================================
+
+"""Custom scalar for date-time values in ISO 8601 format"""
+scalar DateTime
+
+"""Custom scalar for JSON data"""
+scalar JSON
+
+"""Custom scalar for file uploads"""
+scalar Upload
+
+# =============================================================================
+# ENUMS
+# =============================================================================
+
+"""User theme preferences"""
+enum Theme {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+"""Subject member roles"""
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+"""Membership status"""
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+"""Artifact content types"""
+enum ArtifactType {
+  CODE
+  IMAGE
+  PDF
+  DIAGRAM
+  MARKDOWN
+  HTML
+}
+
+"""Supported programming languages"""
+enum ProgrammingLanguage {
+  JAVASCRIPT
+  TYPESCRIPT
+  PYTHON
+  JAVA
+  CPP
+  C
+  CSHARP
+  GO
+  RUST
+  RUBY
+  PHP
+  SWIFT
+  KOTLIN
+  SQL
+  HTML
+  CSS
+  JSON
+  MARKDOWN
+  SHELL
+  OTHER
+}
+
+"""Diagram types"""
+enum DiagramType {
+  MERMAID
+  PLANTUML
+  FLOWCHART
+  SEQUENCE
+  OTHER
+}
+
+"""Notification types"""
+enum NotificationType {
+  JOIN_REQUEST
+  REQUEST_APPROVED
+  REQUEST_REJECTED
+  MESSAGE_MENTION
+  ARTIFACT_SHARED
+  MEMBER_JOINED
+  SUBJECT_INVITE
+  SYSTEM
+}
+
+"""OAuth provider types"""
+enum OAuthProvider {
+  GOOGLE
+  GITHUB
+  DISCORD
+}
+
+# =============================================================================
+# INPUT TYPES
+# =============================================================================
+
+"""Input for user registration"""
+input RegisterInput {
+  email: String!
+  username: String!
+  password: String!
+}
+
+"""Input for user login"""
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+"""Input for updating user profile"""
+input UpdateProfileInput {
+  username: String
+  email: String
+  bio: String
+  avatarUrl: String
+  currentPassword: String
+  newPassword: String
+}
+
+"""Input for user preferences"""
+input PreferencesInput {
+  theme: Theme
+  emailNotifications: Boolean
+  pushNotifications: Boolean
+  soundEnabled: Boolean
+}
+
+"""Input for creating a subject"""
+input CreateSubjectInput {
+  name: String!
+  description: String
+}
+
+"""Input for updating a subject"""
+input UpdateSubjectInput {
+  name: String
+  description: String
+}
+
+"""Input for creating an artifact"""
+input CreateArtifactInput {
+  subjectId: ID!
+  messageId: String
+  type: ArtifactType!
+  title: String!
+  content: String
+  fileUrl: String
+  fileName: String
+  fileSize: Int
+  language: ProgrammingLanguage
+  diagramType: DiagramType
+  isAiGenerated: Boolean
+}
+
+"""Input for artifact filtering"""
+input ArtifactFilterInput {
+  type: ArtifactType
+  limit: Int = 50
+  offset: Int = 0
+}
+
+"""Input for notification filtering"""
+input NotificationFilterInput {
+  unreadOnly: Boolean = false
+  limit: Int = 20
+  skip: Int = 0
+}
+
+"""Input for pagination"""
+input PaginationInput {
+  limit: Int = 20
+  offset: Int = 0
+}
+
+# =============================================================================
+# OBJECT TYPES
+# =============================================================================
+
+"""User preferences configuration"""
+type UserPreferences {
+  theme: Theme!
+  notifications: NotificationPreferences!
+}
+
+"""Notification preferences"""
+type NotificationPreferences {
+  email: Boolean!
+  push: Boolean!
+  sound: Boolean!
+}
+
+"""OAuth provider connection"""
+type OAuthConnection {
+  provider: OAuthProvider!
+  providerId: String!
+}
+
+"""User type - core entity for authentication and profiles"""
+type User {
+  id: ID!
+  email: String!
+  username: String!
+  avatarUrl: String
+  avatarColor: String!
+  initials: String!
+  bio: String
+  isOnline: Boolean!
+  isVerified: Boolean!
+  isActive: Boolean!
+  isBanned: Boolean!
+  preferences: UserPreferences!
+  connectedProviders: [OAuthConnection!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relationships (resolved via DataLoader)
+  """Subjects owned by this user"""
+  ownedSubjects: [Subject!]!
+  
+  """Subjects the user has joined"""
+  joinedSubjects: [Subject!]!
+  
+  """Pending subject join requests"""
+  pendingSubjects: [Subject!]!
+  
+  """User's notifications"""
+  notifications(filter: NotificationFilterInput): NotificationConnection!
+  
+  """Unread notification count"""
+  unreadNotificationCount: Int!
+}
+
+"""Authentication response with tokens"""
+type AuthPayload {
+  success: Boolean!
+  message: String!
+  user: User
+  token: String
+  refreshToken: String
+}
+
+"""Subject/Room type - collaborative spaces"""
+type Subject {
+  id: ID!
+  name: String!
+  description: String
+  inviteCode: String!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relationships
+  """Owner of the subject"""
+  owner: User!
+  
+  """Current user's role in this subject"""
+  myRole: MemberRole
+  
+  """Current user's membership status"""
+  myStatus: MembershipStatus
+  
+  """All members of the subject"""
+  members: [SubjectMember!]!
+  
+  """Count of approved members"""
+  memberCount: Int!
+  
+  """Pending join requests (owner/admin only)"""
+  pendingRequests: [SubjectMember!]!
+  
+  """Artifacts in this subject"""
+  artifacts(filter: ArtifactFilterInput): [Artifact!]!
+  
+  """Artifact statistics"""
+  artifactStats: ArtifactStats!
+}
+
+"""Subject member - join table with role information"""
+type SubjectMember {
+  id: ID!
+  user: User!
+  role: MemberRole!
+  status: MembershipStatus!
+  joinedAt: DateTime!
+}
+
+"""Artifact - shared files, code, and content"""
+type Artifact {
+  id: ID!
+  subjectId: ID!
+  messageId: String
+  type: ArtifactType!
+  title: String!
+  content: String
+  fileUrl: String
+  fileName: String
+  fileSize: Int
+  displaySize: String
+  language: ProgrammingLanguage
+  diagramType: DiagramType
+  isAiGenerated: Boolean!
+  viewCount: Int!
+  downloadCount: Int!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  
+  # Relationships
+  """User who created the artifact"""
+  createdBy: User!
+  
+  """Subject this artifact belongs to"""
+  subject: Subject!
+}
+
+"""Artifact statistics by type"""
+type ArtifactStats {
+  code: ArtifactTypeStat
+  image: ArtifactTypeStat
+  pdf: ArtifactTypeStat
+  diagram: ArtifactTypeStat
+  markdown: ArtifactTypeStat
+  html: ArtifactTypeStat
+  total: Int!
+  totalSize: Int!
+}
+
+"""Statistics for a single artifact type"""
+type ArtifactTypeStat {
+  count: Int!
+  totalSize: Int!
+}
+
+"""Notification - user alerts and messages"""
+type Notification {
+  id: ID!
+  type: NotificationType!
+  title: String!
+  message: String!
+  isRead: Boolean!
+  isActioned: Boolean!
+  data: NotificationData
+  createdAt: DateTime!
+  
+  # Relationships
+  """User who triggered the notification"""
+  fromUser: User
+}
+
+"""Notification contextual data"""
+type NotificationData {
+  subjectId: ID
+  subjectName: String
+  artifactId: ID
+  messageId: String
+}
+
+"""Paginated notification response"""
+type NotificationConnection {
+  nodes: [Notification!]!
+  totalCount: Int!
+  unreadCount: Int!
+  hasMore: Boolean!
+}
+
+"""Video call token response"""
+type VideoToken {
+  success: Boolean!
+  token: String!
+}
+
+"""Generic mutation response"""
+type MutationResponse {
+  success: Boolean!
+  message: String!
+}
+
+"""Availability check response"""
+type AvailabilityCheck {
+  available: Boolean!
+  value: String!
+}
+
+"""Upload response with file details"""
+type UploadResponse {
+  success: Boolean!
+  fileUrl: String!
+  publicId: String!
+}
+
+# =============================================================================
+# QUERIES
+# =============================================================================
+
+type Query {
+  # ---------------------------------------------------------------------------
+  # Authentication Queries
+  # ---------------------------------------------------------------------------
+  
+  """Get the currently authenticated user"""
+  me: User
+  
+  """Check if a username is available"""
+  checkUsername(username: String!): AvailabilityCheck!
+  
+  """Check if an email is available"""
+  checkEmail(email: String!): AvailabilityCheck!
+  
+  """Search for users"""
+  searchUsers(query: String!, limit: Int = 10): [User!]!
+  
+  # ---------------------------------------------------------------------------
+  # Subject Queries
+  # ---------------------------------------------------------------------------
+  
+  """Get all subjects for the current user (owned, joined, pending)"""
+  mySubjects: MySubjects!
+  
+  """Get a specific subject by ID"""
+  subject(id: ID!): Subject
+  
+  """Find a subject by invite code (for preview before joining)"""
+  subjectByInviteCode(code: String!): SubjectPreview
+  
+  # ---------------------------------------------------------------------------
+  # Artifact Queries
+  # ---------------------------------------------------------------------------
+  
+  """Get artifacts for a subject"""
+  artifacts(subjectId: ID!, filter: ArtifactFilterInput): [Artifact!]!
+  
+  """Get a single artifact by ID"""
+  artifact(id: ID!): Artifact
+  
+  """Get artifact statistics for a subject"""
+  artifactStats(subjectId: ID!): ArtifactStats!
+  
+  # ---------------------------------------------------------------------------
+  # Notification Queries
+  # ---------------------------------------------------------------------------
+  
+  """Get notifications for the current user"""
+  notifications(filter: NotificationFilterInput): NotificationConnection!
+  
+  """Get unread notification count"""
+  unreadNotificationCount: Int!
+}
+
+"""User's subjects grouped by relationship"""
+type MySubjects {
+  owned: [Subject!]!
+  joined: [Subject!]!
+  pending: [Subject!]!
+}
+
+"""Limited subject info for preview (before joining)"""
+type SubjectPreview {
+  id: ID!
+  name: String!
+  description: String
+  memberCount: Int!
+  ownerUsername: String!
+}
+
+# =============================================================================
+# MUTATIONS
+# =============================================================================
+
+type Mutation {
+  # ---------------------------------------------------------------------------
+  # Authentication Mutations
+  # ---------------------------------------------------------------------------
+  
+  """Register a new user"""
+  register(input: RegisterInput!): AuthPayload!
+  
+  """Login with email/username and password"""
+  login(input: LoginInput!): AuthPayload!
+  
+  """Logout the current user"""
+  logout: MutationResponse!
+  
+  """Refresh access token using refresh token"""
+  refreshToken(refreshToken: String!): AuthPayload!
+  
+  """Update user profile"""
+  updateProfile(input: UpdateProfileInput!): User!
+  
+  """Update user preferences"""
+  updatePreferences(input: PreferencesInput!): User!
+  
+  """Upload avatar image"""
+  uploadAvatar(file: Upload!): User!
+  
+  # ---------------------------------------------------------------------------
+  # Subject Mutations
+  # ---------------------------------------------------------------------------
+  
+  """Create a new subject/room"""
+  createSubject(input: CreateSubjectInput!): Subject!
+  
+  """Update a subject (owner only)"""
+  updateSubject(id: ID!, input: UpdateSubjectInput!): Subject!
+  
+  """Delete a subject (owner only, soft delete)"""
+  deleteSubject(id: ID!): MutationResponse!
+  
+  """Join a subject using invite code"""
+  joinSubject(inviteCode: String!): Subject!
+  
+  """Regenerate invite code (owner only)"""
+  regenerateInviteCode(subjectId: ID!): Subject!
+  
+  """Approve a join request (owner/admin)"""
+  approveJoinRequest(subjectId: ID!, userId: ID!): SubjectMember!
+  
+  """Reject a join request (owner/admin)"""
+  rejectJoinRequest(subjectId: ID!, userId: ID!): MutationResponse!
+  
+  """Remove a member from subject (owner/admin)"""
+  removeMember(subjectId: ID!, userId: ID!): MutationResponse!
+  
+  """Leave a subject"""
+  leaveSubject(subjectId: ID!): MutationResponse!
+  
+  # ---------------------------------------------------------------------------
+  # Artifact Mutations
+  # ---------------------------------------------------------------------------
+  
+  """Create a new artifact"""
+  createArtifact(input: CreateArtifactInput!): Artifact!
+  
+  """Upload a file and create artifact"""
+  uploadArtifact(
+    subjectId: ID!
+    type: ArtifactType!
+    title: String!
+    file: Upload!
+  ): Artifact!
+  
+  """Delete an artifact (owner only)"""
+  deleteArtifact(id: ID!): MutationResponse!
+  
+  """Track artifact view"""
+  trackArtifactView(id: ID!): Artifact!
+  
+  """Track artifact download"""
+  trackArtifactDownload(id: ID!): Artifact!
+  
+  # ---------------------------------------------------------------------------
+  # Notification Mutations
+  # ---------------------------------------------------------------------------
+  
+  """Mark specific notifications as read"""
+  markNotificationsRead(ids: [ID!]!): MutationResponse!
+  
+  """Mark all notifications as read"""
+  markAllNotificationsRead: MutationResponse!
+  
+  """Delete a notification"""
+  deleteNotification(id: ID!): MutationResponse!
+  
+  """Clear old notifications"""
+  clearOldNotifications(olderThanDays: Int = 30): MutationResponse!
+  
+  # ---------------------------------------------------------------------------
+  # Video Call Mutations
+  # ---------------------------------------------------------------------------
+  
+  """Generate LiveKit video token for a room"""
+  generateVideoToken(roomName: String!): VideoToken!
+}
+
+# =============================================================================
+# SUBSCRIPTIONS
+# =============================================================================
+
+type Subscription {
+  """Subscribe to new notifications"""
+  notificationReceived: Notification!
+  
+  """Subscribe to notification count updates"""
+  unreadCountChanged: Int!
+  
+  """Subscribe to subject member changes"""
+  subjectMemberUpdated(subjectId: ID!): SubjectMember!
+  
+  """Subscribe to new artifacts in a subject"""
+  artifactCreated(subjectId: ID!): Artifact!
+  
+  """Subscribe to user online status changes in a subject"""
+  memberOnlineStatusChanged(subjectId: ID!): User!
+  
+  """Subscribe to join request notifications (for owners)"""
+  joinRequestReceived(subjectId: ID!): SubjectMember!
+}
+
+# =============================================================================
+# DIRECTIVES
+# =============================================================================
+
+"""Marks a field as requiring authentication"""
+directive @auth on FIELD_DEFINITION
+
+"""Marks a field as requiring specific roles"""
+directive @hasRole(roles: [MemberRole!]!) on FIELD_DEFINITION
+
+"""Marks a field as requiring ownership"""
+directive @owner on FIELD_DEFINITION
+
+"""Rate limit a field"""
+directive @rateLimit(
+  max: Int!
+  window: String!
+) on FIELD_DEFINITION

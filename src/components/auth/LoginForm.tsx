@@ -118,6 +118,7 @@ export function LoginForm() {
   /**
    * Validate form
    */
+ 
   const validateForm = (): boolean => {
     const errors: { identifier?: string; password?: string } = {};
 
@@ -142,6 +143,14 @@ export function LoginForm() {
   /**
    * Handle form submission
    */
+  useEffect(() => {
+
+    document.addEventListener('keypress', (e) => {
+     if (e.key === 'Enter') {
+       handleSubmit(e as unknown as React.FormEvent);
+     }
+   });
+  },[])
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -172,7 +181,7 @@ export function LoginForm() {
   };
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="mx-auto w-full max-w-md space-y-6">
+    <form ref={formRef} name='LoginForm' onSubmit={handleSubmit} className="mx-auto w-full max-w-md space-y-6">
       {/* Title */}
       <div className="space-y-2 text-center">
         <h1

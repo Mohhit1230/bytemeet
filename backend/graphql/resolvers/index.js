@@ -89,6 +89,9 @@ const resolvers = {
      * User type resolvers
      */
     User: {
+        // Ensure id is always present (MongoDB uses _id)
+        id: (user) => user.id || user._id?.toString() || 'unknown',
+
         avatarColor: authResolvers.resolvers.avatarColor,
         initials: authResolvers.resolvers.initials,
         preferences: authResolvers.resolvers.preferences,

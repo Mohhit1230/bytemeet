@@ -7,14 +7,14 @@
 
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useApolloClient } from '@apollo/client/react';
 import { useAuth } from '@/providers/AuthProvider';
 import {
   GET_ARTIFACTS,
   GET_MY_ARTIFACTS,
   GET_ARTIFACT,
-  GET_ARTIFACT_STATS,
+  // GET_ARTIFACT_STATS,
   CREATE_ARTIFACT,
   DELETE_ARTIFACT,
   TRACK_ARTIFACT_VIEW,
@@ -94,7 +94,7 @@ export interface Artifact {
 export function useArtifacts(subjectId?: string) {
   const [activeArtifact, setActiveArtifact] = useState<Artifact | null>(null);
   const client = useApolloClient();
-  const { user } = useAuth();
+  // const { user } = useAuth();
 
   // Queries
   const { data: artifactsData, loading, error, refetch } = useQuery<any>(
@@ -217,7 +217,7 @@ export function useArtifacts(subjectId?: string) {
       try {
         await trackViewMutation({
           variables: { id },
-          optimisticResponse: (vars: any) => ({
+          optimisticResponse: () => ({
             trackArtifactView: true
           }),
         });

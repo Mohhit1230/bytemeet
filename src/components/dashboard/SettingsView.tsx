@@ -367,7 +367,7 @@ export function SettingsView() {
       </div>
 
       {/* DANGER ZONE Card */}
-      <div className="mb-10 rounded-3xl border border-[#3f1818] bg-[#1a0f0f] p-6">
+      <div className="mb-10 rounded-3xl border border-[#3f1818] bg-[#1c1111] p-6">
         <div className="mb-4 flex items-center gap-2">
           <svg
             className="h-4 w-4 text-accent"
@@ -396,10 +396,10 @@ export function SettingsView() {
           </div>
           <button
             onClick={logout}
-            className="flex items-center gap-2 rounded-xl border border-[#4a1a1a] bg-[#2a1212] px-6 py-2.5 text-sm font-medium whitespace-nowrap text-accent transition-colors hover:bg-[#3f1818]"
+            className="flex items-center group gap-2 rounded-xl border border-[#4a1a1a] bg-[#451d1d] px-6 py-2.5 text-sm font-medium whitespace-nowrap text-accent transition-colors hover:bg-[#c02020] hover:text-white"
           >
             <svg
-              className="h-4 w-4"
+              className="h-4 w-4 group-hover:text-white"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

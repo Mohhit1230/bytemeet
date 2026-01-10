@@ -469,7 +469,34 @@ const subjectResolvers = {
      * Resolve owner
      */
     owner: async (subject, _, context) => {
-        return context.loaders.userLoader.load(subject.created_by);
+        if (!subject.created_by) {
+            // Return a placeholder if no creator is set
+            return {
+                id: 'unknown',
+                _id: 'unknown',
+                username: 'Unknown',
+                email: 'unknown@example.com',
+                avatarUrl: null,
+                isOnline: false,
+            };
+        }
+
+        const user = await context.loaders.userLoader.load(subject.created_by);
+
+        if (!user) {
+            // User was deleted or not found - return placeholder
+            console.warn(`Owner user not found for subject ${subject.id}, created_by: ${subject.created_by}`);
+            return {
+                id: subject.created_by,
+                _id: subject.created_by,
+                username: 'Deleted User',
+                email: 'deleted@example.com',
+                avatarUrl: null,
+                isOnline: false,
+            };
+        }
+
+        return user;
     },
 
     /**

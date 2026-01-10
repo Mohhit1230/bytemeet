@@ -67,6 +67,9 @@ export function useSubjects() {
     fetchPolicy: 'cache-and-network',
   });
 
+  // Debug logging
+  console.log('[useSubjects] loading:', loading, 'data:', data, 'error:', error?.message);
+
   // Mutations
   const [createMutation] = useMutation<any>(CREATE_SUBJECT);
   const [updateMutation] = useMutation<any>(UPDATE_SUBJECT);

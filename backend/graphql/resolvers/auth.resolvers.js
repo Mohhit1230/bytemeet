@@ -133,11 +133,21 @@ const authMutations = {
      * Logout user
      */
     logout: async (_, __, context) => {
-        const user = context.user;
-        if (user) {
-            await user.setOffline();
+        // context.user is a plain object from JWT, not a Mongoose document
+        // We need to find the user and update their online status
+        if (context.user && context.user._id) {
+            try {
+                const dbUser = await User.findById(context.user._id);
+                if (dbUser) {
+                    dbUser.isOnline = false;
+                    dbUser.lastSeen = new Date();
+                    await dbUser.save();
+                }
+            } catch (err) {
+                console.error('Error setting user offline:', err);
+            }
         }
-        return { success: true };
+        return { success: true, message: 'Logged out successfully' };
     },
 
     /**

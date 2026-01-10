@@ -21,7 +21,7 @@ import {
 export function useMembership() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const client = useApolloClient();
+  // const client = useApolloClient();
 
   // Mutations
   const [joinMutation] = useMutation<any>(JOIN_SUBJECT, {

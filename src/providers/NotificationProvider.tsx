@@ -164,7 +164,7 @@ interface NotificationProviderProps {
 export function NotificationProvider({ children }: NotificationProviderProps) {
   const { user } = useAuth();
   const { error: showError, success: showSuccess } = useToast();
-  const client = useApolloClient();
+  // const client = useApolloClient();
 
   // =============================================================================
   // GRAPHQL OPERATIONS

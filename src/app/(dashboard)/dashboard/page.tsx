@@ -25,7 +25,7 @@ export default function Dashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
-
+ console.log(subjects);
   /**
    * GSAP Entrance Animation
    */

@@ -42,9 +42,9 @@ export function Canvas({ subjectId }: CanvasProps) {
     setViewerOpen(false);
   };
 
-  const trackDownload = (artifactId: string) => {
-    trackDownloadMutation.mutate(artifactId);
-  };
+  // const trackDownload = (artifactId: string) => {
+  //   trackDownloadMutation.mutate(artifactId);
+  // };
 
   const error = queryError?.message || null;
 

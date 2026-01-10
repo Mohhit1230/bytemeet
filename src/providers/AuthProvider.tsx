@@ -98,12 +98,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Load cached user from localStorage for faster initial render
     if (typeof window !== 'undefined') {
       const cachedUser = localStorage.getItem('user');
-      if (cachedUser) {
+      const cachedToken = localStorage.getItem('authToken');
+
+      // Only load user if BOTH user and token exist
+      // If user exists but token is missing, it's an invalid session
+      if (cachedUser && cachedToken) {
         try {
           setUser(JSON.parse(cachedUser));
         } catch {
           localStorage.removeItem('user');
+          localStorage.removeItem('authToken');
         }
+      } else if (cachedUser && !cachedToken) {
+        // Invalid session: user exists but token is missing
+        // Clear the user to force re-login
+        console.warn('Invalid session: user exists but token is missing. Clearing session.');
+        localStorage.removeItem('user');
       }
     }
     // Mark as hydrated after loading user

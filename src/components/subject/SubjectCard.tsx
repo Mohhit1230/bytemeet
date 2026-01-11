@@ -19,6 +19,8 @@ interface SubjectCardProps {
   subject: Subject & {
     role?: string;
     status?: string;
+    myRole?: string;
+    myStatus?: string;
     members?: SubjectMember[];
   };
   delay?: number;
@@ -30,7 +32,11 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
   const { success } = useToast();
   const { user } = useAuth();
 
-  const isOwner = subject.role === 'owner';
+  // Check ownership - API returns myRole in uppercase (OWNER, MEMBER)
+  // Also check role for backwards compatibility
+  const role = subject.myRole || subject.role || '';
+  const status = subject.myStatus || subject.status || '';
+  const isOwner = role.toUpperCase() === 'OWNER';
   const _roleColor = isOwner ? 'accent' : 'accent-secondary';
   const displayRoleColor = isOwner ? 'text-accent' : 'text-accent-secondary';
   const borderRoleColor = isOwner ? 'border-accent/20' : 'border-accent-secondary/20';
@@ -70,7 +76,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
   const handleCopyLink = (e: React.MouseEvent) => {
     e.stopPropagation();
     let link = `${window.location.origin}/join/${subject.invite_code}`;
-    const ownerName = subject.role === 'owner' ? user?.username : (subject as Subject & { owner?: { username?: string } }).owner?.username;
+    const ownerName = isOwner ? user?.username : (subject as Subject & { owner?: { username?: string } }).owner?.username;
 
     if (ownerName) {
       link = `${window.location.origin}/${ownerName}/${encodeURIComponent(subject.name)}/${subject.invite_code}`;
@@ -84,7 +90,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
    * Status Badge
    */
   const renderBadge = () => {
-    if (subject.status === 'pending') {
+    if (status.toUpperCase() === 'PENDING') {
       return (
         <span className="inline-flex items-center rounded-full border border-yellow-500/30 bg-yellow-500/10 px-2.5 py-0.5 text-xs font-semibold text-yellow-400 backdrop-blur-sm">
           Pending
@@ -95,7 +101,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
       <span
         className={`inline-flex items-center rounded-full border ${borderRoleColor} ${bgRoleColor} px-2.5 py-0.5 text-xs font-semibold ${displayRoleColor} backdrop-blur-sm`}
       >
-        {subject.role === 'owner' ? 'Owner' : 'Member'}
+        {isOwner ? 'Owner' : 'Member'}
       </span>
     );
   };
@@ -177,7 +183,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
 
           {/* Enter Button visual */}
           <div
-            className={`flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-white transition-all duration-300 group-hover:bg-white/10 ${isOwner ? 'bg-accent-dark' : 'bg-accent-secondary'} shadow-lg shadow-black/20`}
+            className={`flex items-center gap-2.5 rounded-full px-4 py-2 text-sm font-semibold text-white transition-all duration-300 group-hover:bg-white/10 ${isOwner ? 'bg-accent-secondary' : 'bg-accent'} shadow-lg shadow-black/20`}
           >
             <span>Enter</span>
             <svg

@@ -1,341 +1,337 @@
-# 🎓 ByteMeet - Collaborative Learning Platform
-
 <div align="center">
 
-![ByteMeet Banner](./docs/screenshots/HomePage.png)
+# ByteMeet
 
-**Transform the way you study with real-time collaboration, AI tutoring, and video calls**
+### Real-time Collaborative Learning Platform
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.1-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-9.0-47A248?style=for-the-badge&logo=mongodb)](https://www.mongodb.com/)
+<br/>
+
+![ByteMeet](./docs/screenshots/HomePage.png)
+
+<br/>
+
+[![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![GraphQL](https://img.shields.io/badge/GraphQL-E10098?style=flat-square&logo=graphql&logoColor=white)](https://graphql.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
+[![LiveKit](https://img.shields.io/badge/LiveKit-FF5A5F?style=flat-square&logo=webrtc&logoColor=white)](https://livekit.io/)
+
+<br/>
+
+[Features](#features) • [Tech Stack](#tech-stack) • [Getting Started](#getting-started) • [Documentation](#documentation)
 
 </div>
 
 ---
 
-## 📋 Table of Contents
+## Overview
 
-- [Overview](#-overview)
-- [Tech Stack](#-tech-stack)
-- [Features](#-features)
-- [How It Works](#-how-it-works)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-- [Screenshots](#-screenshots)
-- [API Documentation](#-api-documentation)
+ByteMeet is a collaborative learning platform that enables students and study groups to create virtual study rooms, communicate in real-time, and leverage AI-powered tutoring assistance. The platform combines video conferencing, instant messaging, and intelligent content generation to create an immersive learning environment.
 
----
+### Key Capabilities
 
-## 🌟 Overview
-
-**ByteMeet** is a collaborative learning platform designed for students and study groups. It combines the power of:
-
-- **📚 Subject Rooms** - Create dedicated study spaces for different topics
-- **💬 Real-time Chat** - Communicate with friends instantly
-- **🤖 AI Tutor** - Get help from an intelligent AI assistant
-- **📹 Video Calls** - Study together with Google Meet-style video conferencing
-- **🎨 Canvas** - Share and view learning artifacts (PDFs, code, images)
-
-Whether you're preparing for exams, working on group projects, or just want to study with friends, ByteMeet provides all the tools you need in one place.
+- **Study Rooms** — Create dedicated spaces for different subjects with invite-based access control
+- **Real-time Communication** — Instant messaging with typing indicators and online presence
+- **AI Tutoring** — Intelligent assistant powered by GPT-4 for explanations, code generation, and visual aids
+- **Video Conferencing** — WebRTC-based video calls with screen sharing and dynamic grid layouts
+- **Artifact Canvas** — View and share PDFs, code snippets, images, and AI-generated content
 
 ---
 
-## 💻 Tech Stack
+## Features
 
-### Frontend
-| Technology | Purpose |
-|------------|---------|
-| **Next.js 16** | React framework with App Router |
-| **TypeScript** | Type-safe development |
-| **Tailwind CSS 4** | Modern utility-first styling |
-| **GSAP** | Smooth animations |
-| **Framer Motion** | React animations |
+<table>
+<tr>
+<td width="50%">
 
-### Backend
-| Technology | Purpose |
-|------------|---------|
-| **Node.js + Express** | API server |
-| **GraphQL** | Flexible API queries |
-| **MongoDB + Mongoose** | User data & artifacts storage |
-| **Supabase** | Real-time chat & room management |
+### Subject Rooms
+Create isolated study environments for different topics. Each room includes:
+- Unique invite codes for member access
+- Owner approval workflow
+- Member management dashboard
+- Real-time presence indicators
 
-### Services
-| Technology | Purpose |
-|------------|---------|
-| **OpenAI GPT-4** | AI tutoring |
-| **LiveKit** | Video conferencing |
-| **Cloudinary** | File storage & delivery |
-| **Redis** | Message caching |
+</td>
+<td width="50%">
 
----
-
-## ✨ Features
-
-### 🏠 Subject Rooms
-- Create study rooms for different subjects
-- Invite friends with unique invite codes
-- Owner approval system for new members
-- Real-time member status updates
-
-### 💬 Friends Chat
-- Real-time messaging with Supabase
-- Message caching for fast loading
-- File sharing support
-- Online status indicators
-
-### 🤖 AI Tutor
-- Ask questions and get intelligent responses
+### AI Tutor
+Context-aware AI assistant that provides:
+- Detailed explanations
 - Code generation with syntax highlighting
-- Diagram and visual explanations
-- Contextual learning assistance
+- Visual diagrams and artifacts
+- Multi-subject expertise
 
-### 📹 Video Calls
-- Google Meet-style video grid
-- Screen sharing capabilities
-- Mic/camera controls
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### Video Calls
+Google Meet-style video conferencing:
+- Adaptive grid layout (1-9+ participants)
+- Microphone and camera controls
+- Screen sharing
 - Speaking indicators
 
-### 🎨 Canvas Artifacts
-- View PDFs, code, and images
-- AI-generated content display
-- Download and share artifacts
+</td>
+<td width="50%">
+
+### Real-time Chat
+Instant communication powered by Supabase:
+- Message synchronization
+- Redis caching for performance
+- File attachments
+- Typing indicators
+
+</td>
+</tr>
+</table>
 
 ---
 
-## 🔄 How It Works
+## Tech Stack
 
-```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                          BYTEMEET WORKFLOW                              │
-├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│   1️⃣ SIGN UP              2️⃣ CREATE/JOIN          3️⃣ COLLABORATE        │
-│   ─────────              ─────────────          ─────────────           │
-│   Create account         Create a subject       Chat with friends       │
-│   with username          OR join with code      Ask AI for help         │
-│                                                 Share artifacts         │
-│                                                 Video call together     │
-│                                                                          │
-│   ┌─────────────┐       ┌─────────────┐        ┌─────────────────┐      │
-│   │   Login/    │  ──▶  │  Dashboard  │  ──▶   │  Subject Room   │      │
-│   │   Signup    │       │  (Subjects) │        │  (Collaborate)  │      │
-│   └─────────────┘       └─────────────┘        └─────────────────┘      │
-│                                                                          │
-└─────────────────────────────────────────────────────────────────────────┘
-```
+### Frontend
 
-### User Flow
+| Technology | Version | Purpose |
+|:-----------|:--------|:--------|
+| Next.js | 16.1 | React framework with App Router |
+| TypeScript | 5.x | Type-safe development |
+| Tailwind CSS | 4.x | Utility-first styling |
+| GSAP | 3.x | Animation library |
+| Apollo Client | 4.x | GraphQL state management |
 
-1. **Authentication** → Sign up with email & username or login
-2. **Dashboard** → View all your subjects (owned & joined)
-3. **Create Subject** → Set name, description, get invite code
-4. **Invite Friends** → Share the invite code or link
-5. **Collaborate** → Chat, ask AI, share screen, video call
+### Backend
 
----
+| Technology | Version | Purpose |
+|:-----------|:--------|:--------|
+| Node.js | 18+ | Runtime environment |
+| Express | 5.x | HTTP server framework |
+| GraphQL | - | API query language |
+| MongoDB | 9.x | Document database |
+| Mongoose | 9.x | ODM for MongoDB |
 
-## 📁 Project Structure
+### Infrastructure
 
-```
-bytemeet/
-├── 📂 src/
-│   ├── 📂 app/                    # Next.js App Router
-│   │   ├── (auth)/                # Auth pages (login, register)
-│   │   ├── (dashboard)/           # Protected routes (dashboard, subject)
-│   │   └── layout.tsx             # Root layout
-│   ├── 📂 components/             # React components
-│   │   ├── auth/                  # Login, Register forms
-│   │   ├── canvas/                # Artifact viewer
-│   │   ├── chat/                  # Friends & AI chat
-│   │   ├── room/                  # Room layout components
-│   │   ├── subject/               # Subject cards, modals
-│   │   ├── ui/                    # Reusable UI components
-│   │   └── video/                 # Video call components
-│   ├── 📂 hooks/                  # Custom React hooks
-│   ├── 📂 lib/                    # Utilities & GraphQL
-│   ├── 📂 providers/              # Context providers
-│   └── 📂 types/                  # TypeScript types
-├── 📂 backend/                    # Express API server
-│   ├── graphql/                   # GraphQL schema & resolvers
-│   ├── models/                    # MongoDB models
-│   ├── routes/                    # REST API routes
-│   └── server.js                  # Server entry point
-├── 📂 docs/                       # Documentation & screenshots
-└── 📂 public/                     # Static assets
-```
+| Service | Purpose |
+|:--------|:--------|
+| Supabase | Real-time messaging and room management |
+| Cloudinary | Media storage and CDN |
+| LiveKit | WebRTC video conferencing |
+| Redis | Message caching layer |
+| OpenAI | AI tutoring (GPT-4) |
 
 ---
 
-## 🚀 Getting Started
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                           CLIENT (Next.js)                           │
+│   ┌────────────┐   ┌────────────┐   ┌────────────┐   ┌────────────┐  │
+│   │    Auth    │   │  Dashboard │   │   Room     │   │   Video    │  │
+│   │   Pages    │   │    View    │   │  Layout    │   │   Call     │  │
+│   └────────────┘   └────────────┘   └────────────┘   └────────────┘  │
+└───────────────────────────┬──────────────────────────────────────────┘
+                            │
+              ┌─────────────┴─────────────┐
+              │                           │
+              ▼                           ▼
+┌─────────────────────────┐   ┌─────────────────────────┐
+│    EXPRESS + GRAPHQL    │   │        SUPABASE         │
+│  ┌───────────────────┐  │   │  ┌───────────────────┐  │
+│  │   Auth Resolvers  │  │   │  │   Real-time Chat  │  │
+│  │ Subject Resolvers │  │   │  │  Room Management  │  │
+│  │Artifact Resolvers │  │   │  │  Member Status    │  │
+│  └───────────────────┘  │   │  └───────────────────┘  │
+└───────────┬─────────────┘   └─────────────────────────┘
+            │
+            ▼
+┌─────────────────────────┐   ┌─────────────────────────┐
+│        MONGODB          │   │    EXTERNAL SERVICES    │
+│  ┌───────────────────┐  │   │  ┌───────────────────┐  │
+│  │   Users           │  │   │  │   OpenAI (GPT-4)  │  │
+│  │   Artifacts       │  │   │  │   Cloudinary      │  │
+│  │   Notifications   │  │   │  │   LiveKit         │  │
+│  └───────────────────┘  │   │  └───────────────────┘  │
+└─────────────────────────┘   └─────────────────────────┘
+```
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
-- **Node.js** 18+ 
-- **MongoDB** (local or Atlas)
-- **Redis** (optional, for caching)
-
-### Environment Variables
-
-Create a `.env.local` file in the root directory:
-
-```env
-# MongoDB
-MONGODB_URI=mongodb://localhost:27017/bytemeet
-
-# JWT
-JWT_SECRET=your-secret-key
-JWT_REFRESH_SECRET=your-refresh-secret
-
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-SUPABASE_SERVICE_KEY=your-service-key
-
-# Cloudinary
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-
-# OpenAI
-OPENAI_API_KEY=your-openai-key
-
-# LiveKit (Video Calls)
-LIVEKIT_API_KEY=your-livekit-key
-LIVEKIT_API_SECRET=your-livekit-secret
-NEXT_PUBLIC_LIVEKIT_URL=wss://your-livekit-url
-
-# Redis (Optional)
-REDIS_URL=redis://localhost:6379
-```
+- Node.js 18 or higher
+- MongoDB instance (local or Atlas)
+- Supabase project
+- Redis instance (optional)
 
 ### Installation
 
 ```bash
-# Clone the repository
+# Clone repository
 git clone https://github.com/yourusername/bytemeet.git
 cd bytemeet
 
 # Install dependencies
 npm install
+```
 
-# Start the backend server
+### Environment Configuration
+
+Create `.env.local` in the project root:
+
+```env
+# Database
+MONGODB_URI=mongodb://localhost:27017/bytemeet
+
+# Authentication
+JWT_SECRET=your-jwt-secret
+JWT_REFRESH_SECRET=your-refresh-secret
+
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-key
+
+# Storage
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+
+# AI
+OPENAI_API_KEY=your-openai-key
+
+# Video
+LIVEKIT_API_KEY=your-livekit-key
+LIVEKIT_API_SECRET=your-livekit-secret
+NEXT_PUBLIC_LIVEKIT_URL=wss://your-livekit-instance.livekit.cloud
+
+# Caching (Optional)
+REDIS_URL=redis://localhost:6379
+```
+
+### Running the Application
+
+```bash
+# Terminal 1: Start backend server
 npm run server
 
-# In a new terminal, start the frontend
+# Terminal 2: Start frontend development server
 npm run dev
 ```
 
-### Available Scripts
+Access the application at `http://localhost:3000`
+
+---
+
+## Project Structure
+
+```
+bytemeet/
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── (auth)/             # Authentication routes
+│   │   ├── (dashboard)/        # Protected routes
+│   │   └── layout.tsx          # Root layout
+│   ├── components/             # React components
+│   │   ├── auth/               # Authentication forms
+│   │   ├── canvas/             # Artifact viewer
+│   │   ├── chat/               # Messaging components
+│   │   ├── room/               # Room layout
+│   │   ├── subject/            # Subject management
+│   │   ├── ui/                 # Shared UI components
+│   │   └── video/              # Video conferencing
+│   ├── hooks/                  # Custom React hooks
+│   ├── lib/                    # Utilities and clients
+│   ├── providers/              # Context providers
+│   └── types/                  # TypeScript definitions
+├── backend/
+│   ├── graphql/                # Schema and resolvers
+│   ├── models/                 # MongoDB models
+│   ├── routes/                 # REST endpoints
+│   └── server.js               # Express entry point
+├── docs/                       # Documentation
+└── public/                     # Static assets
+```
+
+---
+
+## Screenshots
+
+<table>
+<tr>
+<td width="50%">
+<img src="./docs/screenshots/Dashboard.png" alt="Dashboard"/>
+<p align="center"><em>Dashboard - Subject Overview</em></p>
+</td>
+<td width="50%">
+<img src="./docs/screenshots/Splited sections.png" alt="Room View"/>
+<p align="center"><em>Room - Split Panel Layout</em></p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src="./docs/screenshots/AI Tutor.png" alt="AI Tutor"/>
+<p align="center"><em>AI Tutor - Learning Assistant</em></p>
+</td>
+<td width="50%">
+<img src="./docs/screenshots/Canvas Artifacts.png" alt="Canvas"/>
+<p align="center"><em>Canvas - Artifact Viewer</em></p>
+</td>
+</tr>
+<tr>
+<td width="50%">
+<img src="./docs/screenshots/Login.png" alt="Login"/>
+<p align="center"><em>Authentication - Login</em></p>
+</td>
+<td width="50%">
+<img src="./docs/screenshots/Invitation.png" alt="Invitation"/>
+<p align="center"><em>Invitation - Join Flow</em></p>
+</td>
+</tr>
+</table>
+
+---
+
+## Documentation
+
+| Resource | Description |
+|:---------|:------------|
+| [GraphQL API](./docs/graphql-api.md) | Complete API reference |
+| [Endpoint Flow](./docs/endpoint-flow.md) | Request/response documentation |
+
+### API Playground
+
+GraphQL Playground available at `http://localhost:5000/graphql` when running locally.
+
+---
+
+## Scripts
 
 | Command | Description |
-|---------|-------------|
+|:--------|:------------|
 | `npm run dev` | Start Next.js development server |
 | `npm run server` | Start Express backend server |
-| `npm run build` | Build for production |
+| `npm run build` | Create production build |
 | `npm run lint` | Run ESLint |
-| `npm run format` | Format code with Prettier |
+| `npm run format` | Format with Prettier |
 
 ---
 
-## 📸 Screenshots
+## License
 
-### 🏠 Home Page
-![Home Page](./docs/screenshots/HomePage.png)
-
-### 🔐 Authentication
-| Login | Sign Up |
-|-------|---------|
-| ![Login](./docs/screenshots/Login.png) | ![Signup](./docs/screenshots/Signup.png) |
-
-### 📊 Dashboard
-![Dashboard](./docs/screenshots/Dashboard.png)
-
-### 🎓 Subject Room
-| Split View | Canvas Artifacts |
-|------------|------------------|
-| ![Split View](./docs/screenshots/Splited%20sections.png) | ![Canvas](./docs/screenshots/Canvas%20Artifacts.png) |
-
-### 🤖 AI Tutor
-![AI Tutor](./docs/screenshots/AI%20Tutor.png)
-
-### 📨 Invitation System
-![Invitation](./docs/screenshots/Invitation.png)
-
----
-
-## 📚 API Documentation
-
-ByteMeet uses **GraphQL** for its API. The GraphQL playground is available at:
-
-```
-http://localhost:5000/graphql
-```
-
-### Key Queries
-
-```graphql
-# Get current user
-query Me {
-  me { id username email }
-}
-
-# Get user's subjects
-query MySubjects {
-  mySubjects {
-    owned { id name description }
-    joined { id name description }
-  }
-}
-```
-
-### Key Mutations
-
-```graphql
-# Create a subject
-mutation CreateSubject($input: CreateSubjectInput!) {
-  createSubject(input: $input) {
-    success
-    subject { id name invite_code }
-  }
-}
-
-# Join a subject
-mutation JoinSubject($inviteCode: String!) {
-  joinSubject(inviteCode: $inviteCode) {
-    success
-    message
-  }
-}
-```
-
-For complete API documentation, see [`docs/graphql-api.md`](./docs/graphql-api.md).
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
 ---
 
 <div align="center">
+<br/>
 
-**Made with ❤️ for students who love to learn together**
+**ByteMeet** — Collaborative Learning, Reimagined
 
-[⬆ Back to Top](#-bytemeet---collaborative-learning-platform)
-
+<br/>
 </div>

@@ -322,9 +322,7 @@ GraphQL Playground available at `http://localhost:5000/graphql` when running loc
 
 ---
 
-## License
 
-This project is licensed under the MIT License.
 
 ---
 

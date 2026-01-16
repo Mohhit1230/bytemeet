@@ -329,7 +329,7 @@ GraphQL Playground available at `http://localhost:5000/graphql` when running loc
 <div align="center">
 <br/>
 
-**ByteMeet** — Collaborative Learning Platform
+**ByteMeet** — Collaborative Learning with friends
 
 <br/>
 </div>

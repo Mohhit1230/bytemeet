@@ -20,12 +20,7 @@ interface ArtifactViewerProps {
   canDelete: boolean;
 }
 
-export function ArtifactViewer({
-  artifact,
-  onClose,
-  onDelete,
-  canDelete,
-}: ArtifactViewerProps) {
+export function ArtifactViewer({ artifact, onClose, onDelete, canDelete }: ArtifactViewerProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const [copied, setCopied] = useState(false);
@@ -214,10 +209,11 @@ export function ArtifactViewer({
             {(artifact.type === 'code' || artifact.type === 'markdown') && (
               <button
                 onClick={handleCopy}
-                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${copied
-                  ? 'bg-green-500/20 text-green-400'
-                  : 'bg-bg-100 hover:bg-bg-200 text-gray-300'
-                  }`}
+                className={`flex items-center gap-2 rounded-lg px-4 py-2 transition-all ${
+                  copied
+                    ? 'bg-green-500/20 text-green-400'
+                    : 'bg-bg-100 hover:bg-bg-200 text-gray-300'
+                }`}
               >
                 {copied ? (
                   <>

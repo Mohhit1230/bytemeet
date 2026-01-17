@@ -125,10 +125,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // =============================================================================
 
   // Check if we have a token stored (only after hydration)
-  const hasStoredToken = isHydrated && typeof window !== 'undefined' && !!localStorage.getItem('authToken');
+  const hasStoredToken =
+    isHydrated && typeof window !== 'undefined' && !!localStorage.getItem('authToken');
 
   // Query for current user - only run if we have a token and are hydrated
-  const { data: meData, loading: meLoading, refetch: refetchMe, error: meError } = useQuery<any>(GET_ME, {
+  const {
+    data: meData,
+    loading: meLoading,
+    refetch: refetchMe,
+    error: meError,
+  } = useQuery<any>(GET_ME, {
     fetchPolicy: 'cache-and-network',
     skip: !isHydrated || !hasStoredToken, // Skip until hydrated and token exists
   });
@@ -151,7 +157,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Access error properties safely (Apollo Client 4.0 changed error structure)
       const errorObj = meError as any;
       const errorMessage = (errorObj.message || '').toLowerCase();
-      const graphQLErrors = errorObj.graphQLErrors as Array<{ extensions?: { code?: string }; message?: string }> | undefined;
+      const graphQLErrors = errorObj.graphQLErrors as
+        | Array<{ extensions?: { code?: string }; message?: string }>
+        | undefined;
       const networkError = errorObj.networkError;
 
       // Check if this is an authentication error (token expired/invalid)
@@ -163,8 +171,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         errorMessage.includes('forbidden') ||
         graphQLErrors?.some(
           (err) =>
-            err.extensions?.code === 'UNAUTHENTICATED' ||
-            err.extensions?.code === 'FORBIDDEN'
+            err.extensions?.code === 'UNAUTHENTICATED' || err.extensions?.code === 'FORBIDDEN'
         );
 
       // Only clear user data on genuine auth errors, not network errors
@@ -188,7 +195,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [registerMutation, { loading: registerLoading }] = useMutation<any>(REGISTER);
   const [logoutMutation] = useMutation<any>(LOGOUT);
   const [updateProfileMutation, { loading: updateLoading }] = useMutation<any>(UPDATE_PROFILE);
-
 
   // Combined loading state - include hydration check
   // We're "loading" if not hydrated yet OR if any mutation/query is loading

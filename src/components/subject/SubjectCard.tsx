@@ -76,7 +76,9 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
   const handleCopyLink = (e: React.MouseEvent) => {
     e.stopPropagation();
     let link = `${window.location.origin}/join/${subject.invite_code}`;
-    const ownerName = isOwner ? user?.username : (subject as Subject & { owner?: { username?: string } }).owner?.username;
+    const ownerName = isOwner
+      ? user?.username
+      : (subject as Subject & { owner?: { username?: string } }).owner?.username;
 
     if (ownerName) {
       link = `${window.location.origin}/${ownerName}/${encodeURIComponent(subject.name)}/${subject.invite_code}`;
@@ -110,7 +112,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
     <div
       ref={cardRef}
       onClick={handleClick}
-      className="group relative flex h-full min-h-[220px] cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#19191c] pt-6 backdrop-blur-3xl transition-all duration-500 hover:border-white/5 hover:shadow-2xl hover:shadow-black/50 hover:skew-1 hover:scale-[1.03]! hover:-translate-y-1!"
+      className="group relative flex h-full min-h-[220px] cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#19191c] pt-6 backdrop-blur-3xl transition-all duration-500 hover:-translate-y-1! hover:scale-[1.03]! hover:skew-1 hover:border-white/5 hover:shadow-2xl hover:shadow-black/50"
     >
       {/* Dynamic Background Gradient */}
       {/* <div className={`absolute -top-24 -right-24 h-48 w-48 rounded-full ${isOwner ? 'bg-accent/20' : 'bg-accent-secondary/20'} blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-60`} />

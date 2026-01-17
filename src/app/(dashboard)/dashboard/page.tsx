@@ -25,7 +25,7 @@ export default function Dashboard() {
   const containerRef = useRef<HTMLDivElement>(null);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
- console.log(subjects);
+  console.log(subjects);
   /**
    * GSAP Entrance Animation
    */
@@ -112,10 +112,11 @@ export default function Dashboard() {
           <nav className="flex-1 space-y-1 border-t border-white/5 px-3 py-4">
             <button
               onClick={() => setActiveNav('dashboard')}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors ${activeNav === 'dashboard'
-                ? 'bg-accent/10 text-accent'
-                : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                }`}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors ${
+                activeNav === 'dashboard'
+                  ? 'bg-accent/10 text-accent'
+                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+              }`}
             >
               <svg
                 stroke="currentColor"
@@ -133,10 +134,11 @@ export default function Dashboard() {
 
             <button
               onClick={() => setActiveNav('settings')}
-              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors ${activeNav === 'settings'
-                ? 'bg-accent/10 text-accent'
-                : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                }`}
+              className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 font-semibold transition-colors ${
+                activeNav === 'settings'
+                  ? 'bg-accent/10 text-accent'
+                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+              }`}
             >
               <svg
                 className="h-5 w-5"
@@ -325,10 +327,11 @@ export default function Dashboard() {
                       <button
                         key={tab.id}
                         onClick={() => setFilterType(tab.id as 'all' | 'owned' | 'joined')}
-                        className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${filterType === tab.id
-                          ? 'bg-[#050505] text-white'
-                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                          }`}
+                        className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                          filterType === tab.id
+                            ? 'bg-[#050505] text-white'
+                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                        }`}
                       >
                         {tab.label}
                       </button>

@@ -97,16 +97,19 @@ export function useArtifacts(subjectId?: string) {
   // const { user } = useAuth();
 
   // Queries
-  const { data: artifactsData, loading, error, refetch } = useQuery<any>(
-    subjectId ? GET_ARTIFACTS : GET_MY_ARTIFACTS,
-    {
-      variables: {
-        subjectId: subjectId || '',
-        filter: {}
-      },
-      skip: !subjectId,
-      fetchPolicy: 'cache-and-network',
-    });
+  const {
+    data: artifactsData,
+    loading,
+    error,
+    refetch,
+  } = useQuery<any>(subjectId ? GET_ARTIFACTS : GET_MY_ARTIFACTS, {
+    variables: {
+      subjectId: subjectId || '',
+      filter: {},
+    },
+    skip: !subjectId,
+    fetchPolicy: 'cache-and-network',
+  });
 
   const normalizeArtifact = useCallback((artifact: any): Artifact => {
     return {
@@ -154,7 +157,7 @@ export function useArtifacts(subjectId?: string) {
 
             const existing = cache.readQuery({
               query: GET_ARTIFACTS,
-              variables: { subjectId, filter: {} }
+              variables: { subjectId, filter: {} },
             }) as any;
 
             if (existing && existing.artifacts) {
@@ -162,11 +165,11 @@ export function useArtifacts(subjectId?: string) {
                 query: GET_ARTIFACTS,
                 variables: { subjectId, filter: {} },
                 data: {
-                  artifacts: [createArtifact, ...existing.artifacts]
-                }
+                  artifacts: [createArtifact, ...existing.artifacts],
+                },
               });
             }
-          }
+          },
         });
         return normalizeArtifact(data.createArtifact);
       } catch (err) {
@@ -218,7 +221,7 @@ export function useArtifacts(subjectId?: string) {
         await trackViewMutation({
           variables: { id },
           optimisticResponse: () => ({
-            trackArtifactView: true
+            trackArtifactView: true,
           }),
         });
       } catch (err) {
@@ -243,7 +246,12 @@ export function useArtifacts(subjectId?: string) {
   );
 
   return {
-    artifacts: (artifactsData?.artifacts?.nodes || artifactsData?.artifacts || artifactsData?.myArtifacts || []).map(normalizeArtifact),
+    artifacts: (
+      artifactsData?.artifacts?.nodes ||
+      artifactsData?.artifacts ||
+      artifactsData?.myArtifacts ||
+      []
+    ).map(normalizeArtifact),
     activeArtifact,
     loading,
     error,

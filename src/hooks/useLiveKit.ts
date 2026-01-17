@@ -38,7 +38,12 @@ interface UseLiveKitOptions {
   onParticipantLeft?: (participantId: string) => void;
 }
 
-export function useLiveKit({ roomName, username, onParticipantJoined, onParticipantLeft }: UseLiveKitOptions) {
+export function useLiveKit({
+  roomName,
+  username,
+  onParticipantJoined,
+  onParticipantLeft,
+}: UseLiveKitOptions) {
   const [room, setRoom] = useState<Room | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [isConnected, setIsConnected] = useState(false);
@@ -57,35 +62,40 @@ export function useLiveKit({ roomName, username, onParticipantJoined, onParticip
   // PARTICIPANT MANAGEMENT
   // =============================================================================
 
-  const updateParticipants = useCallback((currentRoom: Room) => {
-    const remoteParticipants = Array.from(currentRoom.remoteParticipants.values()).map((p) => ({
-      id: p.sid,
-      username: p.identity,
-      isLocal: false,
-      isSpeaking: p.isSpeaking,
-      isMuted: p.isMicrophoneEnabled === false,
-      isCameraOff: p.isCameraEnabled === false,
-      videoTrack: p.videoTrackPublications.size > 0
-        ? Array.from(p.videoTrackPublications.values())[0]?.track || null
-        : null,
-      audioTrack: p.audioTrackPublications.size > 0
-        ? Array.from(p.audioTrackPublications.values())[0]?.track || null
-        : null,
-    }));
+  const updateParticipants = useCallback(
+    (currentRoom: Room) => {
+      const remoteParticipants = Array.from(currentRoom.remoteParticipants.values()).map((p) => ({
+        id: p.sid,
+        username: p.identity,
+        isLocal: false,
+        isSpeaking: p.isSpeaking,
+        isMuted: p.isMicrophoneEnabled === false,
+        isCameraOff: p.isCameraEnabled === false,
+        videoTrack:
+          p.videoTrackPublications.size > 0
+            ? Array.from(p.videoTrackPublications.values())[0]?.track || null
+            : null,
+        audioTrack:
+          p.audioTrackPublications.size > 0
+            ? Array.from(p.audioTrackPublications.values())[0]?.track || null
+            : null,
+      }));
 
-    const localParticipant: Participant = {
-      id: currentRoom.localParticipant.sid,
-      username: currentRoom.localParticipant.identity,
-      isLocal: true,
-      isSpeaking: currentRoom.localParticipant.isSpeaking,
-      isMuted,
-      isCameraOff,
-      videoTrack: localVideoTrack,
-      audioTrack: localAudioTrack,
-    };
+      const localParticipant: Participant = {
+        id: currentRoom.localParticipant.sid,
+        username: currentRoom.localParticipant.identity,
+        isLocal: true,
+        isSpeaking: currentRoom.localParticipant.isSpeaking,
+        isMuted,
+        isCameraOff,
+        videoTrack: localVideoTrack,
+        audioTrack: localAudioTrack,
+      };
 
-    setParticipants([localParticipant, ...remoteParticipants]);
-  }, [isMuted, isCameraOff, localVideoTrack, localAudioTrack]);
+      setParticipants([localParticipant, ...remoteParticipants]);
+    },
+    [isMuted, isCameraOff, localVideoTrack, localAudioTrack]
+  );
 
   // =============================================================================
   // CONNECTION
@@ -183,7 +193,15 @@ export function useLiveKit({ roomName, username, onParticipantJoined, onParticip
       setError(err instanceof Error ? err.message : 'Failed to connect');
       setIsConnecting(false);
     }
-  }, [isConnecting, isConnected, roomName, generateTokenMutation, updateParticipants, onParticipantJoined, onParticipantLeft]);
+  }, [
+    isConnecting,
+    isConnected,
+    roomName,
+    generateTokenMutation,
+    updateParticipants,
+    onParticipantJoined,
+    onParticipantLeft,
+  ]);
 
   const disconnect = useCallback(async () => {
     if (room) {

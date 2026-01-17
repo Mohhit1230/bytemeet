@@ -4,7 +4,7 @@ import { RegisterForm } from '@/components/auth/RegisterForm';
 
 export default function RegisterPage() {
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black/70 pb-6 pt-32 md:pt-24 lg:pt-8">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black/70 pt-32 pb-6 md:pt-24 lg:pt-8">
       {/* Animated background gradient */}
       <div className="from-accent/5 to-accent-secondary/5 absolute inset-0 bg-linear-to-br via-transparent" />
 

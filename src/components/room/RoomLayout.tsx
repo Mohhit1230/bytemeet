@@ -39,9 +39,8 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
   const [isResizing, setIsResizing] = useState(false);
 
   // Derive sidebar collapsed state: manual override takes precedence, otherwise auto-collapse when right panel is open
-  const sidebarCollapsed = manualSidebarState !== null
-    ? manualSidebarState
-    : (!isSmallScreen && showRightPanel);
+  const sidebarCollapsed =
+    manualSidebarState !== null ? manualSidebarState : !isSmallScreen && showRightPanel;
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -62,8 +61,6 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
 
     return () => ctx.revert();
   }, []);
-
-
 
   /**
    * Handle resizing
@@ -330,7 +327,9 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
           {!isSmallScreen && (
             <div className="ml-4 hidden h-full 2xl:block">
               <ActivityStrip
-                members={subject.members?.filter((m: SubjectMember) => m.status === 'approved') || []}
+                members={
+                  subject.members?.filter((m: SubjectMember) => m.status === 'approved') || []
+                }
               />
             </div>
           )}
@@ -341,7 +340,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
           <div className="border-t border-white/5 bg-black/30 px-4 py-4">
             <div className="flex items-center justify-center gap-3">
               <button
-                onClick={() => { }}
+                onClick={() => {}}
                 className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 text-white transition-colors hover:bg-white/10"
                 title="Toggle Microphone"
               >
@@ -361,7 +360,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
               </button>
               {callMode === 'video' && (
                 <button
-                  onClick={() => { }}
+                  onClick={() => {}}
                   className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 text-white transition-colors hover:bg-white/10"
                   title="Toggle Camera"
                 >

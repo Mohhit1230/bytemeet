@@ -28,8 +28,12 @@ interface Message {
 
 export function useSupabaseChat(subjectId: string) {
   const { user } = useAuth();
-  const { cachedMessages: _cachedMessages, getFromCache, saveToCache, addMessageToCache } =
-    useCachedMessages(subjectId);
+  const {
+    cachedMessages: _cachedMessages,
+    getFromCache,
+    saveToCache,
+    addMessageToCache,
+  } = useCachedMessages(subjectId);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

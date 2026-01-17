@@ -123,8 +123,9 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
               <div
                 key={(notification as any)._id}
                 onClick={() => handleNotificationClick(notification as any)}
-                className={`group hover:bg-bg-100/50 relative flex cursor-pointer gap-3 p-4 transition-colors ${!notification.isRead ? 'bg-accent/5' : ''
-                  }`}
+                className={`group hover:bg-bg-100/50 relative flex cursor-pointer gap-3 p-4 transition-colors ${
+                  !notification.isRead ? 'bg-accent/5' : ''
+                }`}
               >
                 {/* Unread indicator */}
                 {!notification.isRead && (

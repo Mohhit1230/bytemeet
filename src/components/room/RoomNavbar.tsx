@@ -130,8 +130,9 @@ export function RoomNavbar({
     <>
       <div
         ref={navRef}
-        className={`z-20 flex h-16 shrink-0 items-center justify-between px-6 transition-all duration-300 ${isSmallScreen ? 'border-b border-white/5 bg-black/40 backdrop-blur-xl' : ''
-          }`}
+        className={`z-20 flex h-16 shrink-0 items-center justify-between px-6 transition-all duration-300 ${
+          isSmallScreen ? 'border-b border-white/5 bg-black/40 backdrop-blur-xl' : ''
+        }`}
       >
         {/* Left: Breadcrumb / Mobile Nav */}
         <div className="flex min-w-0 items-center gap-4">
@@ -142,8 +143,9 @@ export function RoomNavbar({
                 <button
                   key={item.id}
                   onClick={() => onSectionChange(item.id)}
-                  className={`relative rounded-xl p-2.5 transition-all duration-300 ${activeSection === item.id ? 'text-white' : 'text-gray-400 hover:text-gray-200'
-                    }`}
+                  className={`relative rounded-xl p-2.5 transition-all duration-300 ${
+                    activeSection === item.id ? 'text-white' : 'text-gray-400 hover:text-gray-200'
+                  }`}
                 >
                   {/* Active Background Pill */}
                   {activeSection === item.id && (

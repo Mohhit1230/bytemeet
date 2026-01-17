@@ -46,7 +46,9 @@ ByteMeet is a collaborative learning platform that enables students and study gr
 <td width="50%">
 
 ### Subject Rooms
+
 Create isolated study environments for different topics. Each room includes:
+
 - Unique invite codes for member access
 - Owner approval workflow
 - Member management dashboard
@@ -56,7 +58,9 @@ Create isolated study environments for different topics. Each room includes:
 <td width="50%">
 
 ### AI Tutor
+
 Context-aware AI assistant that provides:
+
 - Detailed explanations
 - Code generation with syntax highlighting
 - Visual diagrams and artifacts
@@ -68,7 +72,9 @@ Context-aware AI assistant that provides:
 <td width="50%">
 
 ### Video Calls
+
 Google Meet-style video conferencing:
+
 - Adaptive grid layout (1-9+ participants)
 - Microphone and camera controls
 - Screen sharing
@@ -78,7 +84,9 @@ Google Meet-style video conferencing:
 <td width="50%">
 
 ### Real-time Chat
+
 Instant communication powered by Supabase:
+
 - Message synchronization
 - Redis caching for performance
 - File attachments
@@ -94,33 +102,33 @@ Instant communication powered by Supabase:
 
 ### Frontend
 
-| Technology | Version | Purpose |
-|:-----------|:--------|:--------|
-| Next.js | 16.1 | React framework with App Router |
-| TypeScript | 5.x | Type-safe development |
-| Tailwind CSS | 4.x | Utility-first styling |
-| GSAP | 3.x | Animation library |
-| Apollo Client | 4.x | GraphQL state management |
+| Technology    | Version | Purpose                         |
+| :------------ | :------ | :------------------------------ |
+| Next.js       | 16.1    | React framework with App Router |
+| TypeScript    | 5.x     | Type-safe development           |
+| Tailwind CSS  | 4.x     | Utility-first styling           |
+| GSAP          | 3.x     | Animation library               |
+| Apollo Client | 4.x     | GraphQL state management        |
 
 ### Backend
 
-| Technology | Version | Purpose |
-|:-----------|:--------|:--------|
-| Node.js | 18+ | Runtime environment |
-| Express | 5.x | HTTP server framework |
-| GraphQL | - | API query language |
-| MongoDB | 9.x | Document database |
-| Mongoose | 9.x | ODM for MongoDB |
+| Technology | Version | Purpose               |
+| :--------- | :------ | :-------------------- |
+| Node.js    | 18+     | Runtime environment   |
+| Express    | 5.x     | HTTP server framework |
+| GraphQL    | -       | API query language    |
+| MongoDB    | 9.x     | Document database     |
+| Mongoose   | 9.x     | ODM for MongoDB       |
 
 ### Infrastructure
 
-| Service | Purpose |
-|:--------|:--------|
-| Supabase | Real-time messaging and room management |
-| Cloudinary | Media storage and CDN |
-| LiveKit | WebRTC video conferencing |
-| Redis | Message caching layer |
-| OpenAI | AI tutoring (GPT-4) |
+| Service    | Purpose                                 |
+| :--------- | :-------------------------------------- |
+| Supabase   | Real-time messaging and room management |
+| Cloudinary | Media storage and CDN                   |
+| LiveKit    | WebRTC video conferencing               |
+| Redis      | Message caching layer                   |
+| OpenAI     | AI tutoring (GPT-4)                     |
 
 ---
 
@@ -299,9 +307,9 @@ bytemeet/
 
 ## Documentation
 
-| Resource | Description |
-|:---------|:------------|
-| [GraphQL API](./docs/graphql-api.md) | Complete API reference |
+| Resource                                 | Description                    |
+| :--------------------------------------- | :----------------------------- |
+| [GraphQL API](./docs/graphql-api.md)     | Complete API reference         |
 | [Endpoint Flow](./docs/endpoint-flow.md) | Request/response documentation |
 
 ### API Playground
@@ -312,17 +320,15 @@ GraphQL Playground available at `http://localhost:5000/graphql` when running loc
 
 ## Scripts
 
-| Command | Description |
-|:--------|:------------|
-| `npm run dev` | Start Next.js development server |
-| `npm run server` | Start Express backend server |
-| `npm run build` | Create production build |
-| `npm run lint` | Run ESLint |
-| `npm run format` | Format with Prettier |
+| Command          | Description                      |
+| :--------------- | :------------------------------- |
+| `npm run dev`    | Start Next.js development server |
+| `npm run server` | Start Express backend server     |
+| `npm run build`  | Create production build          |
+| `npm run lint`   | Run ESLint                       |
+| `npm run format` | Format with Prettier             |
 
 ---
-
-
 
 ---
 

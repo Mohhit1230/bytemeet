@@ -23,6 +23,7 @@
 ByteMeet uses GraphQL for its API, providing flexible data fetching with a single endpoint. The API runs alongside the legacy REST API at `/api/*` during the migration period.
 
 ### Key Benefits
+
 - **Single request** for complex data needs
 - **Type safety** with auto-generated TypeScript types
 - **Real-time** updates via subscriptions (planned)
@@ -39,8 +40,12 @@ query {
     email
   }
   mySubjects {
-    owned { name }
-    joined { name }
+    owned {
+      name
+    }
+    joined {
+      name
+    }
   }
 }
 ```
@@ -71,14 +76,13 @@ mutation Login($email: String!, $password: String!) {
 
 ```graphql
 mutation Register($email: String!, $username: String!, $password: String!) {
-  register(input: { 
-    email: $email, 
-    username: $username, 
-    password: $password 
-  }) {
+  register(input: { email: $email, username: $username, password: $password }) {
     success
     message
-    user { id username }
+    user {
+      id
+      username
+    }
   }
 }
 ```
@@ -100,13 +104,14 @@ mutation {
 
 ### User Queries
 
-| Query | Description | Auth Required |
-|-------|-------------|---------------|
-| `me` | Get current user | ✅ |
-| `checkUsername(username)` | Check availability | ❌ |
-| `checkEmail(email)` | Check availability | ❌ |
+| Query                     | Description        | Auth Required |
+| ------------------------- | ------------------ | ------------- |
+| `me`                      | Get current user   | ✅            |
+| `checkUsername(username)` | Check availability | ❌            |
+| `checkEmail(email)`       | Check availability | ❌            |
 
 **Example: Get Current User**
+
 ```graphql
 query GetMe {
   me {
@@ -120,7 +125,11 @@ query GetMe {
     isOnline
     preferences {
       theme
-      notifications { email push sound }
+      notifications {
+        email
+        push
+        sound
+      }
     }
   }
 }
@@ -128,13 +137,14 @@ query GetMe {
 
 ### Subject Queries
 
-| Query | Description | Auth Required |
-|-------|-------------|---------------|
-| `mySubjects` | Get user's subjects | ✅ |
-| `subject(id)` | Get subject by ID | ✅ |
-| `subjectByInviteCode(code)` | Preview before joining | ❌ |
+| Query                       | Description            | Auth Required |
+| --------------------------- | ---------------------- | ------------- |
+| `mySubjects`                | Get user's subjects    | ✅            |
+| `subject(id)`               | Get subject by ID      | ✅            |
+| `subjectByInviteCode(code)` | Preview before joining | ❌            |
 
 **Example: Get User Subjects**
+
 ```graphql
 query GetMySubjects {
   mySubjects {
@@ -147,7 +157,9 @@ query GetMySubjects {
     joined {
       id
       name
-      owner { username }
+      owner {
+        username
+      }
     }
     pending {
       id
@@ -159,18 +171,16 @@ query GetMySubjects {
 
 ### Notification Queries
 
-| Query | Description | Auth Required |
-|-------|-------------|---------------|
-| `notifications(filter)` | Get paginated notifications | ✅ |
-| `unreadNotificationCount` | Get unread count | ✅ |
+| Query                     | Description                 | Auth Required |
+| ------------------------- | --------------------------- | ------------- |
+| `notifications(filter)`   | Get paginated notifications | ✅            |
+| `unreadNotificationCount` | Get unread count            | ✅            |
 
 **Example: Get Notifications**
+
 ```graphql
 query GetNotifications($unreadOnly: Boolean, $limit: Int) {
-  notifications(filter: { 
-    unreadOnly: $unreadOnly, 
-    limit: $limit 
-  }) {
+  notifications(filter: { unreadOnly: $unreadOnly, limit: $limit }) {
     nodes {
       id
       type
@@ -178,7 +188,10 @@ query GetNotifications($unreadOnly: Boolean, $limit: Int) {
       message
       isRead
       createdAt
-      fromUser { username avatarUrl }
+      fromUser {
+        username
+        avatarUrl
+      }
     }
     unreadCount
     hasMore
@@ -188,11 +201,11 @@ query GetNotifications($unreadOnly: Boolean, $limit: Int) {
 
 ### Artifact Queries
 
-| Query | Description | Auth Required |
-|-------|-------------|---------------|
-| `artifacts(subjectId, filter)` | Get subject artifacts | ✅ |
-| `artifact(id)` | Get single artifact | ✅ |
-| `artifactStats(subjectId)` | Get type statistics | ✅ |
+| Query                          | Description           | Auth Required |
+| ------------------------------ | --------------------- | ------------- |
+| `artifacts(subjectId, filter)` | Get subject artifacts | ✅            |
+| `artifact(id)`                 | Get single artifact   | ✅            |
+| `artifactStats(subjectId)`     | Get type statistics   | ✅            |
 
 ---
 
@@ -244,7 +257,9 @@ mutation JoinSubject($inviteCode: String!) {
 mutation ApproveRequest($subjectId: ID!, $userId: ID!) {
   approveJoinRequest(subjectId: $subjectId, userId: $userId) {
     id
-    user { username }
+    user {
+      username
+    }
     status
   }
 }
@@ -275,9 +290,24 @@ mutation MarkAllRead {
 ### Enums
 
 ```graphql
-enum MemberRole { OWNER, ADMIN, MEMBER }
-enum MembershipStatus { PENDING, APPROVED, REJECTED }
-enum ArtifactType { CODE, IMAGE, PDF, DIAGRAM, MARKDOWN, HTML }
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+enum ArtifactType {
+  CODE
+  IMAGE
+  PDF
+  DIAGRAM
+  MARKDOWN
+  HTML
+}
 enum NotificationType {
   JOIN_REQUEST
   REQUEST_APPROVED
@@ -292,12 +322,12 @@ enum NotificationType {
 
 ### Core Types
 
-| Type | Key Fields |
-|------|------------|
-| `User` | id, username, email, avatarUrl, isOnline |
-| `Subject` | id, name, inviteCode, owner, members |
-| `Artifact` | id, type, title, content, createdBy |
-| `Notification` | id, type, title, message, isRead |
+| Type           | Key Fields                               |
+| -------------- | ---------------------------------------- |
+| `User`         | id, username, email, avatarUrl, isOnline |
+| `Subject`      | id, name, inviteCode, owner, members     |
+| `Artifact`     | id, type, title, content, createdBy      |
+| `Notification` | id, type, title, message, isRead         |
 
 ---
 
@@ -307,25 +337,27 @@ GraphQL errors are returned in the `errors` array:
 
 ```json
 {
-  "errors": [{
-    "message": "Authentication required",
-    "extensions": {
-      "code": "UNAUTHENTICATED"
+  "errors": [
+    {
+      "message": "Authentication required",
+      "extensions": {
+        "code": "UNAUTHENTICATED"
+      }
     }
-  }],
+  ],
   "data": null
 }
 ```
 
 ### Common Error Codes
 
-| Code | Description |
-|------|-------------|
-| `UNAUTHENTICATED` | User not logged in |
-| `FORBIDDEN` | Insufficient permissions |
-| `NOT_FOUND` | Resource doesn't exist |
+| Code                | Description                    |
+| ------------------- | ------------------------------ |
+| `UNAUTHENTICATED`   | User not logged in             |
+| `FORBIDDEN`         | Insufficient permissions       |
+| `NOT_FOUND`         | Resource doesn't exist         |
 | `QUERY_TOO_COMPLEX` | Query exceeds complexity limit |
-| `QUERY_TOO_DEEP` | Query exceeds depth limit |
+| `QUERY_TOO_DEEP`    | Query exceeds depth limit      |
 
 ---
 
@@ -341,10 +373,18 @@ fragment UserFields on User {
 }
 
 query {
-  me { ...UserFields }
+  me {
+    ...UserFields
+  }
   subject(id: "123") {
-    owner { ...UserFields }
-    members { user { ...UserFields } }
+    owner {
+      ...UserFields
+    }
+    members {
+      user {
+        ...UserFields
+      }
+    }
   }
 }
 ```
@@ -354,12 +394,16 @@ query {
 ```graphql
 # ❌ Bad - inline values
 query {
-  subject(id: "abc123") { name }
+  subject(id: "abc123") {
+    name
+  }
 }
 
 # ✅ Good - variables
 query GetSubject($id: ID!) {
-  subject(id: $id) { name }
+  subject(id: $id) {
+    name
+  }
 }
 ```
 
@@ -378,7 +422,10 @@ query { me { id username } }
 ```graphql
 query GetNotifications($skip: Int, $limit: Int) {
   notifications(filter: { skip: $skip, limit: $limit }) {
-    nodes { id title }
+    nodes {
+      id
+      title
+    }
     hasMore
   }
 }
@@ -391,13 +438,7 @@ query GetNotifications($skip: Int, $limit: Int) {
 Import from `@/lib/graphql`:
 
 ```typescript
-import { 
-  useMe, 
-  useLogin, 
-  useLogout,
-  useMySubjects,
-  useNotifications 
-} from '@/lib/graphql';
+import { useMe, useLogin, useLogout, useMySubjects, useNotifications } from '@/lib/graphql';
 
 // Usage
 const { user, loading } = useMe();
@@ -407,16 +448,16 @@ const { owned, joined } = useMySubjects();
 
 ### Available Hooks
 
-| Hook | Returns |
-|------|---------|
-| `useMe()` | `{ user, loading, isAuthenticated }` |
-| `useLogin()` | `{ login, loading, error }` |
-| `useRegister()` | `{ register, loading, error }` |
-| `useLogout()` | `{ logout, loading }` |
-| `useMySubjects()` | `{ owned, joined, pending }` |
-| `useSubject(id)` | `{ subject, loading }` |
-| `useNotifications()` | `{ notifications, unreadCount }` |
+| Hook                 | Returns                              |
+| -------------------- | ------------------------------------ |
+| `useMe()`            | `{ user, loading, isAuthenticated }` |
+| `useLogin()`         | `{ login, loading, error }`          |
+| `useRegister()`      | `{ register, loading, error }`       |
+| `useLogout()`        | `{ logout, loading }`                |
+| `useMySubjects()`    | `{ owned, joined, pending }`         |
+| `useSubject(id)`     | `{ subject, loading }`               |
+| `useNotifications()` | `{ notifications, unreadCount }`     |
 
 ---
 
-*For full schema reference, visit the GraphiQL interface at `/graphql`*
+_For full schema reference, visit the GraphiQL interface at `/graphql`_

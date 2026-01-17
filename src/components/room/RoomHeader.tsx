@@ -34,8 +34,10 @@ export function RoomHeader({
   const [showMemberList, setShowMemberList] = useState(false);
 
   const isOwner = subject.role === 'owner';
-  const approvedMembers = subject.members?.filter((m: SubjectMember) => m.status === 'approved') || [];
-  const pendingRequests = subject.members?.filter((m: SubjectMember) => m.status === 'pending') || [];
+  const approvedMembers =
+    subject.members?.filter((m: SubjectMember) => m.status === 'approved') || [];
+  const pendingRequests =
+    subject.members?.filter((m: SubjectMember) => m.status === 'pending') || [];
 
   const handleCopyLink = () => {
     let link = `${window.location.origin}/join/${subject.invite_code}`;

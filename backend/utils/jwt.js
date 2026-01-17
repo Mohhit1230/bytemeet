@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'bytemeet-key-for-prod';
-const JWT_EXPIRES_IN = '7d'; 
+const JWT_EXPIRES_IN = '7d';
 const REFRESH_TOKEN_EXPIRES_IN = '30d';
 
 /**

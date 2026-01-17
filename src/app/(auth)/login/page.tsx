@@ -4,7 +4,7 @@ import { LoginForm } from '@/components/auth/LoginForm';
 
 export default function LoginPage() {
   return (
-    <div className="relative flex min-h-screen items-end lg:items-center justify-center overflow-hidden bg-black/80">
+    <div className="relative flex min-h-screen items-end justify-center overflow-hidden bg-black/80 lg:items-center">
       {/* Animated background gradient */}
       <div className="from-accent/5 to-accent/10 absolute inset-0 bg-linear-to-br via-transparent" />
 

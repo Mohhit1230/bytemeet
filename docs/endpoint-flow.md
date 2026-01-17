@@ -19,6 +19,7 @@
 ### 1. User Registration
 
 **REST (Deprecated):**
+
 ```http
 POST /api/auth/register
 Content-Type: application/json
@@ -31,13 +32,10 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation Register {
-  register(input: {
-    email: "user@example.com"
-    username: "johndoe"
-    password: "SecurePass123!"
-  }) {
+  register(input: { email: "user@example.com", username: "johndoe", password: "SecurePass123!" }) {
     success
     message
     token
@@ -55,6 +53,7 @@ mutation Register {
 ### 2. User Login
 
 **REST (Deprecated):**
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -66,15 +65,18 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation Login {
-  login(input: {
-    email: "user@example.com"
-    password: "SecurePass123!"
-  }) {
+  login(input: { email: "user@example.com", password: "SecurePass123!" }) {
     success
     message
-    user { id username email avatarUrl }
+    user {
+      id
+      username
+      email
+      avatarUrl
+    }
   }
 }
 ```
@@ -84,11 +86,13 @@ mutation Login {
 ### 3. User Logout
 
 **REST (Deprecated):**
+
 ```http
 POST /api/auth/logout
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation Logout {
   logout {
@@ -103,12 +107,14 @@ mutation Logout {
 ### 4. Get Current User
 
 **REST (Deprecated):**
+
 ```http
 GET /api/auth/me
 Authorization: Bearer <token>
 ```
 
 **GraphQL:**
+
 ```graphql
 query GetMe {
   me {
@@ -123,7 +129,11 @@ query GetMe {
     createdAt
     preferences {
       theme
-      notifications { email push sound }
+      notifications {
+        email
+        push
+        sound
+      }
     }
   }
 }
@@ -134,12 +144,14 @@ query GetMe {
 ### 5. Refresh Token
 
 **REST (Deprecated):**
+
 ```http
 POST /api/auth/refresh
 Cookie: refreshToken=<token>
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation RefreshToken {
   refreshToken(refreshToken: "<token>") {
@@ -154,11 +166,13 @@ mutation RefreshToken {
 ### 6. Check Username Availability
 
 **REST (Deprecated):**
+
 ```http
 GET /api/auth/check-username?username=johndoe
 ```
 
 **GraphQL:**
+
 ```graphql
 query CheckUsername {
   checkUsername(username: "johndoe") {
@@ -169,6 +183,7 @@ query CheckUsername {
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -185,11 +200,13 @@ query CheckUsername {
 ### 7. Check Email Availability
 
 **REST (Deprecated):**
+
 ```http
 GET /api/auth/check-email?email=user@example.com
 ```
 
 **GraphQL:**
+
 ```graphql
 query CheckEmail {
   checkEmail(email: "user@example.com") {
@@ -204,6 +221,7 @@ query CheckEmail {
 ### 8. Update Profile
 
 **REST (Deprecated):**
+
 ```http
 PUT /api/auth/profile
 Authorization: Bearer <token>
@@ -216,12 +234,10 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation UpdateProfile {
-  updateProfile(input: {
-    username: "newusername"
-    bio: "Software Developer"
-  }) {
+  updateProfile(input: { username: "newusername", bio: "Software Developer" }) {
     id
     username
     bio
@@ -236,12 +252,14 @@ mutation UpdateProfile {
 ### 9. Get My Subjects
 
 **REST (Deprecated):**
+
 ```http
 GET /api/subjects
 Authorization: Bearer <token>
 ```
 
 **GraphQL:**
+
 ```graphql
 query GetMySubjects {
   mySubjects {
@@ -255,7 +273,9 @@ query GetMySubjects {
     joined {
       id
       name
-      owner { username }
+      owner {
+        username
+      }
     }
     pending {
       id
@@ -270,11 +290,13 @@ query GetMySubjects {
 ### 10. Get Single Subject
 
 **REST (Deprecated):**
+
 ```http
 GET /api/subjects/:id
 ```
 
 **GraphQL:**
+
 ```graphql
 query GetSubject($id: ID!) {
   subject(id: $id) {
@@ -283,10 +305,18 @@ query GetSubject($id: ID!) {
     description
     inviteCode
     myRole
-    owner { id username avatarUrl }
+    owner {
+      id
+      username
+      avatarUrl
+    }
     members {
       id
-      user { id username avatarUrl }
+      user {
+        id
+        username
+        avatarUrl
+      }
       role
       status
     }
@@ -299,6 +329,7 @@ query GetSubject($id: ID!) {
 ### 11. Create Subject
 
 **REST (Deprecated):**
+
 ```http
 POST /api/subjects
 Content-Type: application/json
@@ -310,12 +341,10 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation CreateSubject {
-  createSubject(input: {
-    name: "Math 101"
-    description: "Calculus study group"
-  }) {
+  createSubject(input: { name: "Math 101", description: "Calculus study group" }) {
     id
     name
     inviteCode
@@ -328,6 +357,7 @@ mutation CreateSubject {
 ### 12. Update Subject
 
 **REST (Deprecated):**
+
 ```http
 PUT /api/subjects/:id
 Content-Type: application/json
@@ -336,12 +366,10 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation UpdateSubject($id: ID!) {
-  updateSubject(id: $id, input: {
-    name: "Math 102"
-    description: "Updated description"
-  }) {
+  updateSubject(id: $id, input: { name: "Math 102", description: "Updated description" }) {
     id
     name
     description
@@ -354,11 +382,13 @@ mutation UpdateSubject($id: ID!) {
 ### 13. Delete Subject
 
 **REST (Deprecated):**
+
 ```http
 DELETE /api/subjects/:id
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation DeleteSubject($id: ID!) {
   deleteSubject(id: $id) {
@@ -373,6 +403,7 @@ mutation DeleteSubject($id: ID!) {
 ### 14. Join Subject
 
 **REST (Deprecated):**
+
 ```http
 POST /api/subjects/join
 Content-Type: application/json
@@ -381,6 +412,7 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation JoinSubject {
   joinSubject(inviteCode: "ABC123") {
@@ -396,11 +428,13 @@ mutation JoinSubject {
 ### 15. Preview Subject by Invite Code
 
 **REST (Deprecated):**
+
 ```http
 GET /api/subjects/preview/:code
 ```
 
 **GraphQL:**
+
 ```graphql
 query PreviewSubject {
   subjectByInviteCode(code: "ABC123") {
@@ -418,11 +452,13 @@ query PreviewSubject {
 ### 16. Regenerate Invite Code
 
 **REST (Deprecated):**
+
 ```http
 POST /api/subjects/:id/regenerate-code
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation RegenerateCode($subjectId: ID!) {
   regenerateInviteCode(subjectId: $subjectId) {
@@ -437,6 +473,7 @@ mutation RegenerateCode($subjectId: ID!) {
 ### 17. Approve Join Request
 
 **REST (Deprecated):**
+
 ```http
 POST /api/subjects/:id/approve
 Content-Type: application/json
@@ -445,11 +482,14 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation ApproveRequest($subjectId: ID!, $userId: ID!) {
   approveJoinRequest(subjectId: $subjectId, userId: $userId) {
     id
-    user { username }
+    user {
+      username
+    }
     status
   }
 }
@@ -460,6 +500,7 @@ mutation ApproveRequest($subjectId: ID!, $userId: ID!) {
 ### 18. Reject Join Request
 
 **REST (Deprecated):**
+
 ```http
 POST /api/subjects/:id/reject
 Content-Type: application/json
@@ -468,6 +509,7 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation RejectRequest($subjectId: ID!, $userId: ID!) {
   rejectJoinRequest(subjectId: $subjectId, userId: $userId) {
@@ -484,11 +526,13 @@ mutation RejectRequest($subjectId: ID!, $userId: ID!) {
 ### 19. Get Artifacts for Subject
 
 **REST (Deprecated):**
+
 ```http
 GET /api/artifacts/subject/:subjectId?type=code
 ```
 
 **GraphQL:**
+
 ```graphql
 query GetArtifacts($subjectId: ID!) {
   artifacts(subjectId: $subjectId, filter: { type: CODE }) {
@@ -497,7 +541,9 @@ query GetArtifacts($subjectId: ID!) {
     title
     content
     fileUrl
-    createdBy { username }
+    createdBy {
+      username
+    }
     viewCount
     createdAt
   }
@@ -509,11 +555,13 @@ query GetArtifacts($subjectId: ID!) {
 ### 20. Get Single Artifact
 
 **REST (Deprecated):**
+
 ```http
 GET /api/artifacts/:id
 ```
 
 **GraphQL:**
+
 ```graphql
 query GetArtifact($id: ID!) {
   artifact(id: $id) {
@@ -526,7 +574,10 @@ query GetArtifact($id: ID!) {
     fileSize
     displaySize
     language
-    createdBy { id username }
+    createdBy {
+      id
+      username
+    }
     viewCount
     downloadCount
   }
@@ -538,19 +589,30 @@ query GetArtifact($id: ID!) {
 ### 21. Get Artifact Stats
 
 **REST (Deprecated):**
+
 ```http
 GET /api/artifacts/subject/:subjectId/stats
 ```
 
 **GraphQL:**
+
 ```graphql
 query GetArtifactStats($subjectId: ID!) {
   artifactStats(subjectId: $subjectId) {
     total
     totalSize
-    code { count totalSize }
-    image { count totalSize }
-    pdf { count totalSize }
+    code {
+      count
+      totalSize
+    }
+    image {
+      count
+      totalSize
+    }
+    pdf {
+      count
+      totalSize
+    }
   }
 }
 ```
@@ -560,6 +622,7 @@ query GetArtifactStats($subjectId: ID!) {
 ### 22. Create Artifact
 
 **REST (Deprecated):**
+
 ```http
 POST /api/artifacts
 Content-Type: application/json
@@ -574,15 +637,18 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation CreateArtifact {
-  createArtifact(input: {
-    subjectId: "subjectId123"
-    type: CODE
-    title: "Hello World"
-    content: "console.log('Hello');"
-    language: JAVASCRIPT
-  }) {
+  createArtifact(
+    input: {
+      subjectId: "subjectId123"
+      type: CODE
+      title: "Hello World"
+      content: "console.log('Hello');"
+      language: JAVASCRIPT
+    }
+  ) {
     id
     title
     type
@@ -595,6 +661,7 @@ mutation CreateArtifact {
 ### 23. Upload Artifact (File)
 
 **REST Only (Multipart file upload):**
+
 ```http
 POST /api/artifacts/upload
 Content-Type: multipart/form-data
@@ -611,11 +678,13 @@ title: "My PDF Document"
 ### 24. Delete Artifact
 
 **REST (Deprecated):**
+
 ```http
 DELETE /api/artifacts/:id
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation DeleteArtifact($id: ID!) {
   deleteArtifact(id: $id) {
@@ -630,11 +699,13 @@ mutation DeleteArtifact($id: ID!) {
 ### 25. Track Artifact View
 
 **REST (Deprecated):**
+
 ```http
 POST /api/artifacts/:id/view
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation TrackView($id: ID!) {
   trackArtifactView(id: $id) {
@@ -651,11 +722,13 @@ mutation TrackView($id: ID!) {
 ### 26. Get Notifications
 
 **REST (Deprecated):**
+
 ```http
 GET /api/notifications?limit=20&unread_only=true
 ```
 
 **GraphQL:**
+
 ```graphql
 query GetNotifications {
   notifications(filter: { limit: 20, unreadOnly: true }) {
@@ -666,8 +739,14 @@ query GetNotifications {
       message
       isRead
       createdAt
-      fromUser { username avatarUrl }
-      data { subjectId subjectName }
+      fromUser {
+        username
+        avatarUrl
+      }
+      data {
+        subjectId
+        subjectName
+      }
     }
     unreadCount
     hasMore
@@ -680,11 +759,13 @@ query GetNotifications {
 ### 27. Get Unread Count
 
 **REST (Deprecated):**
+
 ```http
 GET /api/notifications/unread-count
 ```
 
 **GraphQL:**
+
 ```graphql
 query GetUnreadCount {
   unreadNotificationCount
@@ -692,6 +773,7 @@ query GetUnreadCount {
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -705,6 +787,7 @@ query GetUnreadCount {
 ### 28. Mark Notifications as Read
 
 **REST (Deprecated):**
+
 ```http
 PUT /api/notifications/read
 Content-Type: application/json
@@ -713,6 +796,7 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation MarkRead {
   markNotificationsRead(ids: ["notif1", "notif2"]) {
@@ -727,11 +811,13 @@ mutation MarkRead {
 ### 29. Mark All as Read
 
 **REST (Deprecated):**
+
 ```http
 PUT /api/notifications/read-all
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation MarkAllRead {
   markAllNotificationsRead {
@@ -746,11 +832,13 @@ mutation MarkAllRead {
 ### 30. Delete Notification
 
 **REST (Deprecated):**
+
 ```http
 DELETE /api/notifications/:id
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation DeleteNotification($id: ID!) {
   deleteNotification(id: $id) {
@@ -767,6 +855,7 @@ mutation DeleteNotification($id: ID!) {
 ### 31. Generate Video Token
 
 **REST (Deprecated):**
+
 ```http
 POST /api/video/token
 Content-Type: application/json
@@ -778,6 +867,7 @@ Content-Type: application/json
 ```
 
 **GraphQL:**
+
 ```graphql
 mutation GenerateVideoToken {
   generateVideoToken(roomName: "subjectId123") {
@@ -792,14 +882,16 @@ mutation GenerateVideoToken {
 ### 32. Health Check
 
 **REST:**
+
 ```http
 GET /api/health
 ```
 
 **GraphQL:**
+
 ```graphql
 query {
-  __typename  # Returns "Query" - confirms server is up
+  __typename # Returns "Query" - confirms server is up
 }
 ```
 
@@ -807,40 +899,40 @@ query {
 
 ## Quick Reference Table
 
-| # | Endpoint | REST Path | GraphQL Operation |
-|---|----------|-----------|-------------------|
-| 1 | Register | `POST /auth/register` | `mutation register` |
-| 2 | Login | `POST /auth/login` | `mutation login` |
-| 3 | Logout | `POST /auth/logout` | `mutation logout` |
-| 4 | Get Me | `GET /auth/me` | `query me` |
-| 5 | Refresh Token | `POST /auth/refresh` | `mutation refreshToken` |
-| 6 | Check Username | `GET /auth/check-username` | `query checkUsername` |
-| 7 | Check Email | `GET /auth/check-email` | `query checkEmail` |
-| 8 | Update Profile | `PUT /auth/profile` | `mutation updateProfile` |
-| 9 | Get Subjects | `GET /subjects` | `query mySubjects` |
-| 10 | Get Subject | `GET /subjects/:id` | `query subject` |
-| 11 | Create Subject | `POST /subjects` | `mutation createSubject` |
-| 12 | Update Subject | `PUT /subjects/:id` | `mutation updateSubject` |
-| 13 | Delete Subject | `DELETE /subjects/:id` | `mutation deleteSubject` |
-| 14 | Join Subject | `POST /subjects/join` | `mutation joinSubject` |
-| 15 | Preview Subject | `GET /subjects/preview/:code` | `query subjectByInviteCode` |
-| 16 | Regenerate Code | `POST /subjects/:id/regenerate` | `mutation regenerateInviteCode` |
-| 17 | Approve Request | `POST /subjects/:id/approve` | `mutation approveJoinRequest` |
-| 18 | Reject Request | `POST /subjects/:id/reject` | `mutation rejectJoinRequest` |
-| 19 | Get Artifacts | `GET /artifacts/subject/:id` | `query artifacts` |
-| 20 | Get Artifact | `GET /artifacts/:id` | `query artifact` |
-| 21 | Artifact Stats | `GET /artifacts/.../stats` | `query artifactStats` |
-| 22 | Create Artifact | `POST /artifacts` | `mutation createArtifact` |
-| 23 | Upload Artifact | `POST /artifacts/upload` | *REST only* |
-| 24 | Delete Artifact | `DELETE /artifacts/:id` | `mutation deleteArtifact` |
-| 25 | Track View | `POST /artifacts/:id/view` | `mutation trackArtifactView` |
-| 26 | Get Notifications | `GET /notifications` | `query notifications` |
-| 27 | Unread Count | `GET /notifications/unread-count` | `query unreadNotificationCount` |
-| 28 | Mark Read | `PUT /notifications/read` | `mutation markNotificationsRead` |
-| 29 | Mark All Read | `PUT /notifications/read-all` | `mutation markAllNotificationsRead` |
-| 30 | Delete Notif | `DELETE /notifications/:id` | `mutation deleteNotification` |
-| 31 | Video Token | `POST /video/token` | `mutation generateVideoToken` |
-| 32 | Health Check | `GET /health` | `query { __typename }` |
+| #   | Endpoint          | REST Path                         | GraphQL Operation                   |
+| --- | ----------------- | --------------------------------- | ----------------------------------- |
+| 1   | Register          | `POST /auth/register`             | `mutation register`                 |
+| 2   | Login             | `POST /auth/login`                | `mutation login`                    |
+| 3   | Logout            | `POST /auth/logout`               | `mutation logout`                   |
+| 4   | Get Me            | `GET /auth/me`                    | `query me`                          |
+| 5   | Refresh Token     | `POST /auth/refresh`              | `mutation refreshToken`             |
+| 6   | Check Username    | `GET /auth/check-username`        | `query checkUsername`               |
+| 7   | Check Email       | `GET /auth/check-email`           | `query checkEmail`                  |
+| 8   | Update Profile    | `PUT /auth/profile`               | `mutation updateProfile`            |
+| 9   | Get Subjects      | `GET /subjects`                   | `query mySubjects`                  |
+| 10  | Get Subject       | `GET /subjects/:id`               | `query subject`                     |
+| 11  | Create Subject    | `POST /subjects`                  | `mutation createSubject`            |
+| 12  | Update Subject    | `PUT /subjects/:id`               | `mutation updateSubject`            |
+| 13  | Delete Subject    | `DELETE /subjects/:id`            | `mutation deleteSubject`            |
+| 14  | Join Subject      | `POST /subjects/join`             | `mutation joinSubject`              |
+| 15  | Preview Subject   | `GET /subjects/preview/:code`     | `query subjectByInviteCode`         |
+| 16  | Regenerate Code   | `POST /subjects/:id/regenerate`   | `mutation regenerateInviteCode`     |
+| 17  | Approve Request   | `POST /subjects/:id/approve`      | `mutation approveJoinRequest`       |
+| 18  | Reject Request    | `POST /subjects/:id/reject`       | `mutation rejectJoinRequest`        |
+| 19  | Get Artifacts     | `GET /artifacts/subject/:id`      | `query artifacts`                   |
+| 20  | Get Artifact      | `GET /artifacts/:id`              | `query artifact`                    |
+| 21  | Artifact Stats    | `GET /artifacts/.../stats`        | `query artifactStats`               |
+| 22  | Create Artifact   | `POST /artifacts`                 | `mutation createArtifact`           |
+| 23  | Upload Artifact   | `POST /artifacts/upload`          | _REST only_                         |
+| 24  | Delete Artifact   | `DELETE /artifacts/:id`           | `mutation deleteArtifact`           |
+| 25  | Track View        | `POST /artifacts/:id/view`        | `mutation trackArtifactView`        |
+| 26  | Get Notifications | `GET /notifications`              | `query notifications`               |
+| 27  | Unread Count      | `GET /notifications/unread-count` | `query unreadNotificationCount`     |
+| 28  | Mark Read         | `PUT /notifications/read`         | `mutation markNotificationsRead`    |
+| 29  | Mark All Read     | `PUT /notifications/read-all`     | `mutation markAllNotificationsRead` |
+| 30  | Delete Notif      | `DELETE /notifications/:id`       | `mutation deleteNotification`       |
+| 31  | Video Token       | `POST /video/token`               | `mutation generateVideoToken`       |
+| 32  | Health Check      | `GET /health`                     | `query { __typename }`              |
 
 ---
 
@@ -853,6 +945,7 @@ http://localhost:5000/graphql
 ```
 
 Features:
+
 - Auto-complete for queries/mutations
 - Schema documentation browser
 - Variable editor
@@ -860,4 +953,4 @@ Features:
 
 ---
 
-*REST API Sunset Date: June 1, 2026*
+_REST API Sunset Date: June 1, 2026_

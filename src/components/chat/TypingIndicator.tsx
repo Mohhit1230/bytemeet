@@ -89,7 +89,7 @@ export function TypingIndicator({ username, avatarUrl }: TypingIndicatorProps) {
           <span className="text-sm font-semibold text-white">{username}</span>
         </div>
 
-        <div className="inline-block rounded-2xl bg-bg-100 px-4 py-3">
+        <div className="bg-bg-100 inline-block rounded-2xl px-4 py-3">
           <div className="flex gap-1.5">
             <div ref={dot1Ref} className="h-2 w-2 rounded-full bg-gray-500" />
             <div ref={dot2Ref} className="h-2 w-2 rounded-full bg-gray-500" />

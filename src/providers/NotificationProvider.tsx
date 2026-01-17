@@ -171,24 +171,27 @@ export function NotificationProvider({ children }: NotificationProviderProps) {
   // =============================================================================
 
   // Query notifications with polling for real-time updates
-  const { data: notificationsData, loading: notificationsLoading, refetch: refetchNotifications } = useQuery<GetNotificationsResponse>(
-    GET_NOTIFICATIONS,
-    {
-      variables: {
-        filter: {
-          unreadOnly: false,
-          limit: 50,
-          skip: 0,
-        },
+  const {
+    data: notificationsData,
+    loading: notificationsLoading,
+    refetch: refetchNotifications,
+  } = useQuery<GetNotificationsResponse>(GET_NOTIFICATIONS, {
+    variables: {
+      filter: {
+        unreadOnly: false,
+        limit: 50,
+        skip: 0,
       },
-      skip: !user,
-      pollInterval: 30000, // Poll every 30 seconds
-      fetchPolicy: 'cache-and-network',
-    }
-  );
+    },
+    skip: !user,
+    pollInterval: 30000, // Poll every 30 seconds
+    fetchPolicy: 'cache-and-network',
+  });
 
   // Query unread count
-  const { data: unreadData, refetch: refetchUnread } = useQuery<{ unreadNotificationCount: number }>(GET_UNREAD_COUNT, {
+  const { data: unreadData, refetch: refetchUnread } = useQuery<{
+    unreadNotificationCount: number;
+  }>(GET_UNREAD_COUNT, {
     skip: !user,
     pollInterval: 30000,
     fetchPolicy: 'cache-and-network',

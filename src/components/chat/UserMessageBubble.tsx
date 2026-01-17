@@ -58,7 +58,7 @@ export function UserMessageBubble({
           <span className="text-sm font-semibold text-white">{username}</span>
           {timestamp && <span className="text-xs text-gray-500">{formatTime(timestamp)}</span>}
         </div>
-        <div className="rounded-2xl rounded-tl-none bg-bg-100 px-4 py-3">
+        <div className="bg-bg-100 rounded-2xl rounded-tl-none px-4 py-3">
           <p className="text-sm whitespace-pre-wrap text-gray-200">{content}</p>
         </div>
       </div>

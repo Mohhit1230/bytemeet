@@ -175,10 +175,11 @@ export function Canvas({ subjectId }: CanvasProps) {
               <button
                 key={filter.id || 'all'}
                 onClick={() => setActiveFilter(filter.id)}
-                className={`flex items-center gap-2 rounded-lg border p-2 px-4 text-sm font-medium transition-all ${activeFilter === filter.id
-                  ? 'border-white/20 bg-white/10 text-white'
-                  : 'border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'
-                  }`}
+                className={`flex items-center gap-2 rounded-lg border p-2 px-4 text-sm font-medium transition-all ${
+                  activeFilter === filter.id
+                    ? 'border-white/20 bg-white/10 text-white'
+                    : 'border-transparent bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'
+                }`}
               >
                 <span>{filter.icon}</span>
                 <span>{filter.label}</span>
@@ -340,10 +341,8 @@ export function Canvas({ subjectId }: CanvasProps) {
                           <>
                             <iframe
                               src={file.fileUrl}
-                              className="h-32 w-full border-0 object-cover pointer-events-none scale-[1.2] origin-center"
+                              className="pointer-events-none h-32 w-full origin-center scale-[1.2] border-0 object-cover"
                               title={file.title}
-
-
                             />
                             <div className="absolute inset-0 bg-linear-to-t from-[#1a1a1e]/60 via-transparent to-transparent" />
                           </>
@@ -468,16 +467,14 @@ export function Canvas({ subjectId }: CanvasProps) {
       </div>
 
       {/* Artifact Viewer Modal */}
-      {
-        viewerOpen && selectedArtifact && (
-          <ArtifactViewer
-            artifact={selectedArtifact as unknown as GraphQLArtifact}
-            onClose={closeViewer}
-            onDelete={() => { }}
-            canDelete={false}
-          />
-        )
-      }
-    </div >
+      {viewerOpen && selectedArtifact && (
+        <ArtifactViewer
+          artifact={selectedArtifact as unknown as GraphQLArtifact}
+          onClose={closeViewer}
+          onDelete={() => {}}
+          canDelete={false}
+        />
+      )}
+    </div>
   );
 }

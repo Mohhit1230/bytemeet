@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { useAuth } from '@/hooks/useAuth';
 import { NotificationBell } from '@/components/notifications';
@@ -106,12 +107,20 @@ export function RoomNavbar({
   activeSection,
   onSectionChange,
 }: RoomNavbarProps) {
+  const router = useRouter();
   const navRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
   const { success: _success } = useToast();
   const [showInviteModal, setShowInviteModal] = useState(false);
 
-  const isOwner = subject.role === 'owner';
+  // Check ownership - support both lowercase and uppercase role values
+  const role = (subject as Subject & { myRole?: string }).myRole || subject.role || '';
+  const isOwner = role.toUpperCase() === 'OWNER';
+
+  // Navigate to settings page
+  const handleOpenSettings = () => {
+    router.push(`/subject/${subject.id}/settings`);
+  };
 
   /**
    * Mount animation
@@ -130,9 +139,8 @@ export function RoomNavbar({
     <>
       <div
         ref={navRef}
-        className={`z-20 flex h-16 shrink-0 items-center justify-between px-6 transition-all duration-300 ${
-          isSmallScreen ? 'border-b border-white/5 bg-black/40 backdrop-blur-xl' : ''
-        }`}
+        className={`z-20 flex h-16 shrink-0 items-center justify-between px-6 transition-all duration-300 ${isSmallScreen ? 'border-b border-white/5 bg-black/40 backdrop-blur-xl' : ''
+          }`}
       >
         {/* Left: Breadcrumb / Mobile Nav */}
         <div className="flex min-w-0 items-center gap-4">
@@ -143,9 +151,8 @@ export function RoomNavbar({
                 <button
                   key={item.id}
                   onClick={() => onSectionChange(item.id)}
-                  className={`relative rounded-xl p-2.5 transition-all duration-300 ${
-                    activeSection === item.id ? 'text-white' : 'text-gray-400 hover:text-gray-200'
-                  }`}
+                  className={`relative rounded-xl p-2.5 transition-all duration-300 ${activeSection === item.id ? 'text-white' : 'text-gray-400 hover:text-gray-200'
+                    }`}
                 >
                   {/* Active Background Pill */}
                   {activeSection === item.id && (
@@ -225,7 +232,7 @@ export function RoomNavbar({
           {/* Settings (Owner) */}
           {isOwner && (
             <button
-              onClick={onOpenSettings}
+              onClick={handleOpenSettings}
               className="flex h-10 w-10 items-center justify-center rounded-full border border-white/5 bg-[#19191c] text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
               title="Room Settings"
             >
@@ -250,7 +257,7 @@ export function RoomNavbar({
             </button>
           )}
           {/* User Avatar */}
-          <div className="ml-1 border-l border-white/10 pl-2">
+          <div className="ml-1 border-l border-white/10 pl-2" onClick={() => router.push(`/dashboard`)}>
             <UserAvatar username={user?.username || ''} avatarUrl={user?.avatarUrl} size="sm" />
           </div>
         </div>

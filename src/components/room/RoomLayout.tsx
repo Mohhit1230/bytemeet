@@ -300,9 +300,9 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
           )}
 
           {/* Toggle Right Panel Button (when closed) */}
-          {!showRightPanel && !isSmallScreen && (
+          {!isSmallScreen && (
             <button
-              onClick={() => setShowRightPanel(true)}
+              onClick={() => setShowRightPanel((prev) => !prev)}
               className="absolute top-2 right-5 z-30 flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-2 text-sm text-gray-400 transition-all hover:bg-white/10 hover:text-white"
             >
               <svg

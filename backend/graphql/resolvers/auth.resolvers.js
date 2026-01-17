@@ -166,7 +166,7 @@ const authMutations = {
    */
   updateProfile: async (_, { input }, context) => {
     const user = requireAuth(context);
-    const { username, bio, avatarUrl, currentPassword, newPassword } = input;
+    const { username, email, bio, avatarUrl, currentPassword, newPassword } = input;
 
     // Password change
     if (currentPassword && newPassword) {
@@ -181,6 +181,7 @@ const authMutations = {
     // Update fields
     const updates = {};
     if (username) updates.username = username;
+    if (email) updates.email = email;
     if (bio !== undefined) updates.bio = bio;
     if (avatarUrl !== undefined) updates.avatarUrl = avatarUrl;
 
@@ -188,6 +189,12 @@ const authMutations = {
     if (username && username.toLowerCase() !== user.username.toLowerCase()) {
       const exists = await User.isUsernameAvailable(username);
       if (!exists) throw new Error('Username taken');
+    }
+
+    // Check email uniqueness if changing
+    if (email && email.toLowerCase() !== user.email.toLowerCase()) {
+      const existingEmail = await User.findOne({ email: email.toLowerCase() });
+      if (existingEmail) throw new Error('Email already in use');
     }
 
     const updatedUser = await User.findByIdAndUpdate(user._id, updates, {

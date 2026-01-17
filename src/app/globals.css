@@ -76,7 +76,7 @@ nav {
 
 /* Selection color */
 ::selection {
-  background-color: var(--color-accent-secondary);
+  background-color: #026645;
   color: white;
 }
 

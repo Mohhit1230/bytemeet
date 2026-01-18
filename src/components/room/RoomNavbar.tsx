@@ -12,7 +12,7 @@ import type { ActiveSection } from './RoomLayout';
 import type { Subject } from '@/types/database';
 
 interface RoomNavbarProps {
-  subject: Subject & { role?: string };
+  subject: Subject & { role?: string; inviteCode?: string };
   sectionTitle: string;
   onOpenSettings: () => void;
   isSmallScreen: boolean;
@@ -267,7 +267,7 @@ export function RoomNavbar({
       <InviteModal
         isOpen={showInviteModal}
         onClose={() => setShowInviteModal(false)}
-        inviteCode={subject.invite_code}
+        inviteCode={subject.inviteCode || subject.invite_code || ''}
         subjectName={subject.name}
       />
     </>

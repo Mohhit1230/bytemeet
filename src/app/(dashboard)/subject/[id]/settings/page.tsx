@@ -28,6 +28,7 @@ type SubjectWithRole = Subject & {
     members?: SubjectMember[];
     myRole?: string;
     myStatus?: string;
+    inviteCode?: string; // GraphQL returns camelCase
 };
 
 // Settings categories
@@ -247,15 +248,15 @@ export default function RoomSettingsPage() {
     };
 
     const handleCopyInviteCode = () => {
-        if (subject?.invite_code) {
-            navigator.clipboard.writeText(subject.invite_code);
+        if (subject?.inviteCode) {
+            navigator.clipboard.writeText(subject.inviteCode);
             success('Copied', 'Invite code copied to clipboard');
         }
     };
 
     const handleCopyInviteLink = () => {
-        if (subject?.invite_code) {
-            const link = `${window.location.origin}/join/${subject.invite_code}`;
+        if (subject?.inviteCode) {
+            const link = `${window.location.origin}/join/${subject.inviteCode}`;
             navigator.clipboard.writeText(link);
             success('Copied', 'Invite link copied to clipboard');
         }
@@ -294,7 +295,7 @@ export default function RoomSettingsPage() {
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="focus:border-accent focus:ring-accent/20 w-full rounded-xl border border-white/10 bg-[#151518] px-4 py-3.5 text-white placeholder-gray-500 transition-all focus:outline-none focus:ring-2"
+                                className="focus:border-accent focus:ring-accent/20 w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 text-white placeholder-gray-500 transition-all focus:outline-none focus:ring-2"
                                 placeholder="Enter room name"
                             />
                         </div>
@@ -306,59 +307,81 @@ export default function RoomSettingsPage() {
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={4}
-                                className="focus:border-accent focus:ring-accent/20 w-full resize-none rounded-xl border border-white/10 bg-[#151518] px-4 py-3.5 text-white placeholder-gray-500 transition-all focus:outline-none focus:ring-2"
+                                className="focus:border-accent focus:ring-accent/20 w-full resize-none rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 text-white placeholder-gray-500 transition-all focus:outline-none focus:ring-2"
                                 placeholder="Describe what this room is about..."
                             />
                         </div>
 
-                        {/* Invite Code Section */}
-                        <div className="rounded-2xl border border-accent/20 bg-accent/5 p-6">
-                            <label className="text-accent mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider">
-                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                                </svg>
-                                Invite Code
-                            </label>
+                        {/* Invite Code Section - Premium Design */}
+                        <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-emerald-600/5 to-transparent p-6">
+                            {/* Decorative Background Elements */}
+                            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-emerald-500/10 blur-2xl" />
+                            <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-emerald-400/10 blur-2xl" />
 
-                            {/* Code Display */}
-                            <div className="mb-4 flex items-center gap-3">
-                                <div className="border-accent/30 bg-accent/10 flex-1 rounded-xl border-2 border-dashed px-6 py-4 text-center">
-                                    <code className="text-accent font-mono text-3xl font-bold tracking-[0.3em]">
-                                        {subject.invite_code}
-                                    </code>
+                            <div className="relative">
+                                {/* Header */}
+                                <div className="mb-6 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20">
+                                            <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-white">Invite Code</h3>
+                                            <p className="text-xs text-gray-400">Share this code to invite others</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={handleRegenerateCode}
+                                        disabled={regenerateCodeMutation.isPending}
+                                        className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-emerald-400 transition-all hover:bg-emerald-500/10 disabled:opacity-50"
+                                    >
+                                        <svg className={`h-3.5 w-3.5 ${regenerateCodeMutation.isPending ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                        {regenerateCodeMutation.isPending ? 'Regenerating...' : 'Refresh'}
+                                    </button>
                                 </div>
-                            </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex flex-wrap gap-3">
-                                <button
-                                    onClick={handleCopyInviteCode}
-                                    className="bg-accent hover:bg-accent-dark flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-white transition-colors"
-                                >
-                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                    </svg>
-                                    Copy Code
-                                </button>
-                                <button
-                                    onClick={handleCopyInviteLink}
-                                    className="hover:bg-accent flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#151518] px-4 py-3 font-medium text-white transition-colors hover:text-white"
-                                >
-                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                    </svg>
-                                    Copy Link
-                                </button>
-                                <button
-                                    onClick={handleRegenerateCode}
-                                    disabled={regenerateCodeMutation.isPending}
-                                    className="hover:bg-accent/20 flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#151518] px-4 py-3 font-medium text-gray-300 transition-colors hover:text-white disabled:opacity-50"
-                                >
-                                    <svg className={`h-5 w-5 ${regenerateCodeMutation.isPending ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                    </svg>
-                                    {regenerateCodeMutation.isPending ? 'Regenerating...' : 'Regenerate'}
-                                </button>
+                                {/* Code Display - Character by Character */}
+                                <div className="mb-6 flex items-center justify-center gap-2">
+                                    {subject.inviteCode?.split('').map((char, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex h-14 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/40 backdrop-blur-sm transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10"
+                                        >
+                                            <span className="font-mono text-2xl font-bold text-white">{char}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Quick Copy Hint */}
+                                <p className="mb-4 text-center text-xs text-gray-500">
+                                    Click below to copy the code or share the invite link
+                                </p>
+
+                                {/* Action Buttons */}
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={handleCopyInviteCode}
+                                        className="group flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3.5 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400 hover:shadow-emerald-500/30"
+                                    >
+                                        <svg className="h-5 w-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        Copy Code
+                                    </button>
+                                    <button
+                                        onClick={handleCopyInviteLink}
+                                        className="group flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3.5 font-medium text-emerald-400 transition-all hover:bg-emerald-500/20"
+                                    >
+                                        <svg className="h-5 w-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                        </svg>
+                                        Share Link
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -664,7 +687,7 @@ export default function RoomSettingsPage() {
     return (
         <div
             ref={containerRef}
-            className="h-screen overflow-hidden bg-gradient-to-b from-[#0a0a0c] to-[#0f0f12] text-white"
+            className="h-screen overflow-hidden bg-[#111] text-white"
         >
             <div
                 className="h-full overflow-y-auto scrollbar-hide"
@@ -704,7 +727,7 @@ export default function RoomSettingsPage() {
                     <div className="flex flex-col gap-8 lg:flex-row">
                         {/* Sidebar Navigation */}
                         <aside className={`lg:w-72 lg:shrink-0 ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
-                            <nav className="sticky top-24 space-y-2 rounded-2xl border border-white/5 bg-[#0f0f12] p-3">
+                            <nav className="sticky top-24 space-y-2 rounded-2xl border border-white/5 bg-black/80 p-3">
                                 {categories.map((category) => (
                                     <button
                                         key={category.id}
@@ -713,8 +736,8 @@ export default function RoomSettingsPage() {
                                             setIsMobileMenuOpen(false);
                                         }}
                                         className={`flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left transition-all ${activeCategory === category.id
-                                            ? 'bg-white/5 text-accent'
-                                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                            ? 'bg-[#222] text-accent'
+                                            : 'text-gray-400 hover:bg-white/10 hover:text-white'
                                             }`}
                                     >
                                         <span className={activeCategory === category.id ? 'text-accent' : ''}>{category.icon}</span>
@@ -729,7 +752,7 @@ export default function RoomSettingsPage() {
 
                         {/* Main Content */}
                         <main ref={contentRef} className="min-w-0 flex-1">
-                            <div className="rounded-2xl border border-white/5 bg-[#0f0f12] p-6 lg:p-8">
+                            <div className="rounded-2xl border border-white/5 bg-[#29292f80] p-6 lg:p-8">
                                 <h2 className={`mb-8 flex items-center gap-3 text-2xl font-bold ${currentCategory?.color}`}>
                                     {currentCategory?.icon}
                                     {currentCategory?.label}

@@ -46,7 +46,7 @@ const categories: CategoryItem[] = [
         id: 'general',
         label: 'General',
         description: 'Basic room settings',
-        color: 'text-accent',
+        color: 'text-accent-light',
         icon: (
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -662,74 +662,82 @@ export default function RoomSettingsPage() {
     const currentCategory = categories.find((c) => c.id === activeCategory);
 
     return (
-        <div ref={containerRef} className="min-h-screen bg-gradient-to-b from-[#0a0a0c] to-[#0f0f12] text-white">
-            {/* Header */}
-            <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0a0a0c]/90 backdrop-blur-xl">
-                <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-                    <div className="flex items-center gap-4">
+        <div
+            ref={containerRef}
+            className="h-screen overflow-hidden bg-gradient-to-b from-[#0a0a0c] to-[#0f0f12] text-white"
+        >
+            <div
+                className="h-full overflow-y-auto scrollbar-hide"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+                {/* Header */}
+                <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0a0a0c]/90 backdrop-blur-xl">
+                    <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => router.push(`/subject/${subjectId}`)}
+                                className="hover:bg-accent/20 hover:text-accent rounded-lg p-2 text-gray-400 transition-colors"
+                            >
+                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                </svg>
+                            </button>
+                            <div>
+                                <p className="text-emerald-400 text-sm font-medium">Room Settings</p>
+                                <h1 className="font-semibold text-white">{subject?.name}</h1>
+                            </div>
+                        </div>
+
+                        {/* Mobile menu button */}
                         <button
-                            onClick={() => router.push(`/subject/${subjectId}`)}
-                            className="hover:bg-accent/20 hover:text-accent rounded-lg p-2 text-gray-400 transition-colors"
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            className="hover:bg-accent rounded-lg p-2 text-gray-400 transition-colors hover:text-white lg:hidden"
                         >
-                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
-                        <div>
-                            <p className="text-accent text-sm font-medium">Room Settings</p>
-                            <h1 className="font-semibold text-white">{subject?.name}</h1>
-                        </div>
                     </div>
+                </header>
 
-                    {/* Mobile menu button */}
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className="hover:bg-accent rounded-lg p-2 text-gray-400 transition-colors hover:text-white lg:hidden"
-                    >
-                        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
-            </header>
+                <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+                    <div className="flex flex-col gap-8 lg:flex-row">
+                        {/* Sidebar Navigation */}
+                        <aside className={`lg:w-72 lg:shrink-0 ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
+                            <nav className="sticky top-24 space-y-2 rounded-2xl border border-white/5 bg-[#0f0f12] p-3">
+                                {categories.map((category) => (
+                                    <button
+                                        key={category.id}
+                                        onClick={() => {
+                                            setActiveCategory(category.id);
+                                            setIsMobileMenuOpen(false);
+                                        }}
+                                        className={`flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left transition-all ${activeCategory === category.id
+                                            ? 'bg-white/5 text-accent'
+                                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                            }`}
+                                    >
+                                        <span className={activeCategory === category.id ? 'text-accent' : ''}>{category.icon}</span>
+                                        <div>
+                                            <p className={`font-medium ${activeCategory === category.id ? 'text-accent' : ''}`}>{category.label}</p>
+                                            <p className="text-xs text-gray-500">{category.description}</p>
+                                        </div>
+                                    </button>
+                                ))}
+                            </nav>
+                        </aside>
 
-            <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-                <div className="flex flex-col gap-8 lg:flex-row">
-                    {/* Sidebar Navigation */}
-                    <aside className={`lg:w-72 lg:shrink-0 ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
-                        <nav className="sticky top-24 space-y-2 rounded-2xl border border-white/5 bg-[#0f0f12] p-3">
-                            {categories.map((category) => (
-                                <button
-                                    key={category.id}
-                                    onClick={() => {
-                                        setActiveCategory(category.id);
-                                        setIsMobileMenuOpen(false);
-                                    }}
-                                    className={`flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left transition-all ${activeCategory === category.id
-                                        ? `bg-accent/10 border-accent/30 border ${category.color}`
-                                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                                        }`}
-                                >
-                                    <span className={activeCategory === category.id ? category.color : ''}>{category.icon}</span>
-                                    <div>
-                                        <p className="font-medium">{category.label}</p>
-                                        <p className="text-xs text-gray-500">{category.description}</p>
-                                    </div>
-                                </button>
-                            ))}
-                        </nav>
-                    </aside>
-
-                    {/* Main Content */}
-                    <main ref={contentRef} className="min-w-0 flex-1">
-                        <div className="rounded-2xl border border-white/5 bg-[#0f0f12] p-6 lg:p-8">
-                            <h2 className={`mb-8 flex items-center gap-3 text-2xl font-bold ${currentCategory?.color}`}>
-                                {currentCategory?.icon}
-                                {currentCategory?.label}
-                            </h2>
-                            {renderSettingsContent()}
-                        </div>
-                    </main>
+                        {/* Main Content */}
+                        <main ref={contentRef} className="min-w-0 flex-1">
+                            <div className="rounded-2xl border border-white/5 bg-[#0f0f12] p-6 lg:p-8">
+                                <h2 className={`mb-8 flex items-center gap-3 text-2xl font-bold ${currentCategory?.color}`}>
+                                    {currentCategory?.icon}
+                                    {currentCategory?.label}
+                                </h2>
+                                {renderSettingsContent()}
+                            </div>
+                        </main>
+                    </div>
                 </div>
             </div>
         </div>

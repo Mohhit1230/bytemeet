@@ -47,7 +47,7 @@ const categories: CategoryItem[] = [
         id: 'general',
         label: 'General',
         description: 'Basic room settings',
-        color: 'text-accent-light',
+        color: 'text-accent',
         icon: (
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -227,9 +227,9 @@ export default function RoomSettingsPage() {
         try {
             await regenerateCodeMutation.mutateAsync(subjectId);
             await refetch(); // Refresh subject data to get new code
-            success('Code regenerated', 'New invite code has been generated');
+            success('Link regenerated', 'New invite link has been generated');
         } catch (err) {
-            toastError('Error', 'Failed to regenerate code');
+            toastError('Error', 'Failed to regenerate link');
         }
     };
 
@@ -290,37 +290,33 @@ export default function RoomSettingsPage() {
                     <div className="space-y-8">
                         {/* Room Name */}
                         <div className="group">
-                            <label className="text-accent mb-2 block text-sm font-semibold uppercase tracking-wider">Room Name</label>
+                            <label className="text-white mb-2 block text-sm font-semibold uppercase tracking-wider">Room Name</label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="focus:border-accent focus:ring-accent/20 w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 text-white placeholder-gray-500 transition-all focus:outline-none focus:ring-2"
+                                className="focus:border-accent/30 w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 text-white focus:outline-none"
                                 placeholder="Enter room name"
                             />
                         </div>
 
                         {/* Description */}
                         <div>
-                            <label className="text-accent mb-2 block text-sm font-semibold uppercase tracking-wider">Description</label>
+                            <label className="text-white mb-2 block text-sm font-semibold uppercase tracking-wider">Description</label>
                             <textarea
                                 value={formData.description}
                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                 rows={4}
-                                className="focus:border-accent focus:ring-accent/20 w-full resize-none rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 text-white placeholder-gray-500 transition-all focus:outline-none focus:ring-2"
+                                className="focus:border-accent/30 w-full resize-none rounded-xl border border-white/10 bg-black/50 px-4 py-3.5 text-white focus:outline-none"
                                 placeholder="Describe what this room is about..."
                             />
                         </div>
 
-                        {/* Invite Code Section - Premium Design */}
-                        <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-emerald-600/5 to-transparent p-6">
-                            {/* Decorative Background Elements */}
-                            <div className="absolute -right-8 -top-8 h-32 w-32 rounded-full bg-emerald-500/10 blur-2xl" />
-                            <div className="absolute -bottom-8 -left-8 h-24 w-24 rounded-full bg-emerald-400/10 blur-2xl" />
-
+                        {/* Invite Link Section - Google Meet Style */}
+                        <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-600/5 p-6">
                             <div className="relative">
                                 {/* Header */}
-                                <div className="mb-6 flex items-center justify-between">
+                                <div className="mb-5 flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/20">
                                             <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -328,8 +324,8 @@ export default function RoomSettingsPage() {
                                             </svg>
                                         </div>
                                         <div>
-                                            <h3 className="font-semibold text-white">Invite Code</h3>
-                                            <p className="text-xs text-gray-400">Share this code to invite others</p>
+                                            <h3 className="font-semibold text-white">Invite Link</h3>
+                                            <p className="text-xs text-gray-400">Share this link to invite others</p>
                                         </div>
                                     </div>
                                     <button
@@ -340,48 +336,50 @@ export default function RoomSettingsPage() {
                                         <svg className={`h-3.5 w-3.5 ${regenerateCodeMutation.isPending ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                         </svg>
-                                        {regenerateCodeMutation.isPending ? 'Regenerating...' : 'Refresh'}
+                                        {regenerateCodeMutation.isPending ? 'Regenerating...' : 'Regenerate'}
                                     </button>
                                 </div>
 
-                                {/* Code Display - Character by Character */}
-                                <div className="mb-6 flex items-center justify-center gap-2">
-                                    {subject.inviteCode?.split('').map((char, index) => (
-                                        <div
-                                            key={index}
-                                            className="flex h-14 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/40 backdrop-blur-sm transition-all hover:border-emerald-500/50 hover:bg-emerald-500/10"
-                                        >
-                                            <span className="font-mono text-2xl font-bold text-white">{char}</span>
-                                        </div>
-                                    ))}
-                                </div>
+                                {/* Invite Link Display */}
+                                <div
+                                    onClick={handleCopyInviteLink}
+                                    className="group mb-5 flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/30 p-4 transition-all hover:border-emerald-500/30 hover:bg-black/50"
+                                >
+                                    {/* Link Icon */}
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10">
+                                        <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                        </svg>
+                                    </div>
 
-                                {/* Quick Copy Hint */}
-                                <p className="mb-4 text-center text-xs text-gray-500">
-                                    Click below to copy the code or share the invite link
-                                </p>
+                                    {/* Link Text */}
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate font-mono text-sm text-white">
+                                            {typeof window !== 'undefined' ? `${window.location.origin}/join/${subject.inviteCode}` : `/join/${subject.inviteCode}`}
+                                        </p>
+                                        <p className="mt-0.5 text-xs text-gray-500">
+                                            Anyone with this link can join
+                                        </p>
+                                    </div>
 
-                                {/* Action Buttons */}
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={handleCopyInviteCode}
-                                        className="group flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3.5 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400 hover:shadow-emerald-500/30"
-                                    >
-                                        <svg className="h-5 w-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    {/* Copy Indicator */}
+                                    <div className="shrink-0 text-emerald-400 opacity-0 transition-all group-hover:opacity-100">
+                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                         </svg>
-                                        Copy Code
-                                    </button>
-                                    <button
-                                        onClick={handleCopyInviteLink}
-                                        className="group flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3.5 font-medium text-emerald-400 transition-all hover:bg-emerald-500/20"
-                                    >
-                                        <svg className="h-5 w-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-                                        </svg>
-                                        Share Link
-                                    </button>
+                                    </div>
                                 </div>
+
+                                {/* Copy Button */}
+                                <button
+                                    onClick={handleCopyInviteLink}
+                                    className="group flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500/90 py-3.5 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400/90"
+                                >
+                                    <svg className="h-5 w-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    Copy Invite Link
+                                </button>
                             </div>
                         </div>
 
@@ -390,7 +388,7 @@ export default function RoomSettingsPage() {
                             <button
                                 onClick={handleSaveGeneral}
                                 disabled={updateSubjectMutation.isPending}
-                                className="bg-accent hover:bg-accent-dark rounded-xl px-8 py-3.5 font-semibold text-white shadow-lg shadow-accent/20 transition-all hover:shadow-accent/30 disabled:opacity-50"
+                                className="bg-accent hover:bg-accent-dark/80 rounded-xl px-8 py-3.5 font-semibold text-white shadow-lg transition-all disabled:opacity-50"
                             >
                                 {updateSubjectMutation.isPending ? 'Saving...' : 'Save Changes'}
                             </button>
@@ -619,7 +617,7 @@ export default function RoomSettingsPage() {
             case 'danger':
                 return (
                     <div className="space-y-6">
-                        <div className="rounded-2xl border-2 border-red-500/30 bg-gradient-to-br from-red-500/10 to-red-900/5 p-6">
+                        <div className="rounded-2xl border border-red-500/30 bg-linear-to-br from-red-500/10 to-red-900/5 p-6">
                             <div className="flex items-start gap-4">
                                 <div className="rounded-full bg-red-500/20 p-3">
                                     <svg className="h-6 w-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -635,7 +633,7 @@ export default function RoomSettingsPage() {
                                     {!showDeleteConfirm ? (
                                         <button
                                             onClick={() => setShowDeleteConfirm(true)}
-                                            className="mt-4 rounded-xl border-2 border-red-500/50 bg-red-500/10 px-6 py-3 font-semibold text-red-400 transition-all hover:bg-red-500 hover:text-white"
+                                            className="mt-4 rounded-xl border border-red-500/50 bg-red-500/80 px-6 py-3 font-semibold text-white transition-all hover:bg-red-500 hover:text-white"
                                         >
                                             Delete this room
                                         </button>
@@ -687,14 +685,14 @@ export default function RoomSettingsPage() {
     return (
         <div
             ref={containerRef}
-            className="h-screen overflow-hidden bg-[#111] text-white"
+            className="h-screen overflow-hidden bg-[#050505] text-white"
         >
             <div
                 className="h-full overflow-y-auto scrollbar-hide"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
                 {/* Header */}
-                <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0a0a0c]/90 backdrop-blur-xl">
+                <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0f0f0f0] backdrop-blur-xl">
                     <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
                         <div className="flex items-center gap-4">
                             <button
@@ -727,7 +725,7 @@ export default function RoomSettingsPage() {
                     <div className="flex flex-col gap-8 lg:flex-row">
                         {/* Sidebar Navigation */}
                         <aside className={`lg:w-72 lg:shrink-0 ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
-                            <nav className="sticky top-24 space-y-2 rounded-2xl border border-white/5 bg-black/80 p-3">
+                            <nav className="sticky top-24 space-y-2 rounded-2xl border border-white/5 bg-white/5 p-3">
                                 {categories.map((category) => (
                                     <button
                                         key={category.id}
@@ -752,7 +750,7 @@ export default function RoomSettingsPage() {
 
                         {/* Main Content */}
                         <main ref={contentRef} className="min-w-0 flex-1">
-                            <div className="rounded-2xl border border-white/5 bg-[#29292f80] p-6 lg:p-8">
+                            <div className="rounded-2xl border border-white/15 bg-white/7 p-6 lg:p-8">
                                 <h2 className={`mb-8 flex items-center gap-3 text-2xl font-bold ${currentCategory?.color}`}>
                                     {currentCategory?.icon}
                                     {currentCategory?.label}

@@ -151,9 +151,9 @@ export function SettingsView() {
         <div className="flex flex-col items-start gap-6 md:flex-row">
           {/* Avatar */}
           <div className="group relative shrink-0">
-            <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-2xl border-4 border-white/5 bg-gray-300">
+            <div className="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full border-4 border-white/5 bg-gray-300">
               {user?.avatarUrl ? (
-                <Image src={user.avatarUrl} alt={user.username} fill className="object-cover" />
+                <Image src={user.avatarUrl} alt={user.username} fill className="object-cover rounded-full" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-[#d1d5db]">
                   <UserAvatar
@@ -166,7 +166,7 @@ export function SettingsView() {
             {isEditing && (
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
+                className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
               >
                 <svg
                   className="h-8 w-8 text-white"
@@ -209,7 +209,7 @@ export function SettingsView() {
                       onChange={(e) =>
                         setFormData((prev) => ({ ...prev, username: e.target.value }))
                       }
-                      className="focus:border-accent focus:ring-accent/20 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2"
+                      className="focus:border-accent/30 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none"
                     />
                   </div>
 
@@ -224,7 +224,7 @@ export function SettingsView() {
                       onChange={(e) =>
                         setFormData((prev) => ({ ...prev, email: e.target.value }))
                       }
-                      className="focus:border-accent focus:ring-accent/20 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2"
+                      className="focus:border-accent/30 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none"
                     />
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export function SettingsView() {
                     value={formData.bio}
                     onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
                     rows={3}
-                    className="focus:border-accent focus:ring-accent/20 w-full resize-none rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none focus:ring-2"
+                    className="focus:border-accent/30 w-full resize-none rounded-xl border border-white/10 bg-black/30 px-4 py-3 text-white focus:outline-none"
                     placeholder="Write something about yourself..."
                   />
                 </div>
@@ -254,7 +254,7 @@ export function SettingsView() {
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="hover:bg-accent rounded-xl border border-white/10 bg-white/10 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:text-white"
+                    className="hover:bg-white/20 rounded-xl border border-white/10 bg-white/10 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:text-white"
                   >
                     Cancel
                   </button>
@@ -265,17 +265,17 @@ export function SettingsView() {
               <div ref={viewModeRef}>
                 <div className="flex items-start justify-between">
                   <div>
-                    <h1 className="mb-1 text-3xl font-bold text-white">
+                    <h1 className="mb-1 text-3xl font-bold text-emerald-500">
                       {user?.username || 'Username'}
                     </h1>
-                    <p className="mb-4 text-sm text-gray-400">
+                    <p className="mb-4 text-sm text-[#bdcffd]">
                       {user?.email || 'email@example.com'}
                     </p>
-                    <p className="max-w-xl text-sm text-gray-400">{user?.bio || 'Hello'}</p>
+                    <p className="max-w-xl text-sm text-[#bdcffd]">{user?.bio || 'Hello'}</p>
                   </div>
                   <button
                     onClick={() => setIsEditing(true)}
-                    className="bg-accent hover:bg-accent-dark rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-accent/20 transition-all hover:shadow-accent/30"
+                    className="bg-accent hover:bg-accent-dark/90 rounded-xl px-6 py-2.5 text-sm font-semibold text-white transition-all"
                   >
                     Edit Details
                   </button>
@@ -362,10 +362,10 @@ export function SettingsView() {
                   </div>
                   <button
                     onClick={logout}
-                    className="text-accent group flex items-center gap-2 whitespace-nowrap rounded-xl border border-[#4a1a1a] bg-[#451d1d] px-6 py-2.5 text-sm font-medium transition-colors hover:bg-[#c02020] hover:text-white"
+                    className="text-white group flex items-center gap-2 whitespace-nowrap rounded-xl border border-[#4a1a1a] bg-[#c02020] px-6 py-2.5 text-sm font-medium transition-colors hover:bg-red-600"
                   >
                     <svg
-                      className="h-4 w-4 group-hover:text-white"
+                      className="h-4 w-4 text-white"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -401,7 +401,7 @@ export function SettingsView() {
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
-                <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
+                <span className="text-xs font-bold uppercase tracking-widest text-emerald-500">
                   SECURITY
                 </span>
               </div>
@@ -414,7 +414,7 @@ export function SettingsView() {
                 )}
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white">
                     Current Password
                   </label>
                   <input
@@ -423,13 +423,13 @@ export function SettingsView() {
                     onChange={(e) =>
                       setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
                     }
-                    className="w-full rounded-xl border border-white/10 bg-[#1a1a1c] px-4 py-3 text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a1a1c] px-4 py-3 text-white focus:border-emerald-500/30 focus:outline-none"
                     placeholder="Enter current password"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white">
                     New Password
                   </label>
                   <input
@@ -438,13 +438,13 @@ export function SettingsView() {
                     onChange={(e) =>
                       setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
                     }
-                    className="w-full rounded-xl border border-white/10 bg-[#1a1a1c] px-4 py-3 text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a1a1c] px-4 py-3 text-white focus:border-emerald-500/30 focus:outline-none"
                     placeholder="Enter new password"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-emerald-400">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-white">
                     Confirm New Password
                   </label>
                   <input
@@ -453,7 +453,7 @@ export function SettingsView() {
                     onChange={(e) =>
                       setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))
                     }
-                    className="w-full rounded-xl border border-white/10 bg-[#1a1a1c] px-4 py-3 text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a1a1c] px-4 py-3 text-white focus:border-emerald-500/30 focus:outline-none"
                     placeholder="Confirm new password"
                   />
                 </div>
@@ -462,7 +462,7 @@ export function SettingsView() {
                   <button
                     onClick={handleChangePassword}
                     disabled={saving}
-                    className="flex-1 rounded-xl bg-emerald-600 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-500 hover:shadow-emerald-500/30"
+                    className="flex-1 rounded-xl bg-emerald-600/90 px-6 py-3 font-semibold text-white shadow-lg shadow-emerald-500/5 transition-all hover:bg-emerald-700/90 hover:shadow-emerald-500/10"
                   >
                     {saving ? 'Updating...' : 'Update Password'}
                   </button>
@@ -553,7 +553,7 @@ export function SettingsView() {
 
                   <button
                     onClick={() => setIsChangingPassword(true)}
-                    className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3.5 text-sm font-semibold text-emerald-400 transition-all hover:bg-emerald-500 hover:text-white"
+                    className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-3.5 text-sm font-semibold text-emerald-400 transition-all hover:bg-emerald-500/50 hover:text-white"
                   >
                     Change Password
                   </button>
@@ -594,10 +594,10 @@ export function SettingsView() {
                 </div>
                 <button
                   onClick={logout}
-                  className="text-accent group flex items-center gap-2 whitespace-nowrap rounded-xl border border-[#4a1a1a] bg-[#451d1d] px-6 py-2.5 text-sm font-medium transition-colors hover:bg-[#c02020] hover:text-white"
+                  className="text-white group flex items-center gap-2 whitespace-nowrap rounded-xl border border-[#4a1a1a] bg-[#c02020] px-6 py-2.5 text-sm font-medium transition-colors hover:bg-red-600"
                 >
                   <svg
-                    className="h-4 w-4 group-hover:text-white"
+                    className="h-4 w-4"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"

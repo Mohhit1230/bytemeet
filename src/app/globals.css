@@ -28,6 +28,16 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-primary);
+  overflow-y: auto;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+}
+
+body::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Opera */
 }
 
 h1,
@@ -105,6 +115,23 @@ nav {
   }
 }
 
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
 /* Custom scrollbar for chat and lists */
 .custom-scrollbar::-webkit-scrollbar {
   width: 3px;
@@ -130,6 +157,7 @@ nav {
 }
 
 @keyframes loading-bar {
+
   0%,
   100% {
     transform: scaleY(0.5);
@@ -193,6 +221,7 @@ nav {
 
 /* Respect reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -225,8 +254,7 @@ nav {
 }
 
 .safe-area-all {
-  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px)
-    env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
 }
 
 /* Touch-friendly interactive elements */

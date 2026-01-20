@@ -147,7 +147,7 @@ export function SettingsView() {
       style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
       {/* Profile Card - Top */}
-      <div className="relative mb-6 overflow-hidden rounded-3xl bg-gradient-to-r from-[#3d2b2b] via-[#2a2a35] to-[#1c2237] p-8">
+      <div className="relative mb-6 overflow-hidden rounded-3xl bg-linear-to-r from-[#3d2b2b] via-[#2a2a35] to-[#1c2237] p-8 scrollbar-hide">
         <div className="flex flex-col items-start gap-6 md:flex-row">
           {/* Avatar */}
           <div className="group relative shrink-0">
@@ -193,7 +193,7 @@ export function SettingsView() {
           </div>
 
           {/* User Info & Edit Form */}
-          <div className="w-full flex-1 pt-2">
+          <div className="w-full flex-1 pt-2 scrollbar-hide">
             {isEditing ? (
               /* EDITING MODE - Show inputs for ALL fields */
               <div ref={editFormRef} className="space-y-4">
@@ -290,7 +290,7 @@ export function SettingsView() {
       <div ref={cardsContainerRef}>
         {isChangingPassword ? (
           /* PASSWORD CHANGE MODE: Account + Danger on left, Security on right */
-          <div className="mb-6 flex flex-col gap-6 md:flex-row">
+          <div className="mb-6 flex flex-col gap-6 md:flex-row scrollbar-hide">
             {/* Left Column: Account + Danger Zone stacked */}
             <div className="flex flex-col gap-6 md:w-1/2">
               {/* ACCOUNT Card */}

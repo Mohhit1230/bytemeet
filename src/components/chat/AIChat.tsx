@@ -2,6 +2,7 @@
  * AI Chat Component
  *
  * Matching "AI Assistant" design with file upload support
+ * Includes optimistic UI for better UX
  */
 
 'use client';
@@ -15,6 +16,12 @@ interface AIChatProps {
   subjectId: string;
 }
 
+// Pending message shown optimistically before server confirms
+interface PendingMessage {
+  content: string;
+  timestamp: Date;
+}
+
 export function AIChat({ subjectId }: AIChatProps) {
   const { messages, sending, isStreaming, streamingContent, sendMessage } = useAIChat(subjectId);
   const uploadArtifactMutation = useUploadArtifactMutation(subjectId);
@@ -22,6 +29,7 @@ export function AIChat({ subjectId }: AIChatProps) {
   const [inputValue, setInputValue] = useState('');
   const [attachedFile, setAttachedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [pendingMessage, setPendingMessage] = useState<PendingMessage | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -31,12 +39,26 @@ export function AIChat({ subjectId }: AIChatProps) {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, streamingContent]);
+  }, [messages, streamingContent, pendingMessage]);
+
+  // Clear pending message when real message appears
+  useEffect(() => {
+    if (pendingMessage && messages.length > 0) {
+      const lastUserMsg = messages.filter(m => m.role === 'user').pop();
+      if (lastUserMsg && lastUserMsg.content === pendingMessage.content) {
+        setPendingMessage(null);
+      }
+    }
+  }, [messages, pendingMessage]);
 
   const handleSend = async () => {
     if (!inputValue.trim() && !attachedFile) return;
 
     let messageText = inputValue;
+    const currentInput = inputValue;
+
+    // Clear input immediately for better UX
+    setInputValue('');
 
     // If file is attached, upload it first and mention in the message
     if (attachedFile) {
@@ -44,10 +66,14 @@ export function AIChat({ subjectId }: AIChatProps) {
       try {
         const artifact = await uploadArtifactMutation.mutateAsync({ file: attachedFile });
         if (artifact) {
-          messageText = `[Attached file: ${attachedFile.name}]\n\n${inputValue}`;
+          messageText = `[Attached file: ${attachedFile.name}]\n\n${currentInput}`;
         }
       } catch (err) {
         console.error('File upload failed:', err);
+        // Restore input on failure
+        setInputValue(currentInput);
+        setUploading(false);
+        return;
       } finally {
         setUploading(false);
         setAttachedFile(null);
@@ -55,9 +81,15 @@ export function AIChat({ subjectId }: AIChatProps) {
     }
 
     if (messageText.trim()) {
+      // Set pending message for optimistic UI
+      setPendingMessage({
+        content: messageText.trim(),
+        timestamp: new Date()
+      });
+
+      // Send the message
       await sendMessage(messageText);
     }
-    setInputValue('');
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -134,7 +166,7 @@ export function AIChat({ subjectId }: AIChatProps) {
 
         {messages.map((msg, idx) => (
           <div
-            key={msg.id || idx}
+            key={`${msg.role}-${msg.id || idx}-${idx}`}
             className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             {msg.role === 'assistant' && (
@@ -176,9 +208,8 @@ export function AIChat({ subjectId }: AIChatProps) {
                   return (
                     <div className="flex max-w-xs items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a1e] p-3">
                       <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                          isPdf ? 'bg-red-500/20' : isImage ? 'bg-emerald-500/20' : 'bg-blue-500/20'
-                        }`}
+                        className={`flex h-10 w-10 items-center justify-center rounded-lg ${isPdf ? 'bg-red-500/20' : isImage ? 'bg-emerald-500/20' : 'bg-blue-500/20'
+                          }`}
                       >
                         {isPdf ? (
                           <svg
@@ -247,11 +278,10 @@ export function AIChat({ subjectId }: AIChatProps) {
 
                 return (
                   <div
-                    className={`rounded-2xl p-4 text-sm leading-relaxed ${
-                      msg.role === 'user'
-                        ? 'border border-white/10 bg-[#1a1a1e] text-gray-200'
-                        : 'border border-blue-500/20 bg-blue-600/10 text-gray-300'
-                    }`}
+                    className={`rounded-2xl p-4 text-sm leading-relaxed ${msg.role === 'user'
+                      ? 'border border-white/10 bg-[#1a1a1e] text-gray-200'
+                      : 'border border-blue-500/20 bg-blue-600/10 text-gray-300'
+                      }`}
                   >
                     {/* Check if content has code block */}
                     {displayContent.includes('```') ? (
@@ -299,6 +329,24 @@ export function AIChat({ subjectId }: AIChatProps) {
           </div>
         ))}
 
+        {/* Pending User Message (Optimistic UI) */}
+        {pendingMessage && !messages.some(m => m.role === 'user' && m.content === pendingMessage.content) && (
+          <div className="flex gap-3 justify-end animate-fadeIn">
+            <div className="max-w-[80%] space-y-2">
+              <div className="flex items-center gap-2 text-xs text-gray-500 flex-row-reverse">
+                <span className="font-medium text-gray-300">{user?.username}</span>
+                <span>Sending...</span>
+              </div>
+              <div className="rounded-2xl p-4 text-sm leading-relaxed border border-white/10 bg-[#1a1a1e] text-gray-200 opacity-80">
+                <p className="whitespace-pre-wrap">{pendingMessage.content}</p>
+              </div>
+            </div>
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-xs font-bold text-black">
+              {user?.username?.[0]?.toUpperCase() || 'U'}
+            </div>
+          </div>
+        )}
+
         {/* Streaming response */}
         {isStreaming && streamingContent && (
           <div className="flex gap-3">
@@ -312,39 +360,72 @@ export function AIChat({ subjectId }: AIChatProps) {
                 />
               </svg>
             </div>
-            <div className="max-w-[80%] rounded-2xl border border-blue-500/20 bg-blue-600/10 p-4 text-sm text-gray-300">
-              <p className="whitespace-pre-wrap">{streamingContent}</p>
-              <span className="ml-1 inline-block h-4 w-2 animate-pulse bg-blue-500"></span>
+            <div className="max-w-[80%] space-y-2">
+              {/* AI Tutor Label - shown during streaming */}
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span className="font-medium text-gray-300">AI Tutor</span>
+                <span>
+                  {new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+                <span className="flex items-center gap-1 text-blue-400">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-400"></span>
+                  typing
+                </span>
+              </div>
+              {/* Streaming Content */}
+              <div className="rounded-2xl border border-blue-500/20 bg-blue-600/10 p-4 text-sm text-gray-300">
+                <p className="whitespace-pre-wrap">{streamingContent}</p>
+                <span className="ml-1 inline-block h-4 w-2 animate-pulse bg-blue-500"></span>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Loading indicator */}
+        {/* AI Thinking Indicator - Improved Design */}
         {sending && !streamingContent && (
-          <div className="flex gap-3">
+          <div className="flex gap-3 animate-fadeIn">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-4 w-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                 />
               </svg>
             </div>
-            <div className="flex items-center gap-1 px-4 py-3">
-              <div
-                className="h-2 w-2 animate-bounce rounded-full bg-gray-500"
-                style={{ animationDelay: '0ms' }}
-              />
-              <div
-                className="h-2 w-2 animate-bounce rounded-full bg-gray-500"
-                style={{ animationDelay: '150ms' }}
-              />
-              <div
-                className="h-2 w-2 animate-bounce rounded-full bg-gray-500"
-                style={{ animationDelay: '300ms' }}
-              />
+            <div className="max-w-[80%] space-y-2">
+              {/* AI Tutor Label - shown during thinking */}
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <span className="font-medium text-gray-300">AI Tutor</span>
+                <span>
+                  {new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </span>
+              </div>
+              {/* Thinking Indicator */}
+              <div className="flex items-center gap-3 rounded-2xl border border-blue-500/20 bg-blue-600/10 px-4 py-3">
+                <span className="text-sm text-gray-400">AI is thinking</span>
+                <div className="flex items-center gap-1">
+                  <div
+                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400"
+                    style={{ animationDelay: '0ms' }}
+                  />
+                  <div
+                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400"
+                    style={{ animationDelay: '150ms' }}
+                  />
+                  <div
+                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-blue-400"
+                    style={{ animationDelay: '300ms' }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

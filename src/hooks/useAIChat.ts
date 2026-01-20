@@ -6,7 +6,7 @@
 
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useAuth } from '@/hooks/useAuth';
 import { sendToAI, extractArtifacts, type AIMessage, type Artifact } from '@/services/ai.service';
@@ -36,6 +36,13 @@ export function useAIChat(subjectId: string) {
   const [artifacts, setArtifacts] = useState<Artifact[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  // Use a ref to track if we're currently in a send operation
+  // Real-time handler will skip adding messages during send
+  const isSendingRef = useRef(false);
+
+  // Track IDs of messages we've added locally
+  const addedMessageIds = useRef<Set<string>>(new Set());
+
   /**
    * Fetch messages from Supabase
    */
@@ -54,6 +61,8 @@ export function useAIChat(subjectId: string) {
       if (fetchError) throw fetchError;
 
       setMessages(data || []);
+      // Clear tracked IDs
+      addedMessageIds.current.clear();
     } catch (err: unknown) {
       const e = err instanceof Error ? err : new Error('Unknown error');
       console.error('Fetch AI messages error:', e);
@@ -72,6 +81,7 @@ export function useAIChat(subjectId: string) {
 
       try {
         setSending(true);
+        isSendingRef.current = true;
         setError(null);
         setStreamingContent('');
         setIsStreaming(true);
@@ -93,7 +103,8 @@ export function useAIChat(subjectId: string) {
 
         if (userMsgError) throw userMsgError;
 
-        // Add to local state
+        // Track this ID and add to local state
+        addedMessageIds.current.add(savedUserMsg.id);
         setMessages((prev) => [...prev, savedUserMsg]);
 
         // Prepare messages for AI
@@ -118,9 +129,6 @@ export function useAIChat(subjectId: string) {
           }
         );
 
-        setIsStreaming(false);
-        setStreamingContent('');
-
         // Save AI response to Supabase
         const aiMessage = {
           subject_id: subjectId,
@@ -138,8 +146,13 @@ export function useAIChat(subjectId: string) {
 
         if (aiMsgError) throw aiMsgError;
 
-        // Add to local state
+        // Track this ID and add to local state
+        addedMessageIds.current.add(savedAiMsg.id);
         setMessages((prev) => [...prev, savedAiMsg]);
+
+        // Clear streaming state after message is added
+        setIsStreaming(false);
+        setStreamingContent('');
 
         // Update artifacts
         if (extractedArtifacts.length > 0) {
@@ -153,6 +166,10 @@ export function useAIChat(subjectId: string) {
         setStreamingContent('');
       } finally {
         setSending(false);
+        // Add a small delay before allowing real-time to add messages again
+        setTimeout(() => {
+          isSendingRef.current = false;
+        }, 1000);
       }
     },
     [user, subjectId, messages, sending]
@@ -176,7 +193,18 @@ export function useAIChat(subjectId: string) {
         },
         (payload) => {
           const newMessage = payload.new as ChatMessage;
-          // Only add if not from current session (to avoid duplicates)
+
+          // Skip if we're currently sending (we'll add the message ourselves)
+          if (isSendingRef.current) {
+            return;
+          }
+
+          // Skip if we've already added this message locally
+          if (addedMessageIds.current.has(newMessage.id)) {
+            return;
+          }
+
+          // Only add if not already in the list
           setMessages((prev) => {
             if (prev.some((m) => m.id === newMessage.id)) return prev;
             return [...prev, newMessage];

@@ -195,7 +195,7 @@ export function Canvas({ subjectId }: CanvasProps) {
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto px-6 pb-6">
+      <div className="flex-1 overflow-y-auto px-6 pb-6 scrollbar-hide">
         {loading ? (
           <div className="flex h-40 items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />

@@ -324,8 +324,8 @@ export default function RoomSettingsPage() {
                                             </svg>
                                         </div>
                                         <div>
-                                            <h3 className="font-semibold text-white">Invite Link</h3>
-                                            <p className="text-xs text-gray-400">Share this link to invite others</p>
+                                            <h3 className="font-semibold text-white">Invite Settings</h3>
+                                            <p className="text-xs text-gray-400">Share code or link to invite others</p>
                                         </div>
                                     </div>
                                     <button
@@ -338,6 +338,37 @@ export default function RoomSettingsPage() {
                                         </svg>
                                         {regenerateCodeMutation.isPending ? 'Regenerating...' : 'Regenerate'}
                                     </button>
+                                </div>
+
+                                {/* Invite Code Display */}
+                                <div
+                                    onClick={handleCopyInviteCode}
+                                    className="group mb-4 flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl border border-purple-500/20 bg-purple-500/5 p-4 transition-all hover:border-purple-500/40 hover:bg-purple-500/10"
+                                >
+                                    {/* Code Icon */}
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-500/20">
+                                        <svg className="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                        </svg>
+                                    </div>
+
+                                    {/* Code Text */}
+                                    <div className="min-w-0 flex-1">
+                                        <p className="font-mono text-xl font-bold tracking-wider text-white">
+                                            {subject.inviteCode}
+                                        </p>
+                                        <p className="mt-0.5 text-xs text-gray-500">
+                                            10-character invite code
+                                        </p>
+                                    </div>
+
+                                    {/* Copy Indicator */}
+                                    <div className="flex items-center gap-2 rounded-lg bg-purple-500/20 px-3 py-2 text-sm font-medium text-purple-400 transition-all group-hover:bg-purple-500 group-hover:text-white">
+                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                        </svg>
+                                        Copy Code
+                                    </div>
                                 </div>
 
                                 {/* Invite Link Display */}
@@ -358,28 +389,18 @@ export default function RoomSettingsPage() {
                                             {typeof window !== 'undefined' ? `${window.location.origin}/join/${subject.inviteCode}` : `/join/${subject.inviteCode}`}
                                         </p>
                                         <p className="mt-0.5 text-xs text-gray-500">
-                                            Anyone with this link can join
+                                            Direct join link
                                         </p>
                                     </div>
 
                                     {/* Copy Indicator */}
-                                    <div className="shrink-0 text-emerald-400 opacity-0 transition-all group-hover:opacity-100">
-                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <div className="flex items-center gap-2 rounded-lg bg-emerald-500/20 px-3 py-2 text-sm font-medium text-emerald-400 transition-all group-hover:bg-emerald-500 group-hover:text-white">
+                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                         </svg>
+                                        Copy Link
                                     </div>
                                 </div>
-
-                                {/* Copy Button */}
-                                <button
-                                    onClick={handleCopyInviteLink}
-                                    className="group flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500/90 py-3.5 font-medium text-white shadow-lg shadow-emerald-500/20 transition-all hover:bg-emerald-400/90"
-                                >
-                                    <svg className="h-5 w-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                    </svg>
-                                    Copy Invite Link
-                                </button>
                             </div>
                         </div>
 

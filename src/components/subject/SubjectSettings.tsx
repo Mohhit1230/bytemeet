@@ -36,6 +36,7 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
     description: subject?.description || '',
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
 
   // Refs for GSAP
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -71,6 +72,8 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
         { scale: 0.9, opacity: 0 },
         { scale: 1, opacity: 1, duration: 0.4, ease: 'back.out(1.2)' }
       );
+      // Reset copied state when modal opens
+      setCodeCopied(false);
     }
   }, [isOpen]);
 
@@ -97,8 +100,19 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
     try {
       const updated = await regenerateCodeMutation.mutateAsync(subject.id);
       onUpdate?.(updated);
+      setCodeCopied(false); // Reset copied state after regenerating
     } catch (err) {
       console.error('Regenerate code error:', err);
+    }
+  };
+
+  const handleCopyCode = async () => {
+    try {
+      await navigator.clipboard.writeText(subject?.invite_code || '');
+      setCodeCopied(true);
+      setTimeout(() => setCodeCopied(false), 3000);
+    } catch (err) {
+      console.error('Copy failed:', err);
     }
   };
 
@@ -157,17 +171,32 @@ export function SubjectSettings({ isOpen, onClose, subject, onUpdate }: SubjectS
           <div>
             <label className="mb-2 block text-sm font-medium text-gray-300">Invite Code</label>
             <div className="flex gap-2">
-              <code className="border-bg-200 bg-bg-100 text-accent flex-1 rounded-lg border px-4 py-3 font-mono text-lg font-bold">
+              <code className="border-bg-200 bg-bg-100 text-accent flex-1 rounded-lg border px-4 py-3 font-mono text-lg font-bold tracking-wider">
                 {subject?.invite_code}
               </code>
+              <button
+                onClick={handleCopyCode}
+                disabled={loading}
+                className={`rounded-lg px-4 py-3 transition-colors ${codeCopied
+                    ? 'bg-green-500/20 text-green-400'
+                    : 'bg-bg-200 hover:bg-bg-300 text-white'
+                  }`}
+                title="Copy invite code"
+              >
+                {codeCopied ? '✓' : '📋'}
+              </button>
               <button
                 onClick={handleRegenerateCode}
                 disabled={loading}
                 className="bg-bg-200 hover:bg-bg-300 rounded-lg px-4 py-3 text-white transition-colors"
+                title="Regenerate invite code"
               >
                 🔄
               </button>
             </div>
+            <p className="mt-1.5 text-xs text-gray-500">
+              Share this code with others to let them join this room
+            </p>
           </div>
 
           {/* Danger Zone */}

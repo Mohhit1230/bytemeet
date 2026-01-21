@@ -23,8 +23,10 @@ export default function JoinPage() {
   const hasAutoJoinedRef = useRef(false);
 
   const handleJoin = async (code: string) => {
-    if (!code || code.length !== 6) {
-      setError('Please enter a valid 6-character invite code');
+    // Trim and normalize the code - accept 10-character codes (case-insensitive)
+    const normalizedCode = code.trim().toUpperCase();
+    if (!normalizedCode || normalizedCode.length !== 10) {
+      setError('Please enter a valid 10-character invite code');
       return;
     }
 
@@ -166,7 +168,7 @@ export default function JoinPage() {
               Join Subject
             </h1>
             <p className="mb-8 text-center text-gray-400">
-              Enter the 6-character invite code to join
+              Enter the 10-character invite code to join
             </p>
 
             {success ? (
@@ -219,21 +221,21 @@ export default function JoinPage() {
                     id="code"
                     value={inviteCode}
                     onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                    maxLength={6}
-                    className="bg-bg-100 border-bg-200 focus:border-accent focus:ring-accent/20 w-full rounded-lg border px-4 py-4 text-center font-mono text-2xl font-semibold tracking-widest text-white uppercase placeholder-gray-500 transition-all focus:ring-2 focus:outline-none"
-                    placeholder="ABC123"
+                    maxLength={10}
+                    className="bg-bg-100 border-bg-200 focus:border-accent focus:ring-accent/20 w-full rounded-lg border px-4 py-4 text-center font-mono text-xl font-semibold tracking-widest text-white uppercase placeholder-gray-500 transition-all focus:ring-2 focus:outline-none"
+                    placeholder="DXPVZ3DEKD"
                     disabled={loading}
                     autoFocus
                   />
                   <p className="mt-2 text-center text-xs text-gray-500">
-                    6 characters, case-insensitive
+                    10 characters, case-insensitive
                   </p>
                 </div>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={loading || inviteCode.length !== 6}
+                  disabled={loading || inviteCode.length !== 10}
                   className="from-accent-light to-accent hover:from-accent hover:to-accent-dark focus:ring-accent/50 w-full transform rounded-lg bg-linear-to-r px-6 py-3 font-semibold text-white transition-all hover:scale-[1.02] focus:ring-2 focus:outline-none active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
                 >
                   {loading ? (

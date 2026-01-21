@@ -5,6 +5,7 @@ import gsap from 'gsap';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { SubjectCard } from '@/components/subject/SubjectCard';
 import { CreateSubjectModal } from '@/components/subject/CreateSubjectModal';
+import { JoinSubjectModal } from '@/components/subject/JoinSubjectModal';
 import { useSubjects } from '@/hooks/useSubjects';
 import { useAuth } from '@/hooks/useAuth';
 import { UserAvatar } from '@/components/ui/UserAvatar';
@@ -18,6 +19,7 @@ export default function Dashboard() {
   const [filterType, setFilterType] = useState<'all' | 'owned' | 'joined'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [activeNav, setActiveNav] = useState<'dashboard' | 'settings'>('dashboard');
 
@@ -240,7 +242,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Quick Actions Row */}
-                <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {/* Create Subject Card */}
                   <button
                     onClick={() => setIsModalOpen(true)}
@@ -260,6 +262,28 @@ export default function Dashboard() {
                     <div className="text-left">
                       <p className="font-semibold text-white">Create Subject</p>
                       <p className="text-sm font-semibold text-gray-500">Start a new study room</p>
+                    </div>
+                  </button>
+
+                  {/* Join Room with Code Card */}
+                  <button
+                    onClick={() => setIsJoinModalOpen(true)}
+                    className="border-r-purple-500/50 group flex h-18 items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-[#1a1a1c] px-3 py-0 transition-all hover:-translate-y-1 hover:bg-[#1f1f21]"
+                  >
+                    <div className="bg-purple-500/20 text-purple-400 group-hover:bg-purple-500 flex h-12 w-12 items-center justify-center rounded-xl transition-all group-hover:text-white">
+                      <svg
+                        className="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                      </svg>
+                    </div>
+                    <div className="text-left">
+                      <p className="font-semibold text-white">Join with Code</p>
+                      <p className="text-sm font-semibold text-gray-500">Enter an invite code</p>
                     </div>
                   </button>
 
@@ -363,6 +387,12 @@ export default function Dashboard() {
         <CreateSubjectModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
+          onSuccess={() => refetchSubjects()}
+        />
+
+        <JoinSubjectModal
+          isOpen={isJoinModalOpen}
+          onClose={() => setIsJoinModalOpen(false)}
           onSuccess={() => refetchSubjects()}
         />
       </div>

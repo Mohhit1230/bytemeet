@@ -19,7 +19,7 @@ const authQueries = {
    */
   checkUsername: async (_, { username }) => {
     const isAvailable = await User.isUsernameAvailable(username);
-    return { available: isAvailable };
+    return { available: isAvailable, value: username };
   },
 
   /**
@@ -27,7 +27,7 @@ const authQueries = {
    */
   checkEmail: async (_, { email }) => {
     const isAvailable = await User.isEmailAvailable(email);
-    return { available: isAvailable };
+    return { available: isAvailable, value: email };
   },
 
   /**

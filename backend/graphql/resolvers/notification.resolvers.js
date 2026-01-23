@@ -57,7 +57,7 @@ const notificationMutations = {
   markNotificationsRead: async (_, { ids }, context) => {
     const user = requireAuth(context);
     await Notification.markAsRead(user._id, ids);
-    return true;
+    return { success: true, message: 'Notifications marked as read' };
   },
 
   /**
@@ -66,7 +66,7 @@ const notificationMutations = {
   markAllNotificationsRead: async (_, __, context) => {
     const user = requireAuth(context);
     await Notification.markAllAsRead(user._id);
-    return true;
+    return { success: true, message: 'All notifications marked as read' };
   },
 
   /**
@@ -80,7 +80,7 @@ const notificationMutations = {
     });
 
     if (!notification) throw new Error('Notification not found');
-    return true;
+    return { success: true, message: 'Notification deleted' };
   },
 
   /**
@@ -89,16 +89,40 @@ const notificationMutations = {
   clearOldNotifications: async (_, __, context) => {
     const user = requireAuth(context);
     await Notification.deleteOld(user._id);
-    return true;
+    return { success: true, message: 'Old notifications cleared' };
   },
 };
+
 
 // =============================================================================
 // NOTIFICATION TYPE RESOLVERS
 // =============================================================================
 
 const notificationResolvers = {
-  createdAt: (notification) => notification.createdAt.toISOString(),
+  // Convert MongoDB _id to GraphQL id
+  id: (notification) => notification.id || notification._id?.toString(),
+
+  // Convert snake_case type to SCREAMING_SNAKE_CASE for GraphQL enum
+  type: (notification) => {
+    const typeMap = {
+      join_request: 'JOIN_REQUEST',
+      request_approved: 'REQUEST_APPROVED',
+      request_rejected: 'REQUEST_REJECTED',
+      message_mention: 'MESSAGE_MENTION',
+      artifact_shared: 'ARTIFACT_SHARED',
+      member_joined: 'MEMBER_JOINED',
+      subject_invite: 'SUBJECT_INVITE',
+      system: 'SYSTEM',
+    };
+    return typeMap[notification.type] || 'SYSTEM';
+  },
+
+  createdAt: (notification) => {
+    if (notification.createdAt instanceof Date) {
+      return notification.createdAt.toISOString();
+    }
+    return notification.createdAt;
+  },
 
   // Virtual field resolver for 'sender' if needed, or mapping 'data.fromUser'
   fromUser: async (notification, _, context) => {

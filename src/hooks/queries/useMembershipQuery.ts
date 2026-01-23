@@ -47,11 +47,19 @@ export function useJoinSubjectMutation() {
 
   return useMutation({
     mutationFn: async (inviteCode: string) => {
-      const response = await api.post('/subjects/join', { invite_code: inviteCode });
-      if (response.data.success) {
-        return response.data.data;
+      try {
+        const response = await api.post('/subjects/join', { invite_code: inviteCode });
+        if (response.data.success) {
+          return response.data.data;
+        }
+        throw new Error(response.data.message || 'Failed to join subject');
+      } catch (error: any) {
+        // Extract error message from Axios error response
+        if (error.response?.data?.message) {
+          throw new Error(error.response.data.message);
+        }
+        throw error;
       }
-      throw new Error(response.data.message || 'Failed to join subject');
     },
     onSuccess: () => {
       // Invalidate subjects list to reflect the new pending/joined status

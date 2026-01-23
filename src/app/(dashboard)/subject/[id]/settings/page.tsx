@@ -20,12 +20,15 @@ import {
     useUpdateSubjectMutation,
     useDeleteSubjectMutation,
     useRegenerateCodeMutation,
+    useApproveRequestMutation,
+    useRejectRequestMutation,
 } from '@/hooks/queries';
 import type { Subject, SubjectMember } from '@/types/database';
 
 // Extended Subject type with role information from API
 type SubjectWithRole = Subject & {
     members?: SubjectMember[];
+    pendingRequests?: SubjectMember[]; // Pending join requests (for owners)
     myRole?: string;
     myStatus?: string;
     inviteCode?: string; // GraphQL returns camelCase
@@ -156,6 +159,8 @@ export default function RoomSettingsPage() {
     const updateSubjectMutation = useUpdateSubjectMutation();
     const deleteSubjectMutation = useDeleteSubjectMutation();
     const regenerateCodeMutation = useRegenerateCodeMutation();
+    const approveRequestMutation = useApproveRequestMutation();
+    const rejectRequestMutation = useRejectRequestMutation();
 
     // Fetch subject data
     const { data: subjectData, isLoading, refetch } = useQuery({
@@ -259,6 +264,26 @@ export default function RoomSettingsPage() {
             const link = `${window.location.origin}/join/${subject.inviteCode}`;
             navigator.clipboard.writeText(link);
             success('Copied', 'Invite link copied to clipboard');
+        }
+    };
+
+    const handleApproveRequest = async (userId: string) => {
+        try {
+            await approveRequestMutation.mutateAsync({ subjectId, userId });
+            await refetch();
+            success('Request approved', 'The member has been added to the room');
+        } catch (err) {
+            toastError('Error', 'Failed to approve request');
+        }
+    };
+
+    const handleRejectRequest = async (userId: string) => {
+        try {
+            await rejectRequestMutation.mutateAsync({ subjectId, userId });
+            await refetch();
+            success('Request rejected', 'The join request has been rejected');
+        } catch (err) {
+            toastError('Error', 'Failed to reject request');
         }
     };
 
@@ -418,8 +443,8 @@ export default function RoomSettingsPage() {
                 );
 
             case 'members':
-                const approvedMembers = subject.members?.filter((m) => m.status === 'approved') || [];
-                const pendingMembers = subject.members?.filter((m) => m.status === 'pending') || [];
+                const approvedMembers = subject.members || [];
+                const pendingMembers = subject.pendingRequests || [];
 
                 return (
                     <div className="space-y-8">
@@ -443,11 +468,19 @@ export default function RoomSettingsPage() {
                                                 </div>
                                             </div>
                                             <div className="flex gap-2">
-                                                <button className="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600">
-                                                    Approve
+                                                <button
+                                                    onClick={() => handleApproveRequest(member.user_id)}
+                                                    disabled={approveRequestMutation.isPending}
+                                                    className="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600 disabled:opacity-50"
+                                                >
+                                                    {approveRequestMutation.isPending ? 'Approving...' : 'Approve'}
                                                 </button>
-                                                <button className="rounded-lg bg-red-500/20 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500 hover:text-white">
-                                                    Reject
+                                                <button
+                                                    onClick={() => handleRejectRequest(member.user_id)}
+                                                    disabled={rejectRequestMutation.isPending}
+                                                    className="rounded-lg bg-red-500/20 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500 hover:text-white disabled:opacity-50"
+                                                >
+                                                    {rejectRequestMutation.isPending ? 'Rejecting...' : 'Reject'}
                                                 </button>
                                             </div>
                                         </div>

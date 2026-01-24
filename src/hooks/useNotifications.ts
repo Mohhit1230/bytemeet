@@ -38,6 +38,7 @@ export interface Notification {
       _id: string;
       username: string;
       email: string;
+      avatarUrl?: string;
     };
     fromUsername?: string;
   };
@@ -199,7 +200,11 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
    * Add a local notification (for real-time updates)
    */
   const addNotification = useCallback((notification: Notification) => {
-    setNotifications((prev) => [notification, ...prev]);
+    setNotifications((prev) => {
+      // Prevent duplicates
+      if (prev.some((n) => n._id === notification._id)) return prev;
+      return [notification, ...prev];
+    });
     if (!notification.isRead) {
       setUnreadCount((prev) => prev + 1);
     }

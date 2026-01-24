@@ -125,7 +125,7 @@ notificationSchema.statics.getForUser = async function (userId, options = {}) {
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
-    .populate('data.fromUser', 'username email')
+    .populate('data.fromUser', 'username email avatarUrl avatar_url')
     .lean();
 };
 

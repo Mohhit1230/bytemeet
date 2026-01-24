@@ -22,6 +22,7 @@ import {
     useRegenerateCodeMutation,
     useApproveRequestMutation,
     useRejectRequestMutation,
+    useRemoveMemberMutation,
 } from '@/hooks/queries';
 import type { Subject, SubjectMember } from '@/types/database';
 
@@ -62,7 +63,7 @@ const categories: CategoryItem[] = [
         id: 'members',
         label: 'Members',
         description: 'Manage members',
-        color: 'text-blue-400',
+        color: 'text-yellow-400',
         icon: (
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -161,6 +162,7 @@ export default function RoomSettingsPage() {
     const regenerateCodeMutation = useRegenerateCodeMutation();
     const approveRequestMutation = useApproveRequestMutation();
     const rejectRequestMutation = useRejectRequestMutation();
+    const removeMemberMutation = useRemoveMemberMutation();
 
     // Fetch subject data
     const { data: subjectData, isLoading, refetch } = useQuery({
@@ -287,9 +289,14 @@ export default function RoomSettingsPage() {
         }
     };
 
-    const handleRemoveMember = async (memberId: string) => {
-        // TODO: Implement remove member mutation
-        success('Member removed', 'The member has been removed from the room');
+    const handleRemoveMember = async (userId: string) => {
+        try {
+            await removeMemberMutation.mutateAsync({ subjectId, userId });
+            await refetch();
+            success('Member removed', 'The member has been removed from the room');
+        } catch (err) {
+            toastError('Error', 'Failed to remove member');
+        }
     };
 
     if (isLoading) {
@@ -458,25 +465,31 @@ export default function RoomSettingsPage() {
                                     Pending Requests
                                 </h3>
                                 <div className="space-y-3">
-                                    {pendingMembers.map((member) => (
+                                    {pendingMembers.map((member: any) => (
                                         <div key={member.id} className="flex items-center justify-between rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4">
                                             <div className="flex items-center gap-3">
-                                                <UserAvatar username={member.username} avatarUrl={member.avatar_url} size="sm" />
+                                                <UserAvatar
+                                                    username={member.user?.username || member.username || 'Unknown'}
+                                                    avatarUrl={member.user?.avatarUrl || member.avatar_url}
+                                                    size="sm"
+                                                />
                                                 <div>
-                                                    <p className="font-medium text-white">{member.username}</p>
+                                                    <p className="font-medium text-white">
+                                                        {member.user?.username || member.username || 'Unknown'}
+                                                    </p>
                                                     <p className="text-sm text-gray-500">Requested to join</p>
                                                 </div>
                                             </div>
                                             <div className="flex gap-2">
                                                 <button
-                                                    onClick={() => handleApproveRequest(member.user_id)}
+                                                    onClick={() => handleApproveRequest(member.user?.id || member.user_id)}
                                                     disabled={approveRequestMutation.isPending}
                                                     className="rounded-lg bg-green-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-600 disabled:opacity-50"
                                                 >
                                                     {approveRequestMutation.isPending ? 'Approving...' : 'Approve'}
                                                 </button>
                                                 <button
-                                                    onClick={() => handleRejectRequest(member.user_id)}
+                                                    onClick={() => handleRejectRequest(member.user?.id || member.user_id)}
                                                     disabled={rejectRequestMutation.isPending}
                                                     className="rounded-lg bg-red-500/20 px-4 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500 hover:text-white disabled:opacity-50"
                                                 >
@@ -491,32 +504,39 @@ export default function RoomSettingsPage() {
 
                         {/* Current Members */}
                         <div>
-                            <h3 className="mb-4 text-lg font-semibold text-blue-400">
+                            <h3 className="mb-4 text-lg font-semibold text-yellow-400">
                                 Members ({approvedMembers.length})
                             </h3>
                             <div className="space-y-3">
-                                {approvedMembers.map((member) => (
+                                {approvedMembers.map((member: any) => (
                                     <div key={member.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-[#151518] p-4 transition-colors hover:border-white/20">
                                         <div className="flex items-center gap-3">
-                                            <UserAvatar username={member.username} avatarUrl={member.avatar_url} size="sm" />
+                                            <UserAvatar
+                                                username={member.user?.username || member.username || 'Unknown'}
+                                                avatarUrl={member.user?.avatarUrl || member.avatar_url}
+                                                size="sm"
+                                            />
                                             <div>
                                                 <div className="flex items-center gap-2">
-                                                    <p className="font-medium text-white">{member.username}</p>
-                                                    {member.role === 'owner' && (
+                                                    <p className="font-medium text-white">
+                                                        {member.user?.username || member.username || 'Unknown'}
+                                                    </p>
+                                                    {member.role?.toLowerCase() === 'owner' && (
                                                         <span className="bg-accent/20 text-accent rounded px-2 py-0.5 text-xs font-semibold">
                                                             Owner
                                                         </span>
                                                     )}
                                                 </div>
                                                 <p className="text-sm text-gray-500">
-                                                    Joined {new Date(member.joined_at).toLocaleDateString()}
+                                                    Joined {new Date(member.joinedAt || member.joined_at).toLocaleDateString()}
                                                 </p>
                                             </div>
                                         </div>
-                                        {member.role !== 'owner' && (
+                                        {member.role?.toLowerCase() !== 'owner' && (
                                             <button
-                                                onClick={() => handleRemoveMember(member.id)}
-                                                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-500/20 hover:text-red-400"
+                                                onClick={() => handleRemoveMember(member.user?.id || member.user_id)}
+                                                disabled={removeMemberMutation.isPending}
+                                                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-500/20 hover:text-red-400 disabled:opacity-50"
                                                 title="Remove member"
                                             >
                                                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

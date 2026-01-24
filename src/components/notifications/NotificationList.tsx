@@ -10,16 +10,90 @@ import React, { useRef, useEffect } from 'react';
 import gsap from 'gsap';
 import { useNotificationContext } from '@/providers/NotificationProvider';
 import { useRouter } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { useToast } from '@/components/ui/Toast';
+import { useApproveRequestMutation, useRejectRequestMutation } from '@/hooks/queries';
 import type { Notification } from '@/hooks/useNotifications';
+import api from '@/lib/api';
+import { UserAvatar } from '@/components/ui/UserAvatar';
 
 interface NotificationListProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const NotificationAvatar = ({ notification }: { notification: Notification }) => {
+  const { getNotificationColor, getNotificationIcon } = useNotificationContext();
+
+  const fromUser = notification.data.fromUser;
+  const isUserObject = typeof fromUser === 'object' && fromUser !== null;
+
+  let username = isUserObject ? (fromUser as any).username : notification.data.fromUsername;
+  let avatarUrl = isUserObject ? (fromUser as any).avatarUrl || (fromUser as any).avatar_url : undefined;
+
+  const { subjectId } = notification.data;
+
+  // Relax fetch condition: Fetch if subjectId is present, even if username is missing (we might guess it)
+  const type = notification.type.toLowerCase();
+  const shouldFetch = (type === 'join_request' || type === 'join_request') && !avatarUrl && !!subjectId;
+
+  const { data: pendingMembers } = useQuery({
+    queryKey: ['subject-pending', subjectId],
+    queryFn: async () => {
+      if (!subjectId) return [];
+      const res = await api.get(`/subjects/${subjectId}/pending-requests`);
+      return res.data.success ? res.data.data : [];
+    },
+    enabled: shouldFetch,
+    staleTime: 1000 * 60 * 5, // 5 mins
+  });
+
+  if (shouldFetch && pendingMembers && pendingMembers.length > 0) {
+    if (username) {
+      const member = pendingMembers.find((m: any) => m.username === username);
+      if (member?.avatar_url) avatarUrl = member.avatar_url;
+    } else if (pendingMembers.length === 1) {
+      // Heuristic: Only 1 pending request? It must be this one.
+      username = pendingMembers[0].username;
+      avatarUrl = pendingMembers[0].avatar_url;
+    }
+  }
+
+  // Fallback to parsing message if username is still missing (last resort)
+  if (!username && notification.message) {
+    const match = notification.message.match(/^(.*?) wants to join/);
+    if (match && match[1]) username = match[1];
+  }
+
+  // If we have a username (from data, fetch, or parse), show UserAvatar
+  if ((username && notification.type === 'join_request') || (username && avatarUrl)) {
+    return (
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg">
+        <UserAvatar
+          username={username}
+          avatarUrl={avatarUrl}
+          size="md"
+          className="rounded-lg h-full w-full"
+        />
+      </div>
+    );
+  }
+
+  // Default Icon
+  return (
+    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg ${getNotificationColor(notification.type)} bg-bg-100`}>
+      {getNotificationIcon(notification.type)}
+    </div>
+  );
+};
+
 export function NotificationList({ isOpen, onClose }: NotificationListProps) {
   const router = useRouter();
   const listRef = useRef<HTMLDivElement>(null);
+  const { success, error: toastError } = useToast();
+
+  const approveRequestMutation = useApproveRequestMutation();
+  const rejectRequestMutation = useRejectRequestMutation();
 
   const {
     notifications,
@@ -83,6 +157,101 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
     deleteNotification(notificationId);
   };
 
+  // Helper to extract User ID with fallback
+  const getUserId = async (notification: Notification) => {
+    if (!notification.data) return undefined;
+
+    // 1. Try direct extraction
+    let userId = notification.data.fromUser;
+    if (typeof userId === 'object' && userId !== null) {
+      userId = (userId as any)._id;
+    }
+
+    if (userId && typeof userId === 'string') return userId;
+
+    // 2. Fallback: Lookup by username
+    const { subjectId } = notification.data;
+    let { fromUsername } = notification.data;
+
+    // 2a. Attempt to parse username from message if missing in data
+    if (!fromUsername && notification.message) {
+      const match = notification.message.match(/^(.*?) wants to join/);
+      if (match && match[1]) {
+        fromUsername = match[1];
+        console.log('Extracted username from message:', fromUsername);
+      }
+    }
+
+    if (subjectId && fromUsername) {
+      try {
+        // Try pending requests first
+        let response = await api.get(`/subjects/${subjectId}/pending-requests`);
+        if (response.data.success) {
+          const members = response.data.data;
+          const member = members.find((m: any) => m.username?.toLowerCase() === fromUsername?.toLowerCase());
+          if (member) return member.user_id;
+        }
+
+        // Try getting subject bundle (includes all members)
+        response = await api.get(`/subjects/${subjectId}`);
+        if (response.data.success && response.data.data.members) {
+          const members = response.data.data.members;
+          const member = members.find((m: any) => m.username?.toLowerCase() === fromUsername?.toLowerCase());
+          if (member) return member.user_id;
+        }
+      } catch (e) {
+        console.error('Fallback lookup failed:', e);
+      }
+    }
+    return undefined;
+  };
+
+  // Handle Approve
+  const handleApprove = async (e: React.MouseEvent, notification: Notification) => {
+    e.stopPropagation();
+    const subjectId = notification.data.subjectId;
+
+    const userId = await getUserId(notification);
+
+    if (!subjectId || !userId) {
+      console.error('Missing data for approve:', { subjectId, userId, notification });
+      toastError('Error', `Missing data for ${notification.data.fromUsername || 'unknown'}. Cannot approve.`);
+      return;
+    }
+
+    try {
+      await approveRequestMutation.mutateAsync({ subjectId, userId: userId as string });
+      success('Member approved', 'User has been added to the room');
+    } catch (err: any) {
+      console.error('Approve error:', err);
+      const message = err.response?.data?.message || err.message || 'Failed to approve request';
+      toastError('Error', message);
+    }
+  };
+
+  // Handle Reject
+  const handleReject = async (e: React.MouseEvent, notification: Notification) => {
+    e.stopPropagation();
+    const subjectId = notification.data.subjectId;
+
+    const userId = await getUserId(notification);
+
+    if (!subjectId || !userId) {
+      console.error('Missing data for reject:', { subjectId, userId, notification });
+      toastError('Error', `Missing data for ${notification.data.fromUsername || 'unknown'}. Cannot reject.`);
+      return;
+    }
+
+    try {
+      await rejectRequestMutation.mutateAsync({ subjectId, userId: userId as string });
+      success('Request rejected', 'User request has been rejected');
+    } catch (err: any) {
+      console.error('Reject error:', err);
+      const message = err.response?.data?.message || err.message || 'Failed to reject request';
+      toastError('Error', message);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -123,9 +292,8 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
               <div
                 key={(notification as any)._id}
                 onClick={() => handleNotificationClick(notification as any)}
-                className={`group hover:bg-bg-100/50 relative flex cursor-pointer gap-3 p-4 transition-colors ${
-                  !notification.isRead ? 'bg-accent/5' : ''
-                }`}
+                className={`group hover:bg-bg-100/50 relative flex cursor-pointer gap-3 p-4 transition-colors ${!notification.isRead ? 'bg-accent/5' : ''
+                  }`}
               >
                 {/* Unread indicator */}
                 {!notification.isRead && (
@@ -133,13 +301,8 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
                 )}
 
                 {/* Icon */}
-                <div
-                  className={`bg-bg-100 flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg ${getNotificationColor(
-                    notification.type
-                  )}`}
-                >
-                  {getNotificationIcon(notification.type)}
-                </div>
+                {/* Icon or Avatar */}
+                <NotificationAvatar notification={notification} />
 
                 {/* Content */}
                 <div className="min-w-0 flex-1">
@@ -152,10 +315,31 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
                   <p className="mt-1 text-xs text-gray-500">{formatTime(notification.createdAt)}</p>
                 </div>
 
-                {/* Delete button */}
+                {/* Actions for Join Requests */}
+                {/* Check both cases just to be safe */}
+                {['join_request', 'JOIN_REQUEST'].includes(notification.type) && !notification.isActioned && (
+                  <div className="absolute right-2 bottom-2 z-20 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+                    <button
+                      onClick={(e) => handleApprove(e, notification)}
+                      disabled={approveRequestMutation.isPending}
+                      className="flex cursor-pointer items-center gap-1 rounded-md bg-green-500/20 px-2 py-1 text-xs font-medium text-green-400 hover:bg-green-500 hover:text-white disabled:opacity-50"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={(e) => handleReject(e, notification)}
+                      disabled={rejectRequestMutation.isPending}
+                      className="flex cursor-pointer items-center gap-1 rounded-md bg-red-500/20 px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500 hover:text-white disabled:opacity-50"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+
+                {/* Delete button (always available) */}
                 <button
                   onClick={(e) => handleDelete(e, (notification as any)._id)}
-                  className="hover:bg-bg-200 absolute top-2 right-2 rounded-lg p-1 text-gray-500 opacity-0 transition-all group-hover:opacity-100 hover:text-white"
+                  className="hover:bg-bg-200 absolute top-2 right-2 z-20 rounded-lg p-1 text-gray-500 opacity-0 transition-all group-hover:opacity-100 hover:text-white"
                   title="Delete notification"
                 >
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

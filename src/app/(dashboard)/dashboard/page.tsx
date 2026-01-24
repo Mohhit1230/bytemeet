@@ -268,9 +268,9 @@ export default function Dashboard() {
                   {/* Join Room with Code Card */}
                   <button
                     onClick={() => setIsJoinModalOpen(true)}
-                    className="border-r-purple-500/50 group flex h-18 items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-[#1a1a1c] px-3 py-0 transition-all hover:-translate-y-1 hover:bg-[#1f1f21]"
+                    className="border-r-yellow-500/50 group flex h-18 items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-[#1a1a1c] px-3 py-0 transition-all hover:-translate-y-1 hover:bg-[#1f1f21]"
                   >
-                    <div className="bg-purple-500/20 text-purple-400 group-hover:bg-purple-500 flex h-12 w-12 items-center justify-center rounded-xl transition-all group-hover:text-white">
+                    <div className="bg-yellow-500/20 text-yellow-400 group-hover:bg-yellow-500 flex h-12 w-12 items-center justify-center rounded-xl transition-all group-hover:text-white">
                       <svg
                         className="h-6 w-6"
                         fill="none"

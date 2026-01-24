@@ -1,22 +1,18 @@
-/**
- * AI Chat Component
- *
- * Matching "AI Assistant" design with file upload support
- * Includes optimistic UI for better UX
- */
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useAIChat } from '@/hooks/useAIChat';
 import { useUploadArtifactMutation } from '@/hooks/queries';
 import { useAuth } from '@/hooks/useAuth';
+import { UserAvatar } from '@/components/ui/UserAvatar';
+import { useQuery } from '@apollo/client/react';
+import { GET_SUBJECT } from '@/lib/graphql/operations';
+import { useMemo } from 'react';
 
 interface AIChatProps {
   subjectId: string;
 }
 
-// Pending message shown optimistically before server confirms
 interface PendingMessage {
   content: string;
   timestamp: Date;
@@ -32,6 +28,35 @@ export function AIChat({ subjectId }: AIChatProps) {
   const [pendingMessage, setPendingMessage] = useState<PendingMessage | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch subject details to get member avatars
+  const { data: subjectData } = useQuery(GET_SUBJECT, {
+    variables: { id: subjectId },
+    skip: !subjectId,
+    fetchPolicy: 'cache-first'
+  });
+
+  const memberAvatars = useMemo(() => {
+    const map = new Map<string, string>();
+    if (subjectData?.subject) {
+      // Add owner
+      if (subjectData.subject.owner) {
+        map.set(subjectData.subject.owner.id, subjectData.subject.owner.avatarUrl);
+        // Also map _id just in case
+        if (subjectData.subject.owner._id) map.set(subjectData.subject.owner._id, subjectData.subject.owner.avatarUrl);
+      }
+      // Add members
+      if (subjectData.subject.members) {
+        subjectData.subject.members.forEach((m: any) => {
+          if (m.user) {
+            map.set(m.user.id, m.user.avatarUrl);
+            if (m.user._id) map.set(m.user._id, m.user.avatarUrl);
+          }
+        });
+      }
+    }
+    return map;
+  }, [subjectData]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -164,170 +189,185 @@ export function AIChat({ subjectId }: AIChatProps) {
           </div>
         )}
 
-        {messages.map((msg, idx) => (
-          <div
-            key={`${msg.role}-${msg.id || idx}-${idx}`}
-            className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            {msg.role === 'assistant' && (
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
-                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              </div>
-            )}
+        {messages.map((msg, idx) => {
+          // User requested: All user messages on right side, AI on left.
+          const isUser = msg.role === 'user';
+          const isAssistant = msg.role === 'assistant';
 
-            <div className={`max-w-[80%] space-y-2`}>
-              <div
-                className={`flex items-center gap-2 text-xs text-gray-500 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
-              >
-                <span className="font-medium text-gray-300">
-                  {msg.role === 'user' ? user?.username : 'AI Tutor'}
-                </span>
-                <span>
-                  {new Date(msg.created_at).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </span>
-              </div>
+          // Identity check for Avatar
+          const isActuallyMe = isUser && (msg.user_id === user?._id || String(msg.user_id) === String(user?._id));
 
-              {/* File Attachment Card - Check for [Attached file: filename] pattern */}
-              {msg.content.includes('[Attached file:') &&
-                (() => {
-                  const fileMatch = msg.content.match(/\[Attached file: ([^\]]+)\]/);
-                  const fileName = fileMatch?.[1] || 'File';
-                  const isPdf = fileName.toLowerCase().endsWith('.pdf');
-                  const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(fileName);
+          return (
+            <div
+              key={`${msg.role}-${msg.id || idx}-${idx}`}
+              className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
+            >
+              {/* Left side Avatar (Only Assistant) */}
+              {isAssistant && (
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                </div>
+              )}
+
+              <div className={`max-w-[80%] space-y-2`}>
+                <div
+                  className={`flex items-center gap-2 text-xs text-gray-500 ${isUser ? 'flex-row-reverse' : ''}`}
+                >
+                  <span className="font-medium text-gray-300">
+                    {isUser ? (msg.username || 'User') : 'AI Tutor'}
+                  </span>
+                  <span>
+                    {new Date(msg.created_at).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </span>
+                </div>
+
+                {/* File Attachment Card */}
+                {msg.content.includes('[Attached file:') &&
+                  (() => {
+                    const fileMatch = msg.content.match(/\[Attached file: ([^\]]+)\]/);
+                    const fileName = fileMatch?.[1] || 'File';
+                    const isPdf = fileName.toLowerCase().endsWith('.pdf');
+                    const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(fileName);
+
+                    return (
+                      <div className="flex max-w-xs items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a1e] p-3">
+                        <div
+                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${isPdf ? 'bg-red-500/20' : isImage ? 'bg-emerald-500/20' : 'bg-blue-500/20'
+                            }`}
+                        >
+                          {isPdf ? (
+                            <svg
+                              className="h-5 w-5 text-red-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                              />
+                            </svg>
+                          ) : isImage ? (
+                            <svg
+                              className="h-5 w-5 text-emerald-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                              />
+                            </svg>
+                          ) : (
+                            <svg
+                              className="h-5 w-5 text-blue-400"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                              />
+                            </svg>
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-white">{fileName}</p>
+                          <p className="flex items-center gap-1 text-xs text-gray-500">
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full ${isPdf ? 'bg-red-400' : isImage ? 'bg-emerald-400' : 'bg-blue-400'}`}
+                            />
+                            {isPdf ? 'PDF Document' : isImage ? 'Image' : 'File'}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                {/* Message Content */}
+                {(() => {
+                  // Remove file attachment prefix from content for display
+                  const displayContent = msg.content
+                    .replace(/\[Attached file: [^\]]+\]\n*/g, '')
+                    .trim();
+                  if (!displayContent) return null;
 
                   return (
-                    <div className="flex max-w-xs items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a1e] p-3">
-                      <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-lg ${isPdf ? 'bg-red-500/20' : isImage ? 'bg-emerald-500/20' : 'bg-blue-500/20'
-                          }`}
-                      >
-                        {isPdf ? (
-                          <svg
-                            className="h-5 w-5 text-red-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                            />
-                          </svg>
-                        ) : isImage ? (
-                          <svg
-                            className="h-5 w-5 text-emerald-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            className="h-5 w-5 text-blue-400"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-white">{fileName}</p>
-                        <p className="flex items-center gap-1 text-xs text-gray-500">
-                          <span
-                            className={`h-1.5 w-1.5 rounded-full ${isPdf ? 'bg-red-400' : isImage ? 'bg-emerald-400' : 'bg-blue-400'}`}
-                          />
-                          {isPdf ? 'PDF Document' : isImage ? 'Image' : 'File'}
-                        </p>
-                      </div>
+                    <div
+                      className={`rounded-2xl p-4 text-sm leading-relaxed ${isActuallyMe
+                        ? 'border border-white/10 bg-[#1a1a1e] text-gray-200'
+                        : isAssistant
+                          ? 'border border-blue-500/20 bg-blue-600/10 text-gray-300'
+                          : 'border border-white/10 bg-[#2a2a2e] text-gray-200'
+                        }`}
+                    >
+                      {/* Check if content has code block */}
+                      {displayContent.includes('```') ? (
+                        <div className="space-y-3">
+                          {displayContent.split(/(```[\s\S]*?```)/g).map((part, i) => {
+                            if (part.startsWith('```')) {
+                              const match = part.match(/```(\w+)?\n?([\s\S]*?)```/);
+                              const lang = match?.[1] || 'code';
+                              const code = match?.[2] || part.replace(/```/g, '');
+                              return (
+                                <div
+                                  key={i}
+                                  className="overflow-hidden rounded-lg border border-white/10 bg-[#0d0d0f] font-mono text-xs"
+                                >
+                                  <div className="flex items-center justify-between border-b border-white/5 bg-[#1a1a1e] px-4 py-2">
+                                    <span className="text-gray-400">{lang}</span>
+                                    <div className="flex gap-1.5">
+                                      <div className="h-2.5 w-2.5 rounded-full bg-red-500/30"></div>
+                                      <div className="h-2.5 w-2.5 rounded-full bg-amber-500/30"></div>
+                                      <div className="h-2.5 w-2.5 rounded-full bg-green-500/30"></div>
+                                    </div>
+                                  </div>
+                                  <pre className="overflow-x-auto p-4 whitespace-pre-wrap text-blue-300">
+                                    {code.trim()}
+                                  </pre>
+                                </div>
+                              );
+                            }
+                            return part.trim() ? <p key={i}>{part}</p> : null;
+                          })}
+                        </div>
+                      ) : (
+                        <p className="whitespace-pre-wrap">{displayContent}</p>
+                      )}
                     </div>
                   );
                 })()}
-
-              {/* Message Content */}
-              {(() => {
-                // Remove file attachment prefix from content for display
-                const displayContent = msg.content
-                  .replace(/\[Attached file: [^\]]+\]\n*/g, '')
-                  .trim();
-                if (!displayContent) return null;
-
-                return (
-                  <div
-                    className={`rounded-2xl p-4 text-sm leading-relaxed ${msg.role === 'user'
-                      ? 'border border-white/10 bg-[#1a1a1e] text-gray-200'
-                      : 'border border-blue-500/20 bg-blue-600/10 text-gray-300'
-                      }`}
-                  >
-                    {/* Check if content has code block */}
-                    {displayContent.includes('```') ? (
-                      <div className="space-y-3">
-                        {displayContent.split(/(```[\s\S]*?```)/g).map((part, i) => {
-                          if (part.startsWith('```')) {
-                            const match = part.match(/```(\w+)?\n?([\s\S]*?)```/);
-                            const lang = match?.[1] || 'code';
-                            const code = match?.[2] || part.replace(/```/g, '');
-                            return (
-                              <div
-                                key={i}
-                                className="overflow-hidden rounded-lg border border-white/10 bg-[#0d0d0f] font-mono text-xs"
-                              >
-                                <div className="flex items-center justify-between border-b border-white/5 bg-[#1a1a1e] px-4 py-2">
-                                  <span className="text-gray-400">{lang}</span>
-                                  <div className="flex gap-1.5">
-                                    <div className="h-2.5 w-2.5 rounded-full bg-red-500/30"></div>
-                                    <div className="h-2.5 w-2.5 rounded-full bg-amber-500/30"></div>
-                                    <div className="h-2.5 w-2.5 rounded-full bg-green-500/30"></div>
-                                  </div>
-                                </div>
-                                <pre className="overflow-x-auto p-4 whitespace-pre-wrap text-blue-300">
-                                  {code.trim()}
-                                </pre>
-                              </div>
-                            );
-                          }
-                          return part.trim() ? <p key={i}>{part}</p> : null;
-                        })}
-                      </div>
-                    ) : (
-                      <p className="whitespace-pre-wrap">{displayContent}</p>
-                    )}
-                  </div>
-                );
-              })()}
-            </div>
-
-            {msg.role === 'user' && (
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-500 text-xs font-bold text-black">
-                {user?.username?.[0]?.toUpperCase() || 'U'}
               </div>
-            )}
-          </div>
-        ))}
+
+              {/* Right side Avatar (Only User) */}
+              {isUser && (
+                <UserAvatar
+                  username={msg.username || 'User'}
+                  avatarUrl={msg.user_id ? memberAvatars.get(msg.user_id) : undefined}
+                  size="sm"
+                />
+              )}
+            </div>
+          );
+        })}
 
         {/* Pending User Message (Optimistic UI) */}
         {pendingMessage && !messages.some(m => m.role === 'user' && m.content === pendingMessage.content) && (

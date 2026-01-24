@@ -41,9 +41,13 @@ export function MemberList({ members, isOwner, onRemoveMember }: MemberListProps
             className="hover:bg-bg-100 flex items-center justify-between px-4 py-3 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <UserAvatar username={member.username} avatarUrl={member.avatar_url} size="sm" />
+              <UserAvatar
+                username={(member as any).user?.username || member.username || 'User'}
+                avatarUrl={(member as any).user?.avatarUrl || member.avatar_url}
+                size="sm"
+              />
               <div>
-                <p className="text-sm font-medium text-white">{member.username}</p>
+                <p className="text-sm font-medium text-white">{(member as any).user?.username || member.username || 'User'}</p>
                 {member.role === 'owner' && <span className="text-accent text-xs">Owner</span>}
                 {member.role === 'admin' && <span className="text-xs text-blue-400">Admin</span>}
               </div>

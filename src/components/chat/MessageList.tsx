@@ -14,6 +14,7 @@ interface Message {
   id: string;
   user_id: string;
   username: string;
+  avatar_url?: string;
   content: string;
   message_type: 'text' | 'file' | 'image';
   created_at: string;
@@ -22,9 +23,10 @@ interface Message {
 interface MessageListProps {
   messages: Message[];
   loading: boolean;
+  memberAvatars?: Map<string, string>;
 }
 
-export function MessageList({ messages, loading }: MessageListProps) {
+export function MessageList({ messages, loading, memberAvatars }: MessageListProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +82,12 @@ export function MessageList({ messages, loading }: MessageListProps) {
         /* Messages */
         <>
           {messages.map((message, index) => (
-            <MessageBubble key={message.id} message={message} delay={index * 0.03} />
+            <MessageBubble
+              key={message.id}
+              message={message}
+              delay={index * 0.03}
+              avatarUrl={memberAvatars?.get(message.user_id)}
+            />
           ))}
 
           {/* Scroll anchor */}

@@ -16,6 +16,7 @@ interface Message {
   id: string;
   user_id: string;
   username: string;
+  avatar_url?: string;
   content: string;
   message_type: 'text' | 'file' | 'image';
   created_at: string;
@@ -24,12 +25,13 @@ interface Message {
 interface MessageBubbleProps {
   message: Message;
   delay?: number;
+  avatarUrl?: string; // Add avatarUrl prop
 }
 
-export function MessageBubble({ message, delay = 0 }: MessageBubbleProps) {
+export function MessageBubble({ message, delay = 0, avatarUrl }: MessageBubbleProps) {
   const { user } = useAuth();
   const bubbleRef = useRef<HTMLDivElement>(null);
-  const isOwnMessage = user?._id === message.user_id;
+  const isOwnMessage = user?._id === message.user_id || String(user?._id) === String(message.user_id);
 
   /**
    * GSAP slide-in animation
@@ -62,13 +64,16 @@ export function MessageBubble({ message, delay = 0 }: MessageBubbleProps) {
   return (
     <div
       ref={bubbleRef}
-      className={`group -mx-2 flex gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/2 ${
-        isOwnMessage ? 'flex-row-reverse' : ''
-      }`}
+      className={`group -mx-2 flex gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-white/2 ${isOwnMessage ? 'flex-row-reverse' : ''
+        }`}
     >
       {/* Avatar */}
       <div className="shrink-0 pt-0.5">
-        <UserAvatar username={message.username} size="sm" />
+        <UserAvatar
+          username={message.username}
+          avatarUrl={avatarUrl || (isOwnMessage ? user?.avatarUrl : message.avatar_url)}
+          size="sm"
+        />
       </div>
 
       {/* Message Content */}
@@ -87,11 +92,10 @@ export function MessageBubble({ message, delay = 0 }: MessageBubbleProps) {
 
         {/* Message Bubble */}
         <div
-          className={`inline-block rounded-2xl px-4 py-2.5 ${
-            isOwnMessage
-              ? 'from-accent to-accent-dark rounded-tr-md bg-linear-to-br text-white'
-              : 'rounded-tl-md border border-white/10 bg-white/5 text-gray-200'
-          }`}
+          className={`inline-block rounded-2xl px-4 py-2.5 ${isOwnMessage
+            ? 'from-accent to-accent-dark rounded-tr-md bg-linear-to-br text-white'
+            : 'rounded-tl-md border border-white/10 bg-white/5 text-gray-200'
+            }`}
         >
           <p className="text-sm leading-relaxed wrap-break-word whitespace-pre-wrap">
             {message.content}

@@ -13,6 +13,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '@/hooks/useChat';
 import { MessageList } from './MessageList';
 import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@apollo/client/react';
+import { GET_SUBJECT } from '@/lib/graphql/operations';
+import { useMemo } from 'react';
 
 interface FriendsChatProps {
   subjectId: string;
@@ -23,6 +26,34 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
   const { user: _user } = useAuth();
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Fetch subject details to get member avatars
+  const { data: subjectData } = useQuery(GET_SUBJECT, {
+    variables: { id: subjectId },
+    skip: !subjectId,
+    fetchPolicy: 'cache-first'
+  });
+
+  const memberAvatars = useMemo(() => {
+    const map = new Map<string, string>();
+    if (subjectData?.subject) {
+      // Add owner
+      if (subjectData.subject.owner) {
+        map.set(subjectData.subject.owner.id, subjectData.subject.owner.avatarUrl);
+        if (subjectData.subject.owner._id) map.set(subjectData.subject.owner._id, subjectData.subject.owner.avatarUrl);
+      }
+      // Add members
+      if (subjectData.subject.members) {
+        subjectData.subject.members.forEach((m: any) => {
+          if (m.user) {
+            map.set(m.user.id, m.user.avatarUrl);
+            if (m.user._id) map.set(m.user._id, m.user.avatarUrl);
+          }
+        });
+      }
+    }
+    return map;
+  }, [subjectData]);
 
   useEffect(() => {
     const unsubscribe = subscribeToMessages();
@@ -93,7 +124,7 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
           </div>
         ) : (
           <div className="space-y-4">
-            <MessageList messages={messages} loading={loading} />
+            <MessageList messages={messages} loading={loading} memberAvatars={memberAvatars} />
             <div ref={messagesEndRef} />
           </div>
         )}

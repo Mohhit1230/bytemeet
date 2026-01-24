@@ -22,8 +22,22 @@ interface NotificationListProps {
   onClose: () => void;
 }
 
-const NotificationAvatar = ({ notification }: { notification: Notification }) => {
-  const { getNotificationColor, getNotificationIcon } = useNotificationContext();
+const NotificationItem = ({
+  notification,
+  onClick,
+  onApprove,
+  onReject,
+  onDelete,
+  isActionPending
+}: {
+  notification: Notification;
+  onClick: (n: Notification) => void;
+  onApprove: (e: React.MouseEvent, n: Notification) => void;
+  onReject: (e: React.MouseEvent, n: Notification) => void;
+  onDelete: (e: React.MouseEvent, id: string) => void;
+  isActionPending: boolean;
+}) => {
+  const { getNotificationColor, getNotificationIcon, formatTime } = useNotificationContext();
 
   const fromUser = notification.data.fromUser;
   const isUserObject = typeof fromUser === 'object' && fromUser !== null;
@@ -32,10 +46,10 @@ const NotificationAvatar = ({ notification }: { notification: Notification }) =>
   let avatarUrl = isUserObject ? (fromUser as any).avatarUrl || (fromUser as any).avatar_url : undefined;
 
   const { subjectId } = notification.data;
-
-  // Relax fetch condition: Fetch if subjectId is present, even if username is missing (we might guess it)
   const type = notification.type.toLowerCase();
-  const shouldFetch = (type === 'join_request' || type === 'join_request') && !avatarUrl && !!subjectId;
+
+  // Logic to fetch detailed user info for Join Requests
+  const shouldFetch = (type === 'join_request') && !avatarUrl && !!subjectId;
 
   const { data: pendingMembers } = useQuery({
     queryKey: ['subject-pending', subjectId],
@@ -45,44 +59,106 @@ const NotificationAvatar = ({ notification }: { notification: Notification }) =>
       return res.data.success ? res.data.data : [];
     },
     enabled: shouldFetch,
-    staleTime: 1000 * 60 * 5, // 5 mins
+    staleTime: 1000 * 60 * 5,
   });
 
   if (shouldFetch && pendingMembers && pendingMembers.length > 0) {
     if (username) {
-      const member = pendingMembers.find((m: any) => m.username === username);
-      if (member?.avatar_url) avatarUrl = member.avatar_url;
+      const member = pendingMembers.find((m: any) => m.username === username || m.username === notification.data.fromUsername);
+      if (member) {
+        if (member.avatar_url) avatarUrl = member.avatar_url;
+        if (member.username) username = member.username; // Use the one from pending list (correct case/data)
+      }
     } else if (pendingMembers.length === 1) {
-      // Heuristic: Only 1 pending request? It must be this one.
       username = pendingMembers[0].username;
       avatarUrl = pendingMembers[0].avatar_url;
     }
   }
 
-  // Fallback to parsing message if username is still missing (last resort)
+  // Fallback parse
   if (!username && notification.message) {
     const match = notification.message.match(/^(.*?) wants to join/);
     if (match && match[1]) username = match[1];
   }
 
-  // If we have a username (from data, fetch, or parse), show UserAvatar
-  if ((username && notification.type === 'join_request') || (username && avatarUrl)) {
-    return (
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg">
-        <UserAvatar
-          username={username}
-          avatarUrl={avatarUrl}
-          size="md"
-          className="rounded-lg h-full w-full"
-        />
-      </div>
-    );
-  }
+  // Construct display message
+  const displayMessage = (type === 'join_request' && username)
+    ? `${username} wants to join`
+    : notification.message;
 
-  // Default Icon
   return (
-    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg ${getNotificationColor(notification.type)} bg-bg-100`}>
-      {getNotificationIcon(notification.type)}
+    <div
+      onClick={() => onClick(notification)}
+      className={`group hover:bg-bg-100/50 relative flex cursor-pointer gap-3 p-4 transition-colors ${!notification.isRead ? 'bg-accent/5' : ''
+        }`}
+    >
+      {/* Unread indicator */}
+      {!notification.isRead && (
+        <div className="bg-accent absolute top-1/2 left-1 h-2 w-2 -translate-y-1/2 rounded-full" />
+      )}
+
+      {/* Avatar or Icon */}
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg">
+        {((username && type === 'join_request') || (username && avatarUrl)) ? (
+          <UserAvatar
+            username={username}
+            avatarUrl={avatarUrl}
+            size="md"
+            className="rounded-lg h-full w-full"
+          />
+        ) : (
+          <div className={`flex h-full w-full items-center justify-center rounded-lg ${getNotificationColor(notification.type)} bg-bg-100`}>
+            {getNotificationIcon(notification.type)}
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="min-w-0 flex-1">
+        <p className="line-clamp-1 text-sm font-medium text-white">
+          {notification.title}
+        </p>
+        <p className="mt-0.5 line-clamp-2 text-sm text-gray-400">
+          {displayMessage}
+        </p>
+        <p className="mt-1 text-xs text-gray-500">{formatTime(notification.createdAt)}</p>
+      </div>
+
+      {/* Actions for Join Requests */}
+      {['join_request', 'JOIN_REQUEST'].includes(notification.type) && !notification.isActioned && (
+        <div className="absolute right-2 bottom-2 z-20 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
+          <button
+            onClick={(e) => onApprove(e, notification)}
+            disabled={isActionPending}
+            className="flex cursor-pointer items-center gap-1 rounded-md bg-green-500/20 px-2 py-1 text-xs font-medium text-green-400 hover:bg-green-500 hover:text-white disabled:opacity-50"
+          >
+            Accept
+          </button>
+          <button
+            onClick={(e) => onReject(e, notification)}
+            disabled={isActionPending}
+            className="flex cursor-pointer items-center gap-1 rounded-md bg-red-500/20 px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500 hover:text-white disabled:opacity-50"
+          >
+            Reject
+          </button>
+        </div>
+      )}
+
+      {/* Delete button */}
+      <button
+        onClick={(e) => onDelete(e, (notification as any)._id)}
+        className="hover:bg-bg-200 absolute top-2 right-2 z-20 rounded-lg p-1 text-gray-500 opacity-0 transition-all group-hover:opacity-100 hover:text-white"
+        title="Delete notification"
+      >
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
     </div>
   );
 };
@@ -289,69 +365,15 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
         ) : (
           <div className="divide-bg-200/30 divide-y">
             {notifications.map((notification) => (
-              <div
+              <NotificationItem
                 key={(notification as any)._id}
-                onClick={() => handleNotificationClick(notification as any)}
-                className={`group hover:bg-bg-100/50 relative flex cursor-pointer gap-3 p-4 transition-colors ${!notification.isRead ? 'bg-accent/5' : ''
-                  }`}
-              >
-                {/* Unread indicator */}
-                {!notification.isRead && (
-                  <div className="bg-accent absolute top-1/2 left-1 h-2 w-2 -translate-y-1/2 rounded-full" />
-                )}
-
-                {/* Icon */}
-                {/* Icon or Avatar */}
-                <NotificationAvatar notification={notification} />
-
-                {/* Content */}
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-1 text-sm font-medium text-white">
-                    {notification.title}
-                  </p>
-                  <p className="mt-0.5 line-clamp-2 text-sm text-gray-400">
-                    {notification.message}
-                  </p>
-                  <p className="mt-1 text-xs text-gray-500">{formatTime(notification.createdAt)}</p>
-                </div>
-
-                {/* Actions for Join Requests */}
-                {/* Check both cases just to be safe */}
-                {['join_request', 'JOIN_REQUEST'].includes(notification.type) && !notification.isActioned && (
-                  <div className="absolute right-2 bottom-2 z-20 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-                    <button
-                      onClick={(e) => handleApprove(e, notification)}
-                      disabled={approveRequestMutation.isPending}
-                      className="flex cursor-pointer items-center gap-1 rounded-md bg-green-500/20 px-2 py-1 text-xs font-medium text-green-400 hover:bg-green-500 hover:text-white disabled:opacity-50"
-                    >
-                      Accept
-                    </button>
-                    <button
-                      onClick={(e) => handleReject(e, notification)}
-                      disabled={rejectRequestMutation.isPending}
-                      className="flex cursor-pointer items-center gap-1 rounded-md bg-red-500/20 px-2 py-1 text-xs font-medium text-red-400 hover:bg-red-500 hover:text-white disabled:opacity-50"
-                    >
-                      Reject
-                    </button>
-                  </div>
-                )}
-
-                {/* Delete button (always available) */}
-                <button
-                  onClick={(e) => handleDelete(e, (notification as any)._id)}
-                  className="hover:bg-bg-200 absolute top-2 right-2 z-20 rounded-lg p-1 text-gray-500 opacity-0 transition-all group-hover:opacity-100 hover:text-white"
-                  title="Delete notification"
-                >
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
+                notification={notification}
+                onClick={handleNotificationClick}
+                onApprove={handleApprove}
+                onReject={handleReject}
+                onDelete={handleDelete}
+                isActionPending={approveRequestMutation.isPending || rejectRequestMutation.isPending}
+              />
             ))}
           </div>
         )}

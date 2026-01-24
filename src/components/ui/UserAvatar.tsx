@@ -90,6 +90,22 @@ export function UserAvatar({
   const avatarColor = getUsernameColor(username);
   const initials = getUserInitials(username);
 
+  // Only show avatar image if it's from OUR storage (custom upload)
+  // Otherwise, always show username-based initials
+  const isCustomUpload = avatarUrl && (
+    avatarUrl.includes('supabase.co') ||
+    avatarUrl.includes('supabase.in') ||
+    avatarUrl.includes('cloudinary.com') ||
+    avatarUrl.includes('amazonaws.com') ||
+    avatarUrl.includes('blob.core.windows.net') ||
+    avatarUrl.includes('res.cloudinary') ||
+    avatarUrl.startsWith('/uploads') ||
+    avatarUrl.startsWith('/avatars')
+  );
+
+  // Show custom uploaded avatar, otherwise show initials
+  const hasCustomAvatar = isCustomUpload;
+
   return (
     <div className={cn('relative inline-block', className)}>
       {/* Avatar */}
@@ -99,9 +115,9 @@ export function UserAvatar({
           'transition-all duration-200 hover:scale-105',
           sizeClasses[size]
         )}
-        style={{ backgroundColor: avatarUrl ? 'transparent' : avatarColor }}
+        style={{ backgroundColor: hasCustomAvatar ? 'transparent' : avatarColor }}
       >
-        {avatarUrl ? (
+        {hasCustomAvatar ? (
           <div className="relative h-full w-full overflow-hidden rounded-full">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={avatarUrl} alt={username} className="h-full w-full object-cover" />

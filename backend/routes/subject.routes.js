@@ -2,6 +2,7 @@ const express = require('express');
 const { authenticate } = require('../middleware/auth');
 const { createClient } = require('@supabase/supabase-js');
 const Notification = require('../models/notification.model');
+const User = require('../models/user.model');
 
 const router = express.Router();
 
@@ -207,13 +208,33 @@ router.get('/:id', authenticate, async (req, res) => {
       throw membersError;
     }
 
+    // Enrich members with current data from MongoDB (username, avatarUrl)
+    const mongoose = require('mongoose');
+    const userIds = members.map(m => m.user_id).filter(id => id && mongoose.Types.ObjectId.isValid(id));
+    const objectIds = userIds.map(id => new mongoose.Types.ObjectId(id));
+
+    let userMap = new Map();
+    if (objectIds.length > 0) {
+      const users = await User.find({ _id: { $in: objectIds } }).select('_id username avatarUrl').lean();
+      userMap = new Map(users.map(u => [u._id.toString(), u]));
+    }
+
+    const enrichedMembers = members.map(member => {
+      const user = userMap.get(member.user_id);
+      return {
+        ...member,
+        username: user?.username || member.username,
+        avatar_url: user?.avatarUrl || member.avatar_url,
+      };
+    });
+
     res.json({
       success: true,
       data: {
         ...subject,
         role: membership.role,
         status: membership.status,
-        members,
+        members: enrichedMembers,
       },
     });
   } catch (error) {

@@ -59,7 +59,11 @@ export function ActivityStrip({ members }: ActivityStripProps) {
         {displayMembers.map((member, index) => (
           <div key={member.id || index} className="group relative">
             <div className="relative">
-              <UserAvatar username={member.username} avatarUrl={member.avatar_url} size="sm" />
+              <UserAvatar
+                username={(member as any).user?.username || member.username || 'User'}
+                avatarUrl={(member as any).user?.avatarUrl || member.avatar_url}
+                size="sm"
+              />
               {/* Online dot */}
               <div
                 className="absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#09090b]"
@@ -78,7 +82,7 @@ export function ActivityStrip({ members }: ActivityStripProps) {
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
               }}
             >
-              <span className="text-xs font-medium text-white">{member.username}</span>
+              <span className="text-xs font-medium text-white">{(member as any).user?.username || member.username || 'User'}</span>
               {member.role === 'owner' && (
                 <span className="text-accent ml-1.5 text-[10px] font-semibold">Owner</span>
               )}

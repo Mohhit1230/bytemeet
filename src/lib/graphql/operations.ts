@@ -405,6 +405,30 @@ export const REMOVE_MEMBER = gql`
   }
 `;
 
+/**
+ * Promote a member to owner
+ */
+export const PROMOTE_TO_OWNER = gql`
+  mutation PromoteToOwner($subjectId: ID!, $userId: ID!) {
+    promoteToOwner(subjectId: $subjectId, userId: $userId) {
+      success
+      message
+    }
+  }
+`;
+
+/**
+ * Demote an owner to member
+ */
+export const DEMOTE_OWNER = gql`
+  mutation DemoteOwner($subjectId: ID!, $userId: ID!) {
+    demoteOwner(subjectId: $subjectId, userId: $userId) {
+      success
+      message
+    }
+  }
+`;
+
 // =============================================================================
 // ARTIFACT QUERIES
 // =============================================================================

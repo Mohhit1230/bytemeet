@@ -123,10 +123,10 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
             <label className="mb-2 block text-sm font-medium text-gray-400">Invite Code</label>
             <div
               onClick={copyCode}
-              className="group flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/30 p-4 transition-all hover:border-purple-500/30 hover:bg-black/50"
+              className="group flex cursor-pointer items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/30 p-4 transition-all hover:border-yellow-500/30 hover:bg-black/50"
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-500/10">
-                <svg className="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-yellow-500/10">
+                <svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                 </svg>
               </div>
@@ -138,7 +138,7 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
                   10-character code
                 </p>
               </div>
-              <button className="flex items-center gap-1.5 rounded-lg bg-purple-500/20 px-3 py-2 text-sm font-medium text-purple-400 transition-all group-hover:bg-purple-500 group-hover:text-white">
+              <button className="flex items-center gap-1.5 rounded-lg bg-yellow-500/20 px-3 py-2 text-sm font-medium text-yellow-400 transition-all group-hover:bg-yellow-500 group-hover:text-white">
                 {copiedCode ? (
                   <>
                     <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

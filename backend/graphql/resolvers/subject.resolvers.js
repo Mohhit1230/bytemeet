@@ -452,6 +452,159 @@ const subjectMutations = {
 
     return { success: true, message: 'Member removed' };
   },
+
+  /**
+   * Promote a member to owner (owner only)
+   */
+  promoteToOwner: async (_, { subjectId, userId }, context) => {
+    const user = requireAuth(context);
+
+    // Verify current user is an owner
+    const { data: currentMembership } = await supabase
+      .from('subject_members')
+      .select('role')
+      .eq('subject_id', subjectId)
+      .eq('user_id', user._id.toString())
+      .single();
+
+    if (!currentMembership || currentMembership.role !== 'owner') {
+      throw new Error('Only owners can promote members to owner');
+    }
+
+    // Can't promote yourself
+    if (userId === user._id.toString()) {
+      throw new Error('Cannot promote yourself');
+    }
+
+    // Check if target is an approved member
+    const { data: targetMembership } = await supabase
+      .from('subject_members')
+      .select('role, status, username')
+      .eq('subject_id', subjectId)
+      .eq('user_id', userId)
+      .single();
+
+    if (!targetMembership || targetMembership.status !== 'approved') {
+      throw new Error('User must be an approved member');
+    }
+
+    if (targetMembership.role === 'owner') {
+      throw new Error('User is already an owner');
+    }
+
+    // Get subject name for notifications
+    const { data: subject } = await supabase
+      .from('subjects')
+      .select('name')
+      .eq('id', subjectId)
+      .single();
+
+    // Promote to owner
+    const { error } = await supabase
+      .from('subject_members')
+      .update({ role: 'owner' })
+      .eq('subject_id', subjectId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+
+    // Send notification to new owner
+    try {
+      await Notification.createNotification({
+        userId,
+        type: 'system',
+        title: 'You are now an owner! 👑',
+        message: `${user.username} promoted you to owner of "${subject?.name}".`,
+        data: {
+          subjectId,
+          subjectName: subject?.name,
+          fromUser: user._id.toString(),
+          fromUsername: user.username,
+        },
+      });
+    } catch (e) {
+      console.error('Notification error:', e);
+    }
+
+    return { success: true, message: 'Member promoted to owner successfully' };
+  },
+
+  /**
+   * Demote an owner to member (cannot demote original creator)
+   */
+  demoteOwner: async (_, { subjectId, userId }, context) => {
+    const user = requireAuth(context);
+
+    // Verify current user is an owner
+    const { data: currentMembership } = await supabase
+      .from('subject_members')
+      .select('role')
+      .eq('subject_id', subjectId)
+      .eq('user_id', user._id.toString())
+      .single();
+
+    if (!currentMembership || currentMembership.role !== 'owner') {
+      throw new Error('Only owners can demote other owners');
+    }
+
+    // Can't demote yourself
+    if (userId === user._id.toString()) {
+      throw new Error('Cannot demote yourself');
+    }
+
+    // Get the subject to check original creator
+    const { data: subject } = await supabase
+      .from('subjects')
+      .select('created_by, name')
+      .eq('id', subjectId)
+      .single();
+
+    // Check if target is the original creator
+    if (subject?.created_by === userId) {
+      throw new Error('Cannot demote the original creator of this room');
+    }
+
+    // Check if target is actually an owner
+    const { data: targetMembership } = await supabase
+      .from('subject_members')
+      .select('role, username')
+      .eq('subject_id', subjectId)
+      .eq('user_id', userId)
+      .single();
+
+    if (!targetMembership || targetMembership.role !== 'owner') {
+      throw new Error('User is not an owner');
+    }
+
+    // Demote to member
+    const { error } = await supabase
+      .from('subject_members')
+      .update({ role: 'member' })
+      .eq('subject_id', subjectId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+
+    // Notify the demoted user
+    try {
+      await Notification.createNotification({
+        userId,
+        type: 'system',
+        title: 'Role Changed',
+        message: `You are no longer an owner of "${subject?.name}". Your role has been changed to member.`,
+        data: {
+          subjectId,
+          subjectName: subject?.name,
+          fromUser: user._id.toString(),
+          fromUsername: user.username,
+        },
+      });
+    } catch (e) {
+      console.error('Notification error:', e);
+    }
+
+    return { success: true, message: 'Owner demoted to member successfully' };
+  },
 };
 
 // =============================================================================

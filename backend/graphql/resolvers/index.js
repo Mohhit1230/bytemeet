@@ -64,6 +64,8 @@ const resolvers = {
     approveJoinRequest: subjectResolvers.mutations.approveJoinRequest,
     rejectJoinRequest: subjectResolvers.mutations.rejectJoinRequest,
     removeMember: subjectResolvers.mutations.removeMember,
+    promoteToOwner: subjectResolvers.mutations.promoteToOwner,
+    demoteOwner: subjectResolvers.mutations.demoteOwner,
 
     // Artifact mutations
     createArtifact: artifactResolvers.mutations.createArtifact,

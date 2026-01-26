@@ -533,6 +533,12 @@ type Mutation {
   """Remove a member from subject (owner/admin)"""
   removeMember(subjectId: ID!, userId: ID!): MutationResponse!
   
+  """Promote a member to owner (owner only)"""
+  promoteToOwner(subjectId: ID!, userId: ID!): MutationResponse!
+  
+  """Demote an owner to member (cannot demote original creator)"""
+  demoteOwner(subjectId: ID!, userId: ID!): MutationResponse!
+  
   """Leave a subject"""
   leaveSubject(subjectId: ID!): MutationResponse!
   

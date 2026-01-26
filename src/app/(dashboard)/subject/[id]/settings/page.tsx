@@ -11,8 +11,12 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import gsap from 'gsap';
 import { useQuery } from '@tanstack/react-query';
-import { useApolloClient } from '@apollo/client/react';
-import { GET_SUBJECT } from '@/lib/graphql/operations';
+import { useApolloClient, useMutation as useApolloMutation } from '@apollo/client/react';
+import {
+    GET_SUBJECT,
+    PROMOTE_TO_OWNER,
+    DEMOTE_OWNER,
+} from '@/lib/graphql/operations';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/components/ui/Toast';
 import { UserAvatar } from '@/components/ui/UserAvatar';
@@ -164,6 +168,10 @@ export default function RoomSettingsPage() {
     const rejectRequestMutation = useRejectRequestMutation();
     const removeMemberMutation = useRemoveMemberMutation();
 
+    // GraphQL Mutations
+    const [promoteToOwnerMutation, { loading: promoting }] = useApolloMutation(PROMOTE_TO_OWNER);
+    const [demoteOwnerMutation, { loading: demoting }] = useApolloMutation(DEMOTE_OWNER);
+
     // Fetch subject data
     const { data: subjectData, isLoading, refetch } = useQuery({
         queryKey: ['subject', subjectId],
@@ -299,6 +307,30 @@ export default function RoomSettingsPage() {
         }
     };
 
+    const handlePromoteToOwner = async (userId: string) => {
+        try {
+            await promoteToOwnerMutation({
+                variables: { subjectId, userId },
+            });
+            await refetch();
+            success('Member Promoted', 'The member has been promoted to owner');
+        } catch (err: any) {
+            toastError('Error', err?.message || 'Failed to promote member');
+        }
+    };
+
+    const handleDemoteOwner = async (userId: string) => {
+        try {
+            await demoteOwnerMutation({
+                variables: { subjectId, userId },
+            });
+            await refetch();
+            success('Owner Demoted', 'The owner has been demoted to a regular member');
+        } catch (err: any) {
+            toastError('Error', err?.message || 'Failed to demote owner');
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-[#0a0a0c]">
@@ -375,11 +407,11 @@ export default function RoomSettingsPage() {
                                 {/* Invite Code Display */}
                                 <div
                                     onClick={handleCopyInviteCode}
-                                    className="group mb-4 flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl border border-purple-500/20 bg-purple-500/5 p-4 transition-all hover:border-purple-500/40 hover:bg-purple-500/10"
+                                    className="group mb-4 flex w-full cursor-pointer items-center justify-between gap-4 rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4 transition-all hover:border-yellow-500/40 hover:bg-yellow-500/10"
                                 >
                                     {/* Code Icon */}
-                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-500/20">
-                                        <svg className="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-yellow-500/20">
+                                        <svg className="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                                         </svg>
                                     </div>
@@ -395,7 +427,7 @@ export default function RoomSettingsPage() {
                                     </div>
 
                                     {/* Copy Indicator */}
-                                    <div className="flex items-center gap-2 rounded-lg bg-purple-500/20 px-3 py-2 text-sm font-medium text-purple-400 transition-all group-hover:bg-purple-500 group-hover:text-white">
+                                    <div className="flex items-center gap-2 rounded-lg bg-yellow-500/20 px-3 py-2 text-sm font-medium text-yellow-400 transition-all group-hover:bg-yellow-500 group-hover:text-white">
                                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                         </svg>
@@ -532,18 +564,45 @@ export default function RoomSettingsPage() {
                                                 </p>
                                             </div>
                                         </div>
-                                        {member.role?.toLowerCase() !== 'owner' && (
-                                            <button
-                                                onClick={() => handleRemoveMember(member.user?.id || member.user_id)}
-                                                disabled={removeMemberMutation.isPending}
-                                                className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-500/20 hover:text-red-400 disabled:opacity-50"
-                                                title="Remove member"
-                                            >
-                                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                </svg>
-                                            </button>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            {/* Demote button for owners who are not the original creator AND not the current user */}
+                                            {member.role?.toLowerCase() === 'owner' &&
+                                                (member.user?.id || member.user_id) !== subject.owner?.id &&
+                                                (member.user?.id || member.user_id) !== user?.id && (
+                                                    <button
+                                                        onClick={() => handleDemoteOwner(member.user?.id || member.user_id)}
+                                                        disabled={demoting}
+                                                        className="rounded-lg px-3 py-1.5 text-sm font-medium text-orange-400 transition-colors hover:bg-orange-500/20 disabled:opacity-50"
+                                                        title="Demote to member"
+                                                    >
+                                                        {demoting ? 'Removing...' : 'Remove owner'}
+                                                    </button>
+                                                )}
+                                            {/* Make Owner button for non-owners */}
+                                            {member.role?.toLowerCase() !== 'owner' && (
+                                                <button
+                                                    onClick={() => handlePromoteToOwner(member.user?.id || member.user_id)}
+                                                    disabled={promoting}
+                                                    className="rounded-lg px-3 py-1.5 text-sm font-medium text-green-400 transition-colors hover:bg-green-500/20 disabled:opacity-50"
+                                                    title="Make owner"
+                                                >
+                                                    {promoting ? 'Promoting...' : 'Make Owner'}
+                                                </button>
+                                            )}
+                                            {/* Remove button for non-owners */}
+                                            {member.role?.toLowerCase() !== 'owner' && (
+                                                <button
+                                                    onClick={() => handleRemoveMember(member.user?.id || member.user_id)}
+                                                    disabled={removeMemberMutation.isPending}
+                                                    className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-500/20 hover:text-red-400 disabled:opacity-50"
+                                                    title="Remove member"
+                                                >
+                                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                    </svg>
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -757,84 +816,86 @@ export default function RoomSettingsPage() {
     const currentCategory = categories.find((c) => c.id === activeCategory);
 
     return (
-        <div
-            ref={containerRef}
-            className="h-screen overflow-hidden bg-[#050505] text-white"
-        >
+        <>
             <div
-                className="h-full overflow-y-auto scrollbar-hide"
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                ref={containerRef}
+                className="h-screen overflow-hidden bg-[#050505] text-white"
             >
-                {/* Header */}
-                <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0f0f0f0] backdrop-blur-xl">
-                    <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-                        <div className="flex items-center gap-4">
+                <div
+                    className="h-full overflow-y-auto scrollbar-hide"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                    {/* Header */}
+                    <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0f0f0f0] backdrop-blur-xl">
+                        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+                            <div className="flex items-center gap-4">
+                                <button
+                                    onClick={() => router.push(`/subject/${subjectId}`)}
+                                    className="hover:bg-accent/20 hover:text-accent rounded-lg p-2 text-gray-400 transition-colors"
+                                >
+                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                    </svg>
+                                </button>
+                                <div>
+                                    <p className="text-emerald-400 text-sm font-medium">Room Settings</p>
+                                    <h1 className="font-semibold text-white">{subject?.name}</h1>
+                                </div>
+                            </div>
+
+                            {/* Mobile menu button */}
                             <button
-                                onClick={() => router.push(`/subject/${subjectId}`)}
-                                className="hover:bg-accent/20 hover:text-accent rounded-lg p-2 text-gray-400 transition-colors"
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="hover:bg-accent rounded-lg p-2 text-gray-400 transition-colors hover:text-white lg:hidden"
                             >
-                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                                 </svg>
                             </button>
-                            <div>
-                                <p className="text-emerald-400 text-sm font-medium">Room Settings</p>
-                                <h1 className="font-semibold text-white">{subject?.name}</h1>
-                            </div>
                         </div>
+                    </header>
 
-                        {/* Mobile menu button */}
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="hover:bg-accent rounded-lg p-2 text-gray-400 transition-colors hover:text-white lg:hidden"
-                        >
-                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
-                    </div>
-                </header>
+                    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+                        <div className="flex flex-col gap-8 lg:flex-row">
+                            {/* Sidebar Navigation */}
+                            <aside className={`lg:w-72 lg:shrink-0 ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
+                                <nav className="sticky top-24 space-y-2 rounded-2xl border border-white/5 bg-white/5 p-3">
+                                    {categories.map((category) => (
+                                        <button
+                                            key={category.id}
+                                            onClick={() => {
+                                                setActiveCategory(category.id);
+                                                setIsMobileMenuOpen(false);
+                                            }}
+                                            className={`flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left transition-all ${activeCategory === category.id
+                                                ? 'bg-[#222] text-accent'
+                                                : 'text-gray-400 hover:bg-white/10 hover:text-white'
+                                                }`}
+                                        >
+                                            <span className={activeCategory === category.id ? 'text-accent' : ''}>{category.icon}</span>
+                                            <div>
+                                                <p className={`font-medium ${activeCategory === category.id ? 'text-accent' : ''}`}>{category.label}</p>
+                                                <p className="text-xs text-gray-500">{category.description}</p>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </nav>
+                            </aside>
 
-                <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-                    <div className="flex flex-col gap-8 lg:flex-row">
-                        {/* Sidebar Navigation */}
-                        <aside className={`lg:w-72 lg:shrink-0 ${isMobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
-                            <nav className="sticky top-24 space-y-2 rounded-2xl border border-white/5 bg-white/5 p-3">
-                                {categories.map((category) => (
-                                    <button
-                                        key={category.id}
-                                        onClick={() => {
-                                            setActiveCategory(category.id);
-                                            setIsMobileMenuOpen(false);
-                                        }}
-                                        className={`flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left transition-all ${activeCategory === category.id
-                                            ? 'bg-[#222] text-accent'
-                                            : 'text-gray-400 hover:bg-white/10 hover:text-white'
-                                            }`}
-                                    >
-                                        <span className={activeCategory === category.id ? 'text-accent' : ''}>{category.icon}</span>
-                                        <div>
-                                            <p className={`font-medium ${activeCategory === category.id ? 'text-accent' : ''}`}>{category.label}</p>
-                                            <p className="text-xs text-gray-500">{category.description}</p>
-                                        </div>
-                                    </button>
-                                ))}
-                            </nav>
-                        </aside>
-
-                        {/* Main Content */}
-                        <main ref={contentRef} className="min-w-0 flex-1">
-                            <div className="rounded-2xl border border-white/15 bg-white/7 p-6 lg:p-8">
-                                <h2 className={`mb-8 flex items-center gap-3 text-2xl font-bold ${currentCategory?.color}`}>
-                                    {currentCategory?.icon}
-                                    {currentCategory?.label}
-                                </h2>
-                                {renderSettingsContent()}
-                            </div>
-                        </main>
+                            {/* Main Content */}
+                            <main ref={contentRef} className="min-w-0 flex-1">
+                                <div className="rounded-2xl border border-white/15 bg-white/7 p-6 lg:p-8">
+                                    <h2 className={`mb-8 flex items-center gap-3 text-2xl font-bold ${currentCategory?.color}`}>
+                                        {currentCategory?.icon}
+                                        {currentCategory?.label}
+                                    </h2>
+                                    {renderSettingsContent()}
+                                </div>
+                            </main>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

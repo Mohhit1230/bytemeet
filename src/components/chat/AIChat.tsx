@@ -18,6 +18,23 @@ interface PendingMessage {
   timestamp: Date;
 }
 
+interface UserBase {
+  id: string;
+  _id?: string;
+  username: string;
+  avatarUrl: string;
+}
+
+interface SubjectData {
+  subject: {
+    id: string;
+    owner: UserBase;
+    members?: Array<{
+      user: UserBase;
+    }>;
+  };
+}
+
 export function AIChat({ subjectId }: AIChatProps) {
   const { messages, sending, isStreaming, streamingContent, sendMessage } = useAIChat(subjectId);
   const uploadArtifactMutation = useUploadArtifactMutation(subjectId);
@@ -30,7 +47,7 @@ export function AIChat({ subjectId }: AIChatProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch subject details to get member avatars
-  const { data: subjectData } = useQuery(GET_SUBJECT, {
+  const { data: subjectData } = useQuery<SubjectData>(GET_SUBJECT, {
     variables: { id: subjectId },
     skip: !subjectId,
     fetchPolicy: 'cache-first'
@@ -512,7 +529,7 @@ export function AIChat({ subjectId }: AIChatProps) {
           </div>
         )}
 
-        <div className="relative flex items-center rounded-xl border border-white/10 bg-[#121212] p-2 pl-4 transition-colors focus-within:border-[#155dfc]/50">
+        <div className="relative flex items-center rounded-xl border border-white/10 bg-[#121212] p-2 pl-4 transition-colors focus-within:border-accent-secondary/50">
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}

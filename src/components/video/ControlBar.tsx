@@ -2,6 +2,7 @@
  * Control Bar Component
  *
  * Video call controls - mic, camera, screen share, leave
+ * Professional design with clear visual states
  */
 
 'use client';
@@ -46,101 +47,81 @@ export function ControlBar({
   }, []);
 
   return (
-    <div ref={barRef} className="bg-bg-600/95 border-bg-200 border-t px-6 py-4 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-2xl items-center justify-between">
-        {/* Left: Participant count */}
-        <div className="flex items-center gap-2 text-gray-400">
-          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-            />
-          </svg>
-          <span className="text-sm font-medium">{participantCount}/9</span>
+    <div ref={barRef} className="px-6 py-5">
+      <div className="mx-auto flex max-w-3xl items-center justify-between">
+        {/* Left: Participant count & Call duration */}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur-sm">
+            <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+            <span className="text-sm font-medium text-white">{participantCount}</span>
+            <span className="text-sm text-gray-500">/9</span>
+          </div>
+
+          {/* Keyboard shortcuts hint */}
+          <div className="hidden items-center gap-2 text-xs text-gray-500 lg:flex">
+            <kbd className="rounded bg-white/5 px-1.5 py-0.5 text-gray-400">M</kbd>
+            <kbd className="rounded bg-white/5 px-1.5 py-0.5 text-gray-400">V</kbd>
+            <kbd className="rounded bg-white/5 px-1.5 py-0.5 text-gray-400">S</kbd>
+          </div>
         </div>
 
         {/* Center: Main controls */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Microphone */}
-          <button
+          <ControlButton
             onClick={onToggleMute}
-            className={`flex h-12 w-12 transform items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95 ${
-              isMuted
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-bg-100 hover:bg-bg-200 text-white'
-            }`}
-            title={isMuted ? 'Unmute' : 'Mute'}
+            isActive={!isMuted}
+            isDestructive={isMuted}
+            title={isMuted ? 'Unmute (M)' : 'Mute (M)'}
+            label={isMuted ? 'Unmute' : 'Mute'}
           >
             {isMuted ? (
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
               </svg>
             ) : (
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
               </svg>
             )}
-          </button>
+          </ControlButton>
 
           {/* Camera */}
-          <button
+          <ControlButton
             onClick={onToggleCamera}
-            className={`flex h-12 w-12 transform items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95 ${
-              isCameraOff
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-bg-100 hover:bg-bg-200 text-white'
-            }`}
-            title={isCameraOff ? 'Turn on camera' : 'Turn off camera'}
+            isActive={!isCameraOff}
+            isDestructive={isCameraOff}
+            title={isCameraOff ? 'Turn on camera (V)' : 'Turn off camera (V)'}
+            label={isCameraOff ? 'Start Video' : 'Stop Video'}
           >
             {isCameraOff ? (
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" />
               </svg>
             ) : (
               <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             )}
-          </button>
+          </ControlButton>
 
           {/* Screen Share */}
-          <button
+          <ControlButton
             onClick={onToggleScreenShare}
-            className={`flex h-12 w-12 transform items-center justify-center rounded-full transition-all hover:scale-110 active:scale-95 ${
-              isScreenSharing
-                ? 'bg-accent-secondary hover:bg-accent-secondary-dark text-white'
-                : 'bg-bg-100 hover:bg-bg-200 text-white'
-            }`}
-            title={isScreenSharing ? 'Stop sharing' : 'Share screen'}
+            isActive={isScreenSharing}
+            isAccent={isScreenSharing}
+            title={isScreenSharing ? 'Stop sharing (S)' : 'Share screen (S)'}
+            label={isScreenSharing ? 'Stop Share' : 'Share'}
+            showLabel
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path
@@ -150,13 +131,13 @@ export function ControlBar({
                 d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
               />
             </svg>
-          </button>
+          </ControlButton>
         </div>
 
         {/* Right: Leave button */}
         <button
           onClick={onLeave}
-          className="flex transform items-center gap-2 rounded-full bg-red-500 px-6 py-3 font-semibold text-white transition-all hover:scale-105 hover:bg-red-600 active:scale-95"
+          className="flex transform items-center gap-2 rounded-full bg-red-500/90 px-5 py-2.5 font-semibold text-white shadow-lg shadow-red-500/30 backdrop-blur-sm transition-all duration-200 hover:scale-105 hover:bg-red-500 active:scale-95"
         >
           <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
@@ -170,6 +151,54 @@ export function ControlBar({
         </button>
       </div>
     </div>
+  );
+}
+
+// =============================================================================
+// CONTROL BUTTON COMPONENT
+// =============================================================================
+
+interface ControlButtonProps {
+  onClick: () => void;
+  isActive?: boolean;
+  isDestructive?: boolean;
+  isAccent?: boolean;
+  title: string;
+  label: string;
+  showLabel?: boolean;
+  children: React.ReactNode;
+}
+
+function ControlButton({
+  onClick,
+  isActive = false,
+  isDestructive = false,
+  isAccent = false,
+  title,
+  label,
+  showLabel = false,
+  children,
+}: ControlButtonProps) {
+  let buttonClass = 'bg-white/10 text-white backdrop-blur-sm hover:bg-white/20';
+
+  if (isDestructive) {
+    buttonClass = 'bg-red-500/90 text-white backdrop-blur-sm shadow-lg shadow-red-500/30 hover:bg-red-500';
+  } else if (isAccent) {
+    buttonClass = 'bg-blue-500/90 text-white backdrop-blur-sm shadow-lg shadow-blue-500/30 hover:bg-blue-500';
+  } else if (isActive) {
+    buttonClass = 'bg-white/15 text-white backdrop-blur-sm hover:bg-white/25 ring-2 ring-white/30';
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className={`flex transform items-center justify-center gap-2 rounded-full transition-all duration-200 hover:scale-110 active:scale-95 ${showLabel ? 'h-12 px-5' : 'h-12 w-12'
+        } ${buttonClass}`}
+      title={title}
+    >
+      {children}
+      {showLabel && <span className="hidden text-sm font-medium sm:inline">{label}</span>}
+    </button>
   );
 }
 

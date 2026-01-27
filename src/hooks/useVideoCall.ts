@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useLiveKit, Participant } from './useLiveKit';
+import { Track } from 'livekit-client';
 
 interface UseVideoCallOptions {
   subjectId: string;
@@ -17,6 +18,7 @@ interface VideoCallState {
   isCameraOff: boolean;
   isScreenSharing: boolean;
   activeSpeaker: string | null;
+  screenShareTrack: Track | null;
 }
 
 export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideoCallOptions) {
@@ -25,9 +27,6 @@ export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideo
   const [activeSpeaker, setActiveSpeaker] = useState<string | null>(null);
   const [pinnedParticipant, setPinnedParticipant] = useState<string | null>(null);
 
-  /**
-   * Track active speaker
-   */
   /**
    * Track active speaker
    */
@@ -59,9 +58,18 @@ export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideo
   const remoteParticipants = livekit.participants.filter((p) => !p.isLocal);
 
   /**
-   * Get main participant (pinned or active speaker or first remote)
+   * Get screen sharing participant
+   */
+  const screenSharingParticipant = livekit.participants.find((p) => p.isScreenSharing) || null;
+
+  /**
+   * Get main participant (pinned or screen sharer or active speaker or first remote)
    */
   const getMainParticipant = useCallback(() => {
+    // If someone is screen sharing, they should be main
+    if (screenSharingParticipant) {
+      return screenSharingParticipant;
+    }
     if (pinnedParticipant) {
       return livekit.participants.find((p) => p.id === pinnedParticipant) || null;
     }
@@ -70,6 +78,7 @@ export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideo
     }
     return remoteParticipants[0] || localParticipant;
   }, [
+    screenSharingParticipant,
     pinnedParticipant,
     activeSpeaker,
     livekit.participants,
@@ -95,6 +104,7 @@ export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideo
     isCameraOff: livekit.isCameraOff,
     isScreenSharing: livekit.isScreenSharing,
     activeSpeaker,
+    screenShareTrack: livekit.screenShareTrack,
   };
 
   /**
@@ -115,6 +125,7 @@ export function useVideoCall({ subjectId, username, autoJoin = false }: UseVideo
   const computed = {
     mainParticipant: getMainParticipant(),
     remoteParticipants,
+    screenSharingParticipant,
     participantCount: livekit.participants.length,
     isMaxParticipants: livekit.participants.length >= 9,
     canJoin: !livekit.isConnected && !livekit.isConnecting,

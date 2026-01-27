@@ -32,15 +32,21 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
   const [callMode, setCallMode] = useState<'video' | 'audio' | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [manualSidebarState, setManualSidebarState] = useState<boolean | null>(null);
+  const [isInVideoCall, setIsInVideoCall] = useState(false);
 
   // Panel system - for resizable side-by-side view
   const [showRightPanel, setShowRightPanel] = useState(false);
   const [rightPanelWidth, setRightPanelWidth] = useState(45); // percentage
   const [isResizing, setIsResizing] = useState(false);
 
-  // Derive sidebar collapsed state: manual override takes precedence, otherwise auto-collapse when right panel is open
+  // Derive sidebar collapsed state: 
+  // - Manual override takes precedence
+  // - Auto-collapse when in video call (for more screen space)
+  // - Auto-collapse when right panel is open
   const sidebarCollapsed =
-    manualSidebarState !== null ? manualSidebarState : !isSmallScreen && showRightPanel;
+    manualSidebarState !== null
+      ? manualSidebarState
+      : !isSmallScreen && (showRightPanel || isInVideoCall);
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -134,7 +140,13 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
       case 'chat':
         return <FriendsChat subjectId={subject.id} />;
       case 'video':
-        return <VideoCall subjectId={subject.id} audioOnly={callMode === 'audio'} />;
+        return (
+          <VideoCall
+            subjectId={subject.id}
+            audioOnly={callMode === 'audio'}
+            onCallStateChange={setIsInVideoCall}
+          />
+        );
       case 'ai':
         return <AIChat subjectId={subject.id} />;
       case 'canvas':
@@ -340,7 +352,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
           <div className="border-t border-white/5 bg-black/30 px-4 py-4">
             <div className="flex items-center justify-center gap-3">
               <button
-                onClick={() => {}}
+                onClick={() => { }}
                 className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 text-white transition-colors hover:bg-white/10"
                 title="Toggle Microphone"
               >
@@ -360,7 +372,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
               </button>
               {callMode === 'video' && (
                 <button
-                  onClick={() => {}}
+                  onClick={() => { }}
                   className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 text-white transition-colors hover:bg-white/10"
                   title="Toggle Camera"
                 >

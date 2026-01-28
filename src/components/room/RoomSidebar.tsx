@@ -147,9 +147,8 @@ export function RoomSidebar({
   return (
     <div
       ref={sidebarRef}
-      className={`flex h-full flex-col border-r border-white/5 bg-[#101010] backdrop-blur-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${
-        collapsed ? 'w-[80px]' : 'w-[240px]'
-      } z-20`}
+      className={`flex h-full flex-col border-r border-white/5 bg-[#101010] backdrop-blur-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${collapsed ? 'w-[80px]' : 'w-[240px]'
+        } z-20`}
     >
       {/* Header / Logo Area */}
       <div
@@ -222,13 +221,13 @@ export function RoomSidebar({
         <div className="relative z-10 space-y-3">
           {navItems.map((item) => {
             const isActive = activeSection === item.id;
+
             return (
               <button
                 key={item.id}
                 onClick={() => onSectionChange(item.id)}
-                className={`group flex h-12 w-full items-center gap-4 rounded-xl px-4 transition-all duration-200 ${
-                  isActive ? 'text-white' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
-                }`}
+                className={`group flex h-12 w-full items-center gap-4 rounded-xl px-4 transition-all duration-200 ${isActive ? 'text-white' : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
+                  }`}
                 title={collapsed ? item.label : undefined}
               >
                 <span

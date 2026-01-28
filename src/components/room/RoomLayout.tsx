@@ -39,6 +39,16 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
   const [rightPanelWidth, setRightPanelWidth] = useState(45); // percentage
   const [isResizing, setIsResizing] = useState(false);
 
+  // Check if current user is an owner of this subject
+  // Owners can kick participants from video calls
+  const isOwner = React.useMemo(() => {
+    const currentUserId = typeof window !== 'undefined' ? localStorage.getItem('userId') : null;
+    if (!currentUserId || !subject.members) return false;
+
+    const currentMember = subject.members.find(m => m.user_id === currentUserId);
+    return currentMember?.role === 'owner' || currentMember?.role === 'admin';
+  }, [subject.members]);
+
   // Derive sidebar collapsed state: 
   // - Manual override takes precedence
   // - Auto-collapse when in video call (for more screen space)
@@ -145,6 +155,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
             subjectId={subject.id}
             audioOnly={callMode === 'audio'}
             onCallStateChange={setIsInVideoCall}
+            isOwner={isOwner}
           />
         );
       case 'ai':

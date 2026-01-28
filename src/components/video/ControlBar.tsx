@@ -63,13 +63,6 @@ export function ControlBar({
             <span className="text-sm font-medium text-white">{participantCount}</span>
             <span className="text-sm text-gray-500">/9</span>
           </div>
-
-          {/* Keyboard shortcuts hint */}
-          <div className="hidden items-center gap-2 text-xs text-gray-500 lg:flex">
-            <kbd className="rounded bg-white/5 px-1.5 py-0.5 text-gray-400">M</kbd>
-            <kbd className="rounded bg-white/5 px-1.5 py-0.5 text-gray-400">V</kbd>
-            <kbd className="rounded bg-white/5 px-1.5 py-0.5 text-gray-400">S</kbd>
-          </div>
         </div>
 
         {/* Center: Main controls */}

@@ -19,12 +19,16 @@ interface VideoGridProps {
   participants: Participant[];
   isScreenSharing: boolean;
   screenShareTrack?: Track | null;
+  isOwner?: boolean;
+  onKickParticipant?: (participantId: string) => void;
 }
 
 export function VideoGrid({
   participants,
   isScreenSharing,
   screenShareTrack,
+  isOwner = false,
+  onKickParticipant,
 }: VideoGridProps) {
   const [isPipExpanded, setIsPipExpanded] = useState(false);
 

@@ -18,6 +18,8 @@ interface ParticipantTileProps {
   size: 'small' | 'medium' | 'large' | 'full';
   isMain?: boolean;
   showScreenShare?: boolean; // If false, always show camera even if screen sharing
+  isOwner?: boolean; // If true, show kick button for non-local participants
+  onKick?: (participantId: string) => void;
 }
 
 export function ParticipantTile({
@@ -25,6 +27,8 @@ export function ParticipantTile({
   size,
   isMain = false,
   showScreenShare = true,
+  isOwner = false,
+  onKick,
 }: ParticipantTileProps) {
   const tileRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -115,8 +119,8 @@ export function ParticipantTile({
   return (
     <div
       ref={tileRef}
-      className={`relative overflow-hidden rounded-xl bg-gray-900 transition-all ${participant.isSpeaking ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-[#0d0d0e]' : ''
-        } ${isMain ? 'h-full' : 'h-full'}`}
+      className={`group relative overflow-hidden rounded-xl bg-gray-900 transition-all h-full ${participant.isSpeaking ? 'ring-2 ring-green-500 ring-offset-2 ring-offset-[#0d0d0e]' : ''
+        }`}
     >
       {/* Avatar Placeholder - shown when camera is off */}
       <div
@@ -126,10 +130,10 @@ export function ParticipantTile({
       >
         <span
           className={`font-bold text-white ${size === 'full' || size === 'large'
-              ? 'text-6xl'
-              : size === 'medium'
-                ? 'text-4xl'
-                : 'text-2xl'
+            ? 'text-6xl'
+            : size === 'medium'
+              ? 'text-4xl'
+              : 'text-2xl'
             }`}
         >
           {getInitials(participant.username)}
@@ -232,6 +236,32 @@ export function ParticipantTile({
                   />
                 </svg>
               </div>
+            )}
+
+            {/* Kick Button - Only shown to owners for non-local participants */}
+            {isOwner && !participant.isLocal && onKick && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onKick(participant.id);
+                }}
+                className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500/80 opacity-0 transition-all hover:bg-red-600 group-hover:opacity-100"
+                title={`Remove ${participant.username} from call`}
+              >
+                <svg
+                  className="h-3 w-3 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
             )}
           </div>
         </div>

@@ -19,11 +19,13 @@ interface VideoCallProps {
   subjectId: string;
   audioOnly?: boolean;
   onCallStateChange?: (inCall: boolean) => void;
+  isOwner?: boolean;
+  hasActiveCall?: boolean; // True if there's an ongoing call in this room (other participants)
 }
 
 const CONTROLS_HIDE_DELAY = 10000; // 10 seconds
 
-export function VideoCall({ subjectId, audioOnly: _audioOnly = false, onCallStateChange }: VideoCallProps) {
+export function VideoCall({ subjectId, audioOnly: _audioOnly = false, onCallStateChange, isOwner = false, hasActiveCall = false }: VideoCallProps) {
   const { user } = useAuth();
   const {
     join,
@@ -166,6 +168,7 @@ export function VideoCall({ subjectId, audioOnly: _audioOnly = false, onCallStat
             participants={participants}
             isScreenSharing={isScreenSharing}
             screenShareTrack={screenShareTrack}
+            isOwner={isOwner}
           />
         </div>
 
@@ -190,7 +193,7 @@ export function VideoCall({ subjectId, audioOnly: _audioOnly = false, onCallStat
 
         {/* Gradient overlay at bottom for better control visibility */}
         <div
-          className={`pointer-events-none absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/60 to-transparent transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'
+          className={`pointer-events-none absolute bottom-0 left-0 right-0 h-32 bg-linear-to-t from-black/60 to-transparent transition-opacity duration-300 ${showControls ? 'opacity-100' : 'opacity-0'
             }`}
         />
 
@@ -229,10 +232,24 @@ export function VideoCall({ subjectId, audioOnly: _audioOnly = false, onCallStat
           </div>
         </div>
 
-        {/* Title */}
-        <h2 className="mb-2 text-2xl font-semibold text-white">Ready to Connect</h2>
+        {/* Title - Dynamic based on active call */}
+        {hasActiveCall ? (
+          <div className="mb-2 flex items-center gap-3">
+            <span className="relative flex h-3 w-3">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
+              <span className="relative inline-flex h-3 w-3 rounded-full bg-green-500"></span>
+            </span>
+            <h2 className="text-2xl font-semibold text-white">Join conversation</h2>
+          </div>
+        ) : (
+          <h2 className="mb-2 text-2xl font-semibold text-white">Start Room</h2>
+        )}
+
         <p className="mb-8 max-w-sm text-center text-sm text-gray-400">
-          Join the video call to start collaborating with your study group in real-time.
+          {hasActiveCall
+            ? 'A conversation is in progress. Click below to join your teammates.'
+            : 'Start a video call to collaborate with your study group in real-time.'
+          }
         </p>
 
         {/* Join Button */}
@@ -263,7 +280,7 @@ export function VideoCall({ subjectId, audioOnly: _audioOnly = false, onCallStat
                   d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
                 />
               </svg>
-              <span>Join Video Call</span>
+              <span>{hasActiveCall ? 'Join Conversation' : 'Start Room'}</span>
             </>
           )}
         </button>

@@ -28,7 +28,7 @@ export function SpeakingIndicator() {
   return (
     <div
       ref={indicatorRef}
-      className="pointer-events-none absolute inset-0 rounded-xl border-4 border-green-500"
+      className="pointer-events-none absolute inset-0 rounded-xl border-2 border-green-500"
     />
   );
 }

@@ -104,7 +104,8 @@ Instant communication powered by Supabase:
 
 | Technology    | Version | Purpose                         |
 | :------------ | :------ | :------------------------------ |
-| Next.js       | 16.1    | React framework with App Router |
+| Next.js       | 16.1.1  | React framework with App Router |
+| React         | 19.x    | UI library                      |
 | TypeScript    | 5.x     | Type-safe development           |
 | Tailwind CSS  | 4.x     | Utility-first styling           |
 | GSAP          | 3.x     | Animation library               |
@@ -112,13 +113,13 @@ Instant communication powered by Supabase:
 
 ### Backend
 
-| Technology | Version | Purpose               |
-| :--------- | :------ | :-------------------- |
-| Node.js    | 18+     | Runtime environment   |
-| Express    | 5.x     | HTTP server framework |
-| GraphQL    | -       | API query language    |
-| MongoDB    | 9.x     | Document database     |
-| Mongoose   | 9.x     | ODM for MongoDB       |
+| Technology   | Version | Purpose                       |
+| :----------- | :------ | :---------------------------- |
+| Node.js      | 18+     | Runtime environment           |
+| Express      | 5.x     | HTTP server framework         |
+| GraphQL/Yoga | 5.x     | GraphQL server (graphql-yoga) |
+| MongoDB      | 7.0     | Document database             |
+| Mongoose     | 9.1.1   | ODM for MongoDB               |
 
 ### Infrastructure
 
@@ -190,9 +191,14 @@ npm install
 
 ### Environment Configuration
 
-Create `.env.local` in the project root:
+Create `.env.local` in the project root (or set env vars in your deployment platform):
 
 ```env
+# Server
+PORT=5000
+CLIENT_URL=http://localhost:3000
+NODE_ENV=development
+
 # Database
 MONGODB_URI=mongodb://localhost:27017/bytemeet
 
@@ -221,6 +227,8 @@ NEXT_PUBLIC_LIVEKIT_URL=wss://your-livekit-instance.livekit.cloud
 # Caching (Optional)
 REDIS_URL=redis://localhost:6379
 ```
+
+> Note: The GraphiQL playground (GraphQL API UI) is enabled when `NODE_ENV` is not `production`. Set `PORT` or `NODE_ENV` in `.env.local` as needed.
 
 ### Running the Application
 
@@ -314,7 +322,9 @@ bytemeet/
 
 ### API Playground
 
-GraphQL Playground available at `http://localhost:5000/graphql` when running locally.
+GraphiQL (GraphQL playground) is available at `http://localhost:<PORT>/graphql` (defaults to `5000`) when running locally and when `NODE_ENV` is not set to `production`.
+
+> Note: The REST API endpoints are deprecated and maintained only for backward compatibility. Responses include deprecation headers and a sunset date (2026-06-01). Use the GraphQL API at `/graphql` for all new development. You can still check service health at `GET /api/health`.
 
 ---
 

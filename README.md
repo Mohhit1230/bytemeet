@@ -322,7 +322,7 @@ bytemeet/
 
 ### API Playground
 
-GraphiQL (GraphQL playground) is available at `http://localhost:<PORT>/graphql` (defaults to `5000`) when running locally and when `NODE_ENV` is not set to `production`.
+GraphiQL is available at `http://localhost:<PORT>/graphql` (defaults to `5000`) when running locally and when `NODE_ENV` is not set to `production`.
 
 > Note: The REST API endpoints are deprecated and maintained only for backward compatibility. Responses include deprecation headers and a sunset date (2026-06-01). Use the GraphQL API at `/graphql` for all new development. You can still check service health at `GET /api/health`.
 

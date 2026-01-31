@@ -1,8 +1,46 @@
 'use client';
-
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAuth } from '@/providers/AuthProvider';
 import { LoginForm } from '@/components/auth/LoginForm';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user, loading } = useAuth(); // Assuming useAuth provides user and loading state
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  // Handle redirect if already logged in (but not if showing an error)
+  useEffect(() => {
+    // If authenticated and no error param, redirect to dashboard
+    if (user && !loading && !searchParams.get('error')) {
+      const redirect = searchParams.get('redirect') || '/dashboard';
+      router.push(redirect);
+    }
+  }, [user, loading, router, searchParams]);
+
+  // Handle URL errors (e.g., from OAuth callback)
+  useEffect(() => {
+    const errorParam = searchParams.get('error');
+    if (errorParam) {
+      let message = 'Login failed';
+      switch (errorParam) {
+        case 'oauth_failed':
+          message = 'Google Sign-In failed. Please try again.';
+          break;
+        case 'google_oauth_denied':
+          message = 'You cancelled the Google Sign-In.';
+          break;
+        case 'no_email':
+          message = 'No email associated with this Google account.';
+          break;
+        default:
+          message = 'Authentication failed. Please use email/password.';
+      }
+      setLocalError(message);
+    }
+  }, [searchParams]);
+
   return (
     <div className="relative flex min-h-screen items-end justify-center overflow-hidden bg-black/80 lg:items-center">
       {/* Animated background gradient */}

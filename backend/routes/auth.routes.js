@@ -495,15 +495,19 @@ router.get('/google/callback', async (req, res) => {
   try {
     const { code, error } = req.query;
 
+    console.log('[OAuth Debug] Callback received', { code: !!code, error });
+
     if (error) {
-      console.error('Google OAuth error:', error);
+      console.error('[OAuth Debug] Google error:', error);
       return res.redirect(`${CLIENT_URL}/login?error=google_oauth_denied`);
     }
 
     if (!code) {
+      console.error('[OAuth Debug] No code received');
       return res.redirect(`${CLIENT_URL}/login?error=no_code`);
     }
 
+    console.log('[OAuth Debug] Exchanging code for tokens...');
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -519,85 +523,147 @@ router.get('/google/callback', async (req, res) => {
     const tokens = await tokenResponse.json();
 
     if (tokens.error) {
-      console.error('Token exchange error:', tokens.error);
-      return res.redirect(`${CLIENT_URL}/login?error=token_exchange_failed`);
+      console.error('[OAuth Debug] Token exchange error:', tokens.error);
+      return res.redirect(`${CLIENT_URL}/login?error=token_exchange_failed&details=${tokens.error}`);
     }
 
+    console.log('[OAuth Debug] Fetching user info...');
     const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
       headers: { Authorization: `Bearer ${tokens.access_token}` },
     });
 
     const googleUser = await userInfoResponse.json();
+    console.log('[OAuth Debug] User info received:', googleUser.email);
 
     if (!googleUser.email) {
       return res.redirect(`${CLIENT_URL}/login?error=no_email`);
     }
 
+    // Sanitize username: only allow letters, numbers, and underscores
+    const sanitizeUsername = (str) => {
+      let sanitized = str.replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
+      // Ensure min length of 3
+      if (sanitized.length < 3) {
+        sanitized = (sanitized + 'user').substring(0, 10);
+      }
+      return sanitized;
+    };
+
     let user = await User.findByEmail(googleUser.email);
 
     if (!user) {
-      let baseUsername =
-        googleUser.name?.replace(/\s+/g, '').toLowerCase() || googleUser.email.split('@')[0];
+      console.log('[OAuth Debug] Creating new user...');
+      // Create new user
+      let baseUsername = googleUser.name
+        ? sanitizeUsername(googleUser.name)
+        : sanitizeUsername(googleUser.email.split('@')[0]);
+
       let username = baseUsername;
       let counter = 1;
 
+      // Ensure uniqueness
       while (await User.findByUsername(username)) {
         username = `${baseUsername}${counter}`;
         counter++;
       }
 
-      user = new User({
-        email: googleUser.email,
-        username,
-        password: Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16),
-        avatarUrl: googleUser.picture || null,
-        googleId: googleUser.id,
-        isEmailVerified: googleUser.verified_email || false,
-      });
+      // Final length check
+      if (username.length > 30) {
+        username = username.substring(0, 30);
+      }
 
-      await user.save();
-    } else {
-      if (!user.googleId) {
-        user.googleId = googleUser.id;
-        if (!user.avatarUrl && googleUser.picture) {
-          user.avatarUrl = googleUser.picture;
-        }
+      try {
+        user = new User({
+          email: googleUser.email,
+          username,
+          password: Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16),
+          avatarUrl: googleUser.picture || null,
+          googleId: googleUser.id,
+          isEmailVerified: googleUser.verified_email || false,
+        });
+
         await user.save();
+        console.log('[OAuth Debug] User created:', user.username);
+      } catch (saveError) {
+        console.error('[OAuth Debug] User creation validation error:', saveError);
+        // Fallback with a simpler username if complex one fails
+        try {
+          const backupName = `user_${Date.now()}`;
+          user = new User({
+            email: googleUser.email,
+            username: backupName,
+            password: Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16),
+            avatarUrl: googleUser.picture || null,
+            googleId: googleUser.id,
+            isEmailVerified: googleUser.verified_email || false,
+          });
+          await user.save();
+          console.log('[OAuth Debug] Backup user created:', user.username);
+        } catch (backupError) {
+          console.error('[OAuth Debug] Backup user creation failed:', backupError);
+          return res.redirect(`${CLIENT_URL}/login?error=account_creation_failed&reason=${encodeURIComponent(backupError.message)}`);
+        }
+      }
+    } else {
+      console.log('[OAuth Debug] User found:', user.username);
+      // User exists, link Google ID if missing
+      if (!user.googleId) {
+        try {
+          user.googleId = googleUser.id;
+          if (!user.avatarUrl && googleUser.picture) {
+            user.avatarUrl = googleUser.picture;
+          }
+          await user.save();
+          console.log('[OAuth Debug] Linked Google ID');
+        } catch (linkError) {
+          console.error('[OAuth Debug] Failed to link Google account:', linkError);
+          // Continue anyway, just logging the error, as we can still log them in
+        }
       }
     }
 
     // Generate tokens
+    console.log('[OAuth Debug] Generating tokens...');
     const accessToken = generateAccessToken(user._id, user.email, user.username);
     const refreshToken = generateRefreshToken(user._id);
 
-    user.refreshTokens.push({
-      token: refreshToken,
-      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      device: req.headers['user-agent'],
-      ip: req.ip,
-    });
-    await user.save();
+    try {
+      user.refreshTokens.push({
+        token: refreshToken,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        device: req.headers['user-agent'],
+        ip: req.ip,
+      });
+      await user.save();
 
-    await user.updateLastSeen();
+      // Update last seen (safely)
+      user.lastSeen = new Date();
+      user.isOnline = true;
+      await user.save();
+    } catch (tokenError) {
+      console.error('[OAuth Debug] Failed to save user tokens:', tokenError);
+    }
 
     // Cookie options
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Lax for local dev
       path: '/',
     };
 
+    console.log('[OAuth Debug] Setting cookies...');
     res.cookie('accessToken', accessToken, { ...cookieOptions, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie('refreshToken', refreshToken, {
       ...cookieOptions,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
+    console.log('[OAuth Debug] Redirecting to dashboard...');
     res.redirect(`${CLIENT_URL}/dashboard?auth=success`);
   } catch (error) {
-    console.error('Google OAuth callback error:', error);
-    res.redirect(`${CLIENT_URL}/login?error=oauth_failed`);
+    console.error('[OAuth Debug] Callback error detailed:', error);
+    res.redirect(`${CLIENT_URL}/login?error=oauth_failed&details=${encodeURIComponent(error.message)}`);
   }
 });
 

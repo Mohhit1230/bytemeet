@@ -110,10 +110,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           localStorage.removeItem('authToken');
         }
       } else if (cachedUser && !cachedToken) {
-        // Invalid session: user exists but token is missing
-        // Clear the user to force re-login
-        console.warn('Invalid session: user exists but token is missing. Clearing session.');
-        localStorage.removeItem('user');
+        // User exists but token is missing - could be a cookie-based session (Google OAuth)
+        // We defer the decision to clear the session to the GET_ME query result
+        // So we do NOT clear localStorage here
       }
     }
     // Mark as hydrated after loading user
@@ -128,7 +127,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const hasStoredToken =
     isHydrated && typeof window !== 'undefined' && !!localStorage.getItem('authToken');
 
-  // Query for current user - only run if we have a token and are hydrated
+  // Query for current user - run if hydrated (checks both token and cookies)
   const {
     data: meData,
     loading: meLoading,
@@ -136,8 +135,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     error: meError,
   } = useQuery<any>(GET_ME, {
     fetchPolicy: 'cache-and-network',
-    skip: !isHydrated || !hasStoredToken, // Skip until hydrated and token exists
+    skip: !isHydrated, // Always check session on mount (supports cookies)
   });
+
+  // DEBUG: Log Auth State
+  useEffect(() => {
+    console.log('AuthProvider State Change:', {
+      isHydrated,
+      hasUser: !!user,
+      meLoading,
+      meError: meError?.message,
+      hasData: !!meData
+    });
+  }, [isHydrated, user, meLoading, meError, meData]);
 
   // Handle user data updates
   useEffect(() => {
@@ -176,13 +186,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       // Only clear user data on genuine auth errors, not network errors
       if (isAuthError) {
-        const hasToken = typeof window !== 'undefined' && localStorage.getItem('authToken');
-        if (hasToken) {
-          console.warn('Auth token invalid, clearing user session');
-          setUser(null);
-          localStorage.removeItem('user');
-          localStorage.removeItem('authToken');
-        }
+        console.warn('Auth token/cookie invalid, clearing user session');
+        setUser(null);
+        localStorage.removeItem('user');
+        localStorage.removeItem('authToken');
       } else if (networkError) {
         // Network error - don't clear credentials, just log it
         console.warn('Network error while fetching user:', networkError);

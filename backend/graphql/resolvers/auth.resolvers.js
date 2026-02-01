@@ -249,24 +249,7 @@ const authResolvers = {
     return user.username.substring(0, 2).toUpperCase();
   },
 
-  preferences: (user) => {
-    // Handle Mongoose document or plain object
-    const prefs = user.preferences && typeof user.preferences.toObject === 'function'
-      ? user.preferences.toObject()
-      : (user.preferences || {});
-
-    return {
-      ...prefs,
-      // Ensure theme is uppercase for GraphQL Enum (e.g., 'dark' -> 'DARK')
-      theme: (prefs.theme || 'DARK').toUpperCase(),
-      // Ensure specific sub-fields exist to avoid null errors if schema requires !
-      notifications: prefs.notifications || {
-        email: true,
-        push: true,
-        sound: true
-      }
-    };
-  },
+  preferences: (user) => user.preferences,
   connectedProviders: (user) => user.providers || [],
 };
 

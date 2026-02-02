@@ -61,8 +61,8 @@ interface NotificationContextType {
   deleteNotification: (id: string) => Promise<void>;
   refetch: () => void;
   refetchNotifications: () => void;
-  getNotificationIcon: (type: NotificationType) => string;
-  getNotificationColor: (type: NotificationType) => string;
+  getNotificationIcon: (type: NotificationType | string) => string;
+  getNotificationColor: (type: NotificationType | string) => string;
   formatTime: (dateString: string) => string;
 }
 
@@ -70,7 +70,8 @@ interface NotificationContextType {
 // UTILITY FUNCTIONS
 // =============================================================================
 
-function getNotificationIcon(type: NotificationType): string {
+function getNotificationIcon(type: NotificationType | string): string {
+  const normalizedType = (type?.toUpperCase() || 'SYSTEM') as NotificationType;
   const icons: Record<NotificationType, string> = {
     JOIN_REQUEST: '👋',
     REQUEST_APPROVED: '✅',
@@ -80,10 +81,11 @@ function getNotificationIcon(type: NotificationType): string {
     SUBJECT_UPDATE: '📩',
     SYSTEM: '🔔',
   } as any;
-  return icons[type] || '🔔';
+  return icons[normalizedType] || '🔔';
 }
 
-function getNotificationColor(type: NotificationType): string {
+function getNotificationColor(type: NotificationType | string): string {
+  const normalizedType = (type?.toUpperCase() || 'SYSTEM') as NotificationType;
   const colors: Record<NotificationType, string> = {
     JOIN_REQUEST: 'text-blue-400',
     REQUEST_APPROVED: 'text-green-400',
@@ -93,7 +95,7 @@ function getNotificationColor(type: NotificationType): string {
     SUBJECT_UPDATE: 'text-pink-400',
     SYSTEM: 'text-gray-400',
   } as any;
-  return colors[type] || 'text-gray-400';
+  return colors[normalizedType] || 'text-gray-400';
 }
 
 function formatTime(dateString: string): string {

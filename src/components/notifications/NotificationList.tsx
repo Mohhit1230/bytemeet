@@ -13,9 +13,37 @@ import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
 import { useToast } from '@/components/ui/Toast';
 import { useApproveRequestMutation, useRejectRequestMutation } from '@/hooks/queries';
-import type { Notification } from '@/hooks/useNotifications';
 import api from '@/lib/api';
 import { UserAvatar } from '@/components/ui/UserAvatar';
+
+// Local notification interface that works with both hooks and provider notifications
+interface LocalNotification {
+  _id: string;
+  id?: string;
+  type: string; // Flexible to handle both uppercase and lowercase
+  title: string;
+  message: string;
+  isRead: boolean;
+  isActioned?: boolean;
+  userId?: string;
+  createdAt: string;
+  data?: {
+    subjectId?: string;
+    subjectName?: string;
+    requestId?: string;
+    artifactId?: string;
+    messageId?: string;
+    fromUser?: {
+      _id?: string;
+      id?: string;
+      username?: string;
+      email?: string;
+      avatarUrl?: string;
+      avatar_url?: string;
+    } | string;
+    fromUsername?: string;
+  };
+}
 
 interface NotificationListProps {
   isOpen: boolean;
@@ -30,22 +58,22 @@ const NotificationItem = ({
   onDelete,
   isActionPending
 }: {
-  notification: Notification;
-  onClick: (n: Notification) => void;
-  onApprove: (e: React.MouseEvent, n: Notification) => void;
-  onReject: (e: React.MouseEvent, n: Notification) => void;
+  notification: LocalNotification;
+  onClick: (n: LocalNotification) => void;
+  onApprove: (e: React.MouseEvent, n: LocalNotification) => void;
+  onReject: (e: React.MouseEvent, n: LocalNotification) => void;
   onDelete: (e: React.MouseEvent, id: string) => void;
   isActionPending: boolean;
 }) => {
   const { getNotificationColor, getNotificationIcon, formatTime } = useNotificationContext();
 
-  const fromUser = notification.data.fromUser;
+  const fromUser = notification.data?.fromUser;
   const isUserObject = typeof fromUser === 'object' && fromUser !== null;
 
-  let username = isUserObject ? (fromUser as any).username : notification.data.fromUsername;
+  let username = isUserObject ? (fromUser as any).username : notification.data?.fromUsername;
   let avatarUrl = isUserObject ? (fromUser as any).avatarUrl || (fromUser as any).avatar_url : undefined;
 
-  const { subjectId } = notification.data;
+  const subjectId = notification.data?.subjectId;
   const type = notification.type.toLowerCase();
 
   // Logic to fetch detailed user info for Join Requests
@@ -64,7 +92,7 @@ const NotificationItem = ({
 
   if (shouldFetch && pendingMembers && pendingMembers.length > 0) {
     if (username) {
-      const member = pendingMembers.find((m: any) => m.username === username || m.username === notification.data.fromUsername);
+      const member = pendingMembers.find((m: any) => m.username === username || m.username === notification.data?.fromUsername);
       if (member) {
         if (member.avatar_url) avatarUrl = member.avatar_url;
         if (member.username) username = member.username; // Use the one from pending list (correct case/data)
@@ -214,14 +242,14 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
   }, [isOpen, onClose]);
 
   // Handle notification click
-  const handleNotificationClick = (notification: Notification) => {
+  const handleNotificationClick = (notification: LocalNotification) => {
     // Mark as read
     if (!notification.isRead) {
       markAsRead([notification._id]);
     }
 
     // Navigate based on notification type
-    if (notification.data.subjectId) {
+    if (notification.data?.subjectId) {
       router.push(`/subject/${notification.data.subjectId}`);
       onClose();
     }
@@ -234,7 +262,7 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
   };
 
   // Helper to extract User ID with fallback
-  const getUserId = async (notification: Notification) => {
+  const getUserId = async (notification: LocalNotification) => {
     if (!notification.data) return undefined;
 
     // 1. Try direct extraction
@@ -283,15 +311,15 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
   };
 
   // Handle Approve
-  const handleApprove = async (e: React.MouseEvent, notification: Notification) => {
+  const handleApprove = async (e: React.MouseEvent, notification: LocalNotification) => {
     e.stopPropagation();
-    const subjectId = notification.data.subjectId;
+    const subjectId = notification.data?.subjectId;
 
     const userId = await getUserId(notification);
 
     if (!subjectId || !userId) {
       console.error('Missing data for approve:', { subjectId, userId, notification });
-      toastError('Error', `Missing data for ${notification.data.fromUsername || 'unknown'}. Cannot approve.`);
+      toastError('Error', `Missing data for ${notification.data?.fromUsername || 'unknown'}. Cannot approve.`);
       return;
     }
 
@@ -306,15 +334,15 @@ export function NotificationList({ isOpen, onClose }: NotificationListProps) {
   };
 
   // Handle Reject
-  const handleReject = async (e: React.MouseEvent, notification: Notification) => {
+  const handleReject = async (e: React.MouseEvent, notification: LocalNotification) => {
     e.stopPropagation();
-    const subjectId = notification.data.subjectId;
+    const subjectId = notification.data?.subjectId;
 
     const userId = await getUserId(notification);
 
     if (!subjectId || !userId) {
       console.error('Missing data for reject:', { subjectId, userId, notification });
-      toastError('Error', `Missing data for ${notification.data.fromUsername || 'unknown'}. Cannot reject.`);
+      toastError('Error', `Missing data for ${notification.data?.fromUsername || 'unknown'}. Cannot reject.`);
       return;
     }
 

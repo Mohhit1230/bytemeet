@@ -28,7 +28,12 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch subject details to get member avatars
-  const { data: subjectData } = useQuery(GET_SUBJECT, {
+  const { data: subjectData } = useQuery<{
+    subject?: {
+      owner?: { id: string; _id?: string; avatarUrl?: string };
+      members?: Array<{ user?: { id: string; _id?: string; avatarUrl?: string } }>;
+    };
+  }>(GET_SUBJECT, {
     variables: { id: subjectId },
     skip: !subjectId,
     fetchPolicy: 'cache-first'
@@ -39,13 +44,16 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
     if (subjectData?.subject) {
       // Add owner
       if (subjectData.subject.owner) {
-        map.set(subjectData.subject.owner.id, subjectData.subject.owner.avatarUrl);
-        if (subjectData.subject.owner._id) map.set(subjectData.subject.owner._id, subjectData.subject.owner.avatarUrl);
+        const owner = subjectData.subject.owner;
+        if (owner.avatarUrl) {
+          map.set(owner.id, owner.avatarUrl);
+          if (owner._id) map.set(owner._id, owner.avatarUrl);
+        }
       }
       // Add members
       if (subjectData.subject.members) {
-        subjectData.subject.members.forEach((m: any) => {
-          if (m.user) {
+        subjectData.subject.members.forEach((m) => {
+          if (m.user && m.user.avatarUrl) {
             map.set(m.user.id, m.user.avatarUrl);
             if (m.user._id) map.set(m.user._id, m.user.avatarUrl);
           }

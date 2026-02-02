@@ -37,6 +37,12 @@ type SubjectWithRole = Subject & {
     myRole?: string;
     myStatus?: string;
     inviteCode?: string; // GraphQL returns camelCase
+    owner?: {
+        id: string;
+        _id?: string;
+        username?: string;
+        avatarUrl?: string;
+    };
 };
 
 // Settings categories

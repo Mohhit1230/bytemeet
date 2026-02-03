@@ -217,6 +217,15 @@ async function createContext({ token, cookies }) {
     // Get token from cookies or direct param
     let authToken = token;
 
+    // Debug: Log token sources
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('[GraphQL Context] Token sources:', {
+        fromParam: token ? 'present' : 'missing',
+        fromCookie: cookies?.accessToken ? 'present' : 'missing',
+        cookieKeys: cookies ? Object.keys(cookies) : []
+      });
+    }
+
     if (!authToken && cookies?.accessToken) {
       authToken = cookies.accessToken;
     }
@@ -224,20 +233,38 @@ async function createContext({ token, cookies }) {
     if (authToken) {
       const decoded = verifyAccessToken(authToken);
 
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[GraphQL Context] Token decoded:', {
+          hasDecoded: !!decoded,
+          userId: decoded?.userId
+        });
+      }
+
       if (decoded && decoded.userId) {
         // Load user using DataLoader for caching
         const user = await context.loaders.userLoader.load(decoded.userId);
+
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('[GraphQL Context] User lookup:', {
+            found: !!user,
+            isActive: user?.isActive,
+            isBanned: user?.isBanned,
+            username: user?.username
+          });
+        }
 
         if (user && user.isActive && !user.isBanned) {
           context.user = user;
           context.userId = user._id.toString();
         }
       }
+    } else if (process.env.NODE_ENV !== 'production') {
+      console.log('[GraphQL Context] No auth token available');
     }
   } catch (error) {
     // Token verification failed - user remains null
     if (process.env.NODE_ENV !== 'production') {
-      console.log('Auth context error:', error.message);
+      console.log('[GraphQL Context] Auth error:', error.message);
     }
   }
 

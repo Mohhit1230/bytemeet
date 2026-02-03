@@ -257,11 +257,18 @@ router.post('/refresh', async (req, res) => {
 
     const decoded = verifyRefreshToken(refreshToken);
 
+    if (!decoded || !decoded.userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired refresh token',
+      });
+    }
+
     const user = await User.findById(decoded.userId);
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid refresh token',
+        message: 'User not found',
       });
     }
 

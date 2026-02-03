@@ -8,10 +8,11 @@ const { requireAuth } = require('../context');
 
 const authQueries = {
   /**
-   * Get current user
+   * Get current user - returns null if not authenticated
    */
   me: async (_, __, context) => {
-    return requireAuth(context);
+    // Return user or null (don't throw - let frontend handle it)
+    return context.user || null;
   },
 
   /**
@@ -249,8 +250,33 @@ const authResolvers = {
     return user.username.substring(0, 2).toUpperCase();
   },
 
-  preferences: (user) => user.preferences,
-  connectedProviders: (user) => user.providers || [],
+  preferences: (user) => {
+    const defaults = {
+      theme: 'dark',
+      notifications: {
+        email: true,
+        push: true,
+        sound: true,
+      },
+    };
+
+    if (!user.preferences) return defaults;
+
+    return {
+      theme: user.preferences.theme || defaults.theme,
+      notifications: {
+        email: user.preferences.notifications?.email ?? defaults.notifications.email,
+        push: user.preferences.notifications?.push ?? defaults.notifications.push,
+        sound: user.preferences.notifications?.sound ?? defaults.notifications.sound,
+      }
+    };
+  },
+  connectedProviders: (user) => {
+    return (user.providers || []).map(p => ({
+      provider: (p.name || 'GOOGLE').toUpperCase(),
+      providerId: p.providerId || ''
+    }));
+  },
 };
 
 module.exports = {

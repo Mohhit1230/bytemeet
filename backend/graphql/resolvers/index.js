@@ -101,18 +101,47 @@ const resolvers = {
 
     // Relationships (lazy loaded via nested queries)
     ownedSubjects: async (user, _, context) => {
-      const { mySubjects } = await subjectResolvers.queries.mySubjects(_, _, context);
-      return mySubjects?.owned || [];
+      try {
+        const result = await subjectResolvers.queries.mySubjects(null, {}, context);
+        return result?.owned || [];
+      } catch (e) {
+        console.error('Error fetching ownedSubjects:', e.message);
+        return [];
+      }
     },
     joinedSubjects: async (user, _, context) => {
-      const { mySubjects } = await subjectResolvers.queries.mySubjects(_, _, context);
-      return mySubjects?.joined || [];
+      try {
+        const result = await subjectResolvers.queries.mySubjects(null, {}, context);
+        return result?.joined || [];
+      } catch (e) {
+        console.error('Error fetching joinedSubjects:', e.message);
+        return [];
+      }
     },
-    notifications: async (user, { filter }, context) => {
-      return notificationResolvers.queries.notifications(_, { filter }, context);
+    pendingSubjects: async (user, _, context) => {
+      try {
+        const result = await subjectResolvers.queries.mySubjects(null, {}, context);
+        return result?.pending || [];
+      } catch (e) {
+        console.error('Error fetching pendingSubjects:', e.message);
+        return [];
+      }
+    },
+    notifications: async (user, args, context) => {
+      try {
+        return await notificationResolvers.queries.notifications(null, args, context);
+      } catch (e) {
+        console.error('Error fetching notifications:', e.message);
+        return { nodes: [], totalCount: 0, unreadCount: 0, hasMore: false };
+      }
     },
     unreadNotificationCount: async (user, _, context) => {
-      return notificationResolvers.queries.unreadNotificationCount(_, _, context);
+      try {
+        return await notificationResolvers.queries.unreadNotificationCount(null, {}, context);
+      } catch (e) {
+        console.error('Error fetching unreadNotificationCount:', e.message);
+        return 0;
+      }
     },
   },
 

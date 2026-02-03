@@ -22,15 +22,20 @@ export function GraphQLProvider({ children }: GraphQLProviderProps) {
     });
 
     // Auth Link - reads token from localStorage and adds to headers
+    // For OAuth, token is in HTTP-only cookie (sent via credentials: 'include')
     const authLink = setContext((_, { headers }) => {
       // Get the authentication token from localStorage if it exists
       const token = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+      // Don't send Bearer header if token is 'cookie-based' (OAuth marker)
+      // The actual token is in the HTTP-only cookie sent automatically
+      const shouldSendToken = token && token !== 'cookie-based';
 
       // Return the headers to the context so httpLink can read them
       return {
         headers: {
           ...headers,
-          authorization: token ? `Bearer ${token}` : '',
+          ...(shouldSendToken ? { authorization: `Bearer ${token}` } : {}),
         },
       };
     });

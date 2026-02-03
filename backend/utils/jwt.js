@@ -10,10 +10,9 @@ const REFRESH_TOKEN_EXPIRES_IN = '30d';
 function generateAccessToken(userId, email, username) {
   return jwt.sign(
     {
-      userId,
+      userId: userId.toString(),
       email,
       username,
-      type: 'access',
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
@@ -26,8 +25,7 @@ function generateAccessToken(userId, email, username) {
 function generateRefreshToken(userId) {
   return jwt.sign(
     {
-      userId,
-      type: 'refresh',
+      userId: userId.toString(),
     },
     JWT_SECRET,
     { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
@@ -35,36 +33,26 @@ function generateRefreshToken(userId) {
 }
 
 /**
- * Verify access token
+ * Verify access token - returns decoded payload or null
  */
 function verifyAccessToken(token) {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    if (decoded.type !== 'access') {
-      throw new Error('Invalid token type');
-    }
-
-    return decoded;
+    return jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    throw new Error('Invalid or expired token');
+    console.log('[JWT] Token verification failed:', error.message);
+    return null;
   }
 }
 
 /**
- * Verify refresh token
+ * Verify refresh token - returns decoded payload or null
  */
 function verifyRefreshToken(token) {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    if (decoded.type !== 'refresh') {
-      throw new Error('Invalid token type');
-    }
-
-    return decoded;
+    return jwt.verify(token, JWT_SECRET);
   } catch (error) {
-    throw new Error('Invalid or expired refresh token');
+    console.log('[JWT] Refresh token verification failed:', error.message);
+    return null;
   }
 }
 

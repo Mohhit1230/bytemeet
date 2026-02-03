@@ -86,6 +86,8 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  console.log('[AuthProvider] RENDER START - v2'); // Version marker to confirm new code
+
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -124,32 +126,68 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // GRAPHQL OPERATIONS
   // =============================================================================
 
-  // Check if we have a token stored (only after hydration)
+  // Track if we should attempt to fetch user
+  // We fetch if:
+  // 1. We have a stored token in localStorage (regular login)
+  // 2. OR we're on initial load and haven't tried yet (covers OAuth with cookie-based auth)
+  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
+
   const hasStoredToken =
     isHydrated && typeof window !== 'undefined' && !!localStorage.getItem('authToken');
 
-  // Query for current user - only run if we have a token and are hydrated
+  // Always try to fetch on first hydrated render, OR if we have a token
+  // This handles OAuth where token is in HTTP-only cookies (not localStorage)
+  const shouldFetchUser = isHydrated && (!hasAttemptedFetch || hasStoredToken);
+
+  console.log('[AuthProvider] Query decision:', {
+    isHydrated,
+    hasStoredToken,
+    hasAttemptedFetch,
+    shouldFetchUser,
+  });
+
+  // Query for current user
   const {
     data: meData,
     loading: meLoading,
     refetch: refetchMe,
     error: meError,
   } = useQuery<any>(GET_ME, {
-    fetchPolicy: 'cache-and-network',
-    skip: !isHydrated || !hasStoredToken, // Skip until hydrated and token exists
+    fetchPolicy: 'network-only',
+    skip: !shouldFetchUser,
   });
+
+  // Mark that we've attempted fetch after query completes or errors
+  useEffect(() => {
+    if (isHydrated && !hasAttemptedFetch && !meLoading && (meData !== undefined || meError)) {
+      console.log('[AuthProvider] Fetch attempt complete:', { hasData: !!meData?.me, hasError: !!meError });
+      setHasAttemptedFetch(true);
+    }
+  }, [isHydrated, hasAttemptedFetch, meLoading, meData, meError]);
 
   // Handle user data updates
   useEffect(() => {
+    console.log('[AuthProvider] meData effect:', {
+      hasMeData: !!meData,
+      hasMe: !!meData?.me,
+      meLoading,
+      meError: meError?.message
+    });
+
     if (meData?.me) {
+      console.log('[AuthProvider] User data received:', meData.me.username);
       const userData = normalizeUser(meData.me);
       setUser(userData);
-      // Store in localStorage for persistence
+      // If we got user data via cookies (OAuth), store marker in localStorage
+      if (typeof window !== 'undefined' && !localStorage.getItem('authToken')) {
+        localStorage.setItem('authToken', 'cookie-based');
+      }
+      // Store user in localStorage for persistence
       if (typeof window !== 'undefined') {
         localStorage.setItem('user', JSON.stringify(userData));
       }
     }
-  }, [meData]);
+  }, [meData, meLoading, meError]);
 
   // Handle auth errors - only clear on genuine authentication failures
   useEffect(() => {
@@ -189,16 +227,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     }
   }, [meError]);
-
   // Mutations
   const [loginMutation, { loading: loginLoading }] = useMutation<any>(LOGIN);
   const [registerMutation, { loading: registerLoading }] = useMutation<any>(REGISTER);
   const [logoutMutation] = useMutation<any>(LOGOUT);
   const [updateProfileMutation, { loading: updateLoading }] = useMutation<any>(UPDATE_PROFILE);
 
-  // Combined loading state - include hydration check
-  // We're "loading" if not hydrated yet OR if any mutation/query is loading
-  const loading = !isHydrated || meLoading || loginLoading || registerLoading || updateLoading;
+  // Combined loading state
+  // We're "loading" if:
+  // - Not hydrated yet
+  // - We're fetching user (either first attempt or has token) and haven't completed
+  // - Any mutation is loading
+  const pendingInitialFetch = isHydrated && !hasAttemptedFetch;
+  const loading = !isHydrated || pendingInitialFetch || meLoading || loginLoading || registerLoading || updateLoading;
+
+  console.log('[AuthProvider] Loading state:', {
+    isHydrated,
+    hasAttemptedFetch,
+    pendingInitialFetch,
+    meLoading,
+    loading,
+    hasUser: !!user
+  });
 
   // =============================================================================
   // HELPERS

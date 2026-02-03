@@ -18,6 +18,13 @@ async function authenticate(req, res, next) {
 
     const decoded = verifyAccessToken(token);
 
+    if (!decoded || !decoded.userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired token',
+      });
+    }
+
     const user = await User.findById(decoded.userId).select('-password');
 
     if (!user) {

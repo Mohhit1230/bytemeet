@@ -319,6 +319,7 @@ bytemeet/
 | :--------------------------------------- | :----------------------------- |
 | [GraphQL API](./docs/graphql-api.md)     | Complete API reference         |
 | [Endpoint Flow](./docs/endpoint-flow.md) | Request/response documentation |
+| [Repo Parts](./docs/repo-parts.md)       | Frontend vs backend map        |
 
 ### API Playground
 

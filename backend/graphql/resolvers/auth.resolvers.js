@@ -252,7 +252,7 @@ const authResolvers = {
 
   preferences: (user) => {
     const defaults = {
-      theme: 'dark',
+      theme: 'DARK',
       notifications: {
         email: true,
         push: true,
@@ -262,8 +262,11 @@ const authResolvers = {
 
     if (!user.preferences) return defaults;
 
+    // Convert theme to uppercase to match GraphQL enum (LIGHT, DARK, SYSTEM)
+    const theme = (user.preferences.theme || 'DARK').toUpperCase();
+
     return {
-      theme: user.preferences.theme || defaults.theme,
+      theme: theme,
       notifications: {
         email: user.preferences.notifications?.email ?? defaults.notifications.email,
         push: user.preferences.notifications?.push ?? defaults.notifications.push,

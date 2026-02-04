@@ -4,13 +4,15 @@
  * Manages user authentication state using GraphQL.
  * Provides login, register, logout, and user session management.
  *
- * This replaces the REST-based AuthProvider for the GraphQL migration.
+ * Supports both:
+ * - Standard login (token in localStorage + Bearer header)
+ * - OAuth login (token in HTTP-only cookies)
  */
 
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react';
 import {
   GET_ME,
@@ -28,7 +30,7 @@ import {
 
 interface User {
   id: string;
-  _id?: string; // For backward compatibility
+  _id?: string;
   email: string;
   username: string;
   avatarUrl?: string;
@@ -47,6 +49,14 @@ interface User {
       sound: boolean;
     };
   };
+}
+
+interface AuthPayload {
+  success: boolean;
+  message: string;
+  token?: string;
+  refreshToken?: string;
+  user?: Record<string, unknown>;
 }
 
 interface AuthContextType {
@@ -86,181 +96,24 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  console.log('[AuthProvider] RENDER START - v2'); // Version marker to confirm new code
-
   const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [hasAttemptedInitialFetch, setHasAttemptedInitialFetch] = useState(false);
+  const urlCleanedRef = useRef(false);
+
   const router = useRouter();
+  const searchParams = useSearchParams();
   const client = useApolloClient();
-
-  // Track hydration state and load user from localStorage
-  // This runs once on mount, loading cached user BEFORE isHydrated becomes true
-  useEffect(() => {
-    // Load cached user from localStorage for faster initial render
-    if (typeof window !== 'undefined') {
-      const cachedUser = localStorage.getItem('user');
-      const cachedToken = localStorage.getItem('authToken');
-
-      // Only load user if BOTH user and token exist
-      // If user exists but token is missing, it's an invalid session
-      if (cachedUser && cachedToken) {
-        try {
-          setUser(JSON.parse(cachedUser));
-        } catch {
-          localStorage.removeItem('user');
-          localStorage.removeItem('authToken');
-        }
-      } else if (cachedUser && !cachedToken) {
-        // Invalid session: user exists but token is missing
-        // Clear the user to force re-login
-        console.warn('Invalid session: user exists but token is missing. Clearing session.');
-        localStorage.removeItem('user');
-      }
-    }
-    // Mark as hydrated after loading user
-    setIsHydrated(true);
-  }, []);
-
-  // =============================================================================
-  // GRAPHQL OPERATIONS
-  // =============================================================================
-
-  // Track if we should attempt to fetch user
-  // We fetch if:
-  // 1. We have a stored token in localStorage (regular login)
-  // 2. OR we're on initial load and haven't tried yet (covers OAuth with cookie-based auth)
-  const [hasAttemptedFetch, setHasAttemptedFetch] = useState(false);
-
-  const hasStoredToken =
-    isHydrated && typeof window !== 'undefined' && !!localStorage.getItem('authToken');
-
-  // Always try to fetch on first hydrated render, OR if we have a token
-  // This handles OAuth where token is in HTTP-only cookies (not localStorage)
-  const shouldFetchUser = isHydrated && (!hasAttemptedFetch || hasStoredToken);
-
-  console.log('[AuthProvider] Query decision:', {
-    isHydrated,
-    hasStoredToken,
-    hasAttemptedFetch,
-    shouldFetchUser,
-  });
-
-  // Query for current user
-  const {
-    data: meData,
-    loading: meLoading,
-    refetch: refetchMe,
-    error: meError,
-  } = useQuery<any>(GET_ME, {
-    fetchPolicy: 'network-only',
-    skip: !shouldFetchUser,
-  });
-
-  // Mark that we've attempted fetch after query completes or errors
-  useEffect(() => {
-    if (isHydrated && !hasAttemptedFetch && !meLoading && (meData !== undefined || meError)) {
-      console.log('[AuthProvider] Fetch attempt complete:', { hasData: !!meData?.me, hasError: !!meError });
-      setHasAttemptedFetch(true);
-    }
-  }, [isHydrated, hasAttemptedFetch, meLoading, meData, meError]);
-
-  // Handle user data updates
-  useEffect(() => {
-    console.log('[AuthProvider] meData effect:', {
-      hasMeData: !!meData,
-      hasMe: !!meData?.me,
-      meLoading,
-      meError: meError?.message
-    });
-
-    if (meData?.me) {
-      console.log('[AuthProvider] User data received:', meData.me.username);
-      const userData = normalizeUser(meData.me);
-      setUser(userData);
-      // If we got user data via cookies (OAuth), store marker in localStorage
-      if (typeof window !== 'undefined' && !localStorage.getItem('authToken')) {
-        localStorage.setItem('authToken', 'cookie-based');
-      }
-      // Store user in localStorage for persistence
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(userData));
-      }
-    }
-  }, [meData, meLoading, meError]);
-
-  // Handle auth errors - only clear on genuine authentication failures
-  useEffect(() => {
-    if (meError) {
-      // Access error properties safely (Apollo Client 4.0 changed error structure)
-      const errorObj = meError as any;
-      const errorMessage = (errorObj.message || '').toLowerCase();
-      const graphQLErrors = errorObj.graphQLErrors as
-        | Array<{ extensions?: { code?: string }; message?: string }>
-        | undefined;
-      const networkError = errorObj.networkError;
-
-      // Check if this is an authentication error (token expired/invalid)
-      const isAuthError =
-        errorMessage.includes('not authenticated') ||
-        errorMessage.includes('jwt expired') ||
-        errorMessage.includes('invalid token') ||
-        errorMessage.includes('unauthenticated') ||
-        errorMessage.includes('forbidden') ||
-        graphQLErrors?.some(
-          (err) =>
-            err.extensions?.code === 'UNAUTHENTICATED' || err.extensions?.code === 'FORBIDDEN'
-        );
-
-      // Only clear user data on genuine auth errors, not network errors
-      if (isAuthError) {
-        const hasToken = typeof window !== 'undefined' && localStorage.getItem('authToken');
-        if (hasToken) {
-          console.warn('Auth token invalid, clearing user session');
-          setUser(null);
-          localStorage.removeItem('user');
-          localStorage.removeItem('authToken');
-        }
-      } else if (networkError) {
-        // Network error - don't clear credentials, just log it
-        console.warn('Network error while fetching user:', networkError);
-      }
-    }
-  }, [meError]);
-  // Mutations
-  const [loginMutation, { loading: loginLoading }] = useMutation<any>(LOGIN);
-  const [registerMutation, { loading: registerLoading }] = useMutation<any>(REGISTER);
-  const [logoutMutation] = useMutation<any>(LOGOUT);
-  const [updateProfileMutation, { loading: updateLoading }] = useMutation<any>(UPDATE_PROFILE);
-
-  // Combined loading state
-  // We're "loading" if:
-  // - Not hydrated yet
-  // - We're fetching user (either first attempt or has token) and haven't completed
-  // - Any mutation is loading
-  const pendingInitialFetch = isHydrated && !hasAttemptedFetch;
-  const loading = !isHydrated || pendingInitialFetch || meLoading || loginLoading || registerLoading || updateLoading;
-
-  console.log('[AuthProvider] Loading state:', {
-    isHydrated,
-    hasAttemptedFetch,
-    pendingInitialFetch,
-    meLoading,
-    loading,
-    hasUser: !!user
-  });
 
   // =============================================================================
   // HELPERS
   // =============================================================================
 
-  /**
-   * Normalize user data for backward compatibility
-   */
   function normalizeUser(graphqlUser: Record<string, unknown>): User {
     return {
       id: graphqlUser.id as string,
-      _id: graphqlUser.id as string, // Backward compatibility
+      _id: graphqlUser.id as string,
       email: graphqlUser.email as string,
       username: graphqlUser.username as string,
       avatarUrl: graphqlUser.avatarUrl as string | undefined,
@@ -274,13 +127,171 @@ export function AuthProvider({ children }: AuthProviderProps) {
     };
   }
 
+  function persistUser(userData: User, authToken?: string) {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem('user', JSON.stringify(userData));
+    if (authToken) {
+      localStorage.setItem('authToken', authToken);
+    }
+  }
+
+  function clearPersistedUser() {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem('user');
+    localStorage.removeItem('authToken');
+  }
+
+  function cleanOAuthUrl() {
+    if (typeof window === 'undefined' || urlCleanedRef.current) return;
+
+    const url = new URL(window.location.href);
+    if (url.searchParams.has('auth') || url.searchParams.has('error') || url.searchParams.has('token')) {
+      url.searchParams.delete('auth');
+      url.searchParams.delete('error');
+      url.searchParams.delete('token');
+      urlCleanedRef.current = true;
+      window.history.replaceState({}, '', url.pathname + (url.search || ''));
+    }
+  }
+
+  // =============================================================================
+  // HYDRATION
+  // =============================================================================
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    console.log('[AuthProvider] Hydrating...');
+
+    // Check for OAuth callback params
+    const authParam = searchParams?.get('auth');
+    const errorParam = searchParams?.get('error');
+    const tokenParam = searchParams?.get('token');
+
+    if (authParam === 'success') {
+      console.log('[AuthProvider] OAuth success detected');
+
+      // If token is in URL (hybrid approach for localhost), store it
+      if (tokenParam) {
+        console.log('[AuthProvider] Token found in URL, storing in localStorage');
+        localStorage.setItem('authToken', tokenParam);
+      } else {
+        // Fall back to cookie-based marker
+        console.log('[AuthProvider] Using cookie-based auth');
+        localStorage.setItem('authToken', 'cookie-based');
+      }
+    } else if (errorParam) {
+      const errorMessages: Record<string, string> = {
+        'google_oauth_denied': 'Google sign-in was cancelled',
+        'no_code': 'Authentication failed - no authorization code received',
+        'token_exchange_failed': 'Failed to complete Google sign-in',
+        'no_email': 'Could not retrieve email from Google account',
+        'oauth_failed': 'Google sign-in failed. Please try again.',
+        'oauth_misconfigured': 'OAuth is not configured properly.',
+        'account_banned': 'Your account has been suspended.',
+        'account_deactivated': 'Your account has been deactivated.',
+      };
+      setError(errorMessages[errorParam] || 'Authentication failed');
+      cleanOAuthUrl();
+    }
+
+    // Load cached user for faster initial render
+    const cachedUser = localStorage.getItem('user');
+    const cachedToken = localStorage.getItem('authToken');
+
+    if (cachedUser && cachedToken) {
+      try {
+        const parsedUser = JSON.parse(cachedUser);
+        setUser(parsedUser);
+        console.log('[AuthProvider] Loaded cached user:', parsedUser.username);
+      } catch {
+        clearPersistedUser();
+      }
+    }
+
+    setIsHydrated(true);
+  }, [searchParams]);
+
+  // =============================================================================
+  // USER QUERY - ALWAYS TRY ON FIRST LOAD
+  // =============================================================================
+
+  const shouldFetchUser = isHydrated && !hasAttemptedInitialFetch;
+
+  console.log('[AuthProvider] Query decision:', {
+    isHydrated,
+    hasAttemptedInitialFetch,
+    shouldFetchUser
+  });
+
+  const {
+    data: meData,
+    loading: meLoading,
+    refetch: refetchMe,
+    error: meError,
+  } = useQuery<{ me: Record<string, unknown> | null }>(GET_ME, {
+    fetchPolicy: 'network-only',
+    skip: !shouldFetchUser,
+  });
+
+  // Mark initial fetch as attempted when query completes
+  useEffect(() => {
+    if (isHydrated && !hasAttemptedInitialFetch && !meLoading) {
+      console.log('[AuthProvider] Initial fetch completed');
+      setHasAttemptedInitialFetch(true);
+      cleanOAuthUrl();
+    }
+  }, [isHydrated, hasAttemptedInitialFetch, meLoading]);
+
+  // Handle successful user fetch
+  useEffect(() => {
+    if (meData?.me) {
+      console.log('[AuthProvider] User data received:', (meData.me as { username: string }).username);
+      const userData = normalizeUser(meData.me);
+      setUser(userData);
+
+      const storedToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+      if (!storedToken) {
+        persistUser(userData, 'cookie-based');
+      } else {
+        persistUser(userData);
+      }
+    }
+  }, [meData]);
+
+  // Handle auth errors
+  useEffect(() => {
+    if (meError) {
+      console.log('[AuthProvider] Query error:', meError.message);
+
+      const errorMessage = meError.message.toLowerCase();
+      const isAuthError =
+        errorMessage.includes('not authenticated') ||
+        errorMessage.includes('jwt expired') ||
+        errorMessage.includes('invalid token') ||
+        errorMessage.includes('unauthenticated');
+
+      if (isAuthError) {
+        console.warn('[AuthProvider] Auth error, clearing session');
+        setUser(null);
+        clearPersistedUser();
+      }
+    }
+  }, [meError]);
+
+  // =============================================================================
+  // MUTATIONS
+  // =============================================================================
+
+  const [loginMutation, { loading: loginLoading }] = useMutation<{ login: AuthPayload }>(LOGIN);
+  const [registerMutation, { loading: registerLoading }] = useMutation<{ register: AuthPayload }>(REGISTER);
+  const [logoutMutation] = useMutation<{ logout: { success: boolean; message: string } }>(LOGOUT);
+  const [updateProfileMutation, { loading: updateLoading }] = useMutation<{ updateProfile: Record<string, unknown> }>(UPDATE_PROFILE);
+
   // =============================================================================
   // AUTH METHODS
   // =============================================================================
 
-  /**
-   * Login user
-   */
   const login = useCallback(
     async (email: string, password: string) => {
       try {
@@ -290,20 +301,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
           variables: { input: { email, password } },
         });
 
-        if (data?.login?.success) {
+        if (data?.login?.success && data.login.user) {
           const userData = normalizeUser(data.login.user);
           setUser(userData);
-
-          // Store user and auth token in localStorage
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('user', JSON.stringify(userData));
-            // Store the JWT token for subsequent GraphQL requests
-            if (data.login.token) {
-              localStorage.setItem('authToken', data.login.token);
-            }
-          }
-
-          // Redirect to dashboard
+          persistUser(userData, data.login.token);
           router.push('/dashboard');
         } else {
           const message = data?.login?.message || 'Login failed';
@@ -320,9 +321,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [loginMutation, router]
   );
 
-  /**
-   * Register new user
-   */
   const register = useCallback(
     async (email: string, username: string, password: string) => {
       try {
@@ -332,20 +330,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
           variables: { input: { email, username, password } },
         });
 
-        if (data?.register?.success) {
+        if (data?.register?.success && data.register.user) {
           const userData = normalizeUser(data.register.user);
           setUser(userData);
-
-          // Store user and auth token in localStorage
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('user', JSON.stringify(userData));
-            // Store the JWT token for subsequent GraphQL requests
-            if (data.register.token) {
-              localStorage.setItem('authToken', data.register.token);
-            }
-          }
-
-          // Redirect to dashboard
+          persistUser(userData, data.register.token);
           router.push('/dashboard');
         } else {
           const message = data?.register?.message || 'Registration failed';
@@ -362,35 +350,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [registerMutation, router]
   );
 
-  /**
-   * Logout user
-   */
   const logout = useCallback(async () => {
     try {
       await logoutMutation();
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
-      // Clear Apollo cache
       await client.clearStore();
-
-      // Clear local state
       setUser(null);
-
-      // Clear localStorage including auth token
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('user');
-        localStorage.removeItem('authToken');
-      }
-
-      // Redirect to login
+      clearPersistedUser();
       router.push('/login');
     }
   }, [logoutMutation, client, router]);
 
-  /**
-   * Refresh user data
-   */
   const refreshUser = useCallback(async () => {
     try {
       const { data } = await refetchMe();
@@ -398,23 +370,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (data?.me) {
         const userData = normalizeUser(data.me);
         setUser(userData);
-
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('user', JSON.stringify(userData));
-        }
+        persistUser(userData);
       }
     } catch (err) {
       console.error('Failed to refresh user:', err);
     }
   }, [refetchMe]);
 
-  /**
-   * Check if username is available
-   */
   const checkUsernameAvailability = useCallback(
     async (username: string): Promise<boolean> => {
       try {
-        const { data } = await client.query<any>({
+        const { data } = await client.query<{ checkUsername: { available: boolean } }>({
           query: CHECK_USERNAME,
           variables: { username },
           fetchPolicy: 'network-only',
@@ -428,13 +394,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [client]
   );
 
-  /**
-   * Check if email is available
-   */
   const checkEmailAvailability = useCallback(
     async (email: string): Promise<boolean> => {
       try {
-        const { data } = await client.query<any>({
+        const { data } = await client.query<{ checkEmail: { available: boolean } }>({
           query: CHECK_EMAIL,
           variables: { email },
           fetchPolicy: 'network-only',
@@ -448,9 +411,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [client]
   );
 
-  /**
-   * Update user profile
-   */
   const updateProfile = useCallback(
     async (
       data: Partial<{
@@ -472,11 +432,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (response?.updateProfile) {
           const userData = normalizeUser(response.updateProfile);
           setUser(userData);
-
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('user', JSON.stringify(userData));
-          }
-
+          persistUser(userData);
           return userData;
         }
 
@@ -490,6 +446,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
     },
     [updateProfileMutation]
   );
+
+  // =============================================================================
+  // LOADING STATE
+  // =============================================================================
+
+  const loading = !isHydrated || (shouldFetchUser && meLoading) || loginLoading || registerLoading || updateLoading;
+
+  console.log('[AuthProvider] State:', {
+    isHydrated,
+    hasAttemptedInitialFetch,
+    meLoading,
+    loading,
+    hasUser: !!user,
+  });
 
   // =============================================================================
   // CONTEXT VALUE
@@ -515,9 +485,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
 // HOOK
 // =============================================================================
 
-/**
- * Hook to access auth context
- */
 export function useAuth() {
   const context = useContext(AuthContext);
 

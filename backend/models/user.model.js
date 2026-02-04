@@ -289,7 +289,7 @@ userSchema.pre('save', async function () {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
-userSchema.pre('save', function (next) {
+userSchema.pre('save', async function () {
   if (this.isModified('email')) {
     this.email = this.email.toLowerCase();
   }

@@ -1,8 +1,54 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { RegisterForm } from '@/components/auth/RegisterForm';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function RegisterPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  // Redirect to dashboard if already authenticated
+  useEffect(() => {
+    if (!loading && user) {
+      console.log('[RegisterPage] User authenticated, redirecting to dashboard');
+      router.replace('/dashboard');
+    }
+  }, [user, loading, router]);
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-black/80">
+        <div className="flex flex-col items-center gap-4">
+          <svg className="h-8 w-8 animate-spin text-white" viewBox="0 0 24 24">
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+              fill="none"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+          <span className="text-gray-400">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't render register form if user is authenticated (will redirect)
+  if (user) {
+    return null;
+  }
+
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-black/70 pt-32 pb-6 md:pt-24 lg:pt-8">
       {/* Animated background gradient */}

@@ -98,7 +98,7 @@ export default function JoinPage() {
 
   return (
     <ProtectedRoute>
-      <div className="flex min-h-screen items-center justify-center bg-[#101010] p-4">
+      <div className="flex min-h-screen items-center justify-center bg-bg-400 p-4">
         <nav className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-6 md:px-12">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -143,7 +143,7 @@ export default function JoinPage() {
               <span>Back to Dashboard</span>
             </button>
           </div>
-          <div className="border-bg-200 mt-8 rounded-2xl border bg-[#191919] p-8 shadow-2xl">
+          <div className="border-bg-200 mt-8 rounded-2xl border bg-bg-300 p-8 shadow-2xl">
             {/* Icon */}
             <div className="mb-6 flex justify-center">
               <div className="from-accent-light to-accent flex h-16 w-16 items-center justify-center rounded-full bg-linear-to-br">

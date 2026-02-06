@@ -63,7 +63,7 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
         className={`relative rounded-full border border-white/5 p-2 transition-all ${
           isOpen
             ? 'bg-accent/20 text-accent'
-            : 'hover:bg-bg-200 bg-[#19191c] text-gray-400 hover:text-white'
+            : 'hover:bg-bg-200 bg-bg-200 text-gray-400 hover:text-white'
         }`}
         title="Notifications"
         aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
@@ -101,3 +101,4 @@ export function NotificationBell({ className = '' }: NotificationBellProps) {
 }
 
 export default NotificationBell;
+

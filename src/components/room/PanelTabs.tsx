@@ -108,7 +108,7 @@ export default function PanelTabs({ activeTab, tabs, onTabChange }: PanelTabsPro
   }, []);
 
   return (
-    <div ref={containerRef} className="relative border-b border-white/4 bg-[#0c0c0e] px-3 py-2">
+    <div ref={containerRef} className="relative border-b border-white/4 bg-bg-500 px-3 py-2">
       <div className="relative flex gap-1">
         {/* Animated active indicator */}
         <div
@@ -158,3 +158,4 @@ export default function PanelTabs({ activeTab, tabs, onTabChange }: PanelTabsPro
     </div>
   );
 }
+

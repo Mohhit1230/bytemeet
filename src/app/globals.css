@@ -2,24 +2,24 @@
 
 @theme {
   --color-accent: #e94d37;
-  --color-accent-light: #f06b58;
-  --color-accent-dark: #d44330;
+  --color-accent-light: #ff6d57;
+  --color-accent-dark: #c33a2a;
 
-  --color-accent-secondary: #155dfc;
-  --color-accent-secondary-light: #7cb3ff;
-  --color-accent-secondary-dark: #4a8cef;
+  --color-accent-secondary: #3b6ef5;
+  --color-accent-secondary-light: #7da3ff;
+  --color-accent-secondary-dark: #2b54c7;
 
-  --color-bg-100: #262624;
-  --color-bg-200: #30302e;
-  --color-bg-300: #212121;
-  --color-bg-400: #181818;
-  --color-bg-500: #131314;
-  --color-bg-600: #1e1f20;
+  --color-bg-100: #2a2f38;
+  --color-bg-200: #232830;
+  --color-bg-300: #1c222b;
+  --color-bg-400: #161b22;
+  --color-bg-500: #10141a;
+  --color-bg-600: #1f2530;
 }
 
 :root {
-  --background: #131314;
-  --foreground: #ffffff;
+  --background: #10141a;
+  --foreground: #f2f5f9;
   --font-primary: var(--font-montserrat), ui-sans-serif, system-ui;
   --font-ui: var(--font-quicksand), ui-sans-serif, system-ui;
 }
@@ -86,7 +86,7 @@ nav {
 
 /* Selection color */
 ::selection {
-  background-color: #026645;
+  background-color: #2b54c7;
   color: white;
 }
 

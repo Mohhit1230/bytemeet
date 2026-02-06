@@ -101,7 +101,7 @@ export function ArtifactCard({
     switch (artifact.type) {
       case 'code':
         return (
-          <div className="h-24 overflow-hidden rounded bg-[#0d0d0d] p-2 font-mono text-xs text-gray-400">
+          <div className="h-24 overflow-hidden rounded bg-bg-500 p-2 font-mono text-xs text-gray-400">
             <pre className="wrap-break-word whitespace-pre-wrap">
               {artifact.content?.slice(0, 200)}
               {(artifact.content?.length || 0) > 200 && '...'}
@@ -139,7 +139,7 @@ export function ArtifactCard({
         );
       default:
         return (
-          <div className="flex h-24 items-center justify-center rounded bg-[#1a1a1b]">
+          <div className="flex h-24 items-center justify-center rounded bg-bg-200">
             <span className="text-4xl">{typeIcons[artifact.type] || '📁'}</span>
           </div>
         );
@@ -369,3 +369,4 @@ export function ArtifactCard({
 }
 
 export default ArtifactCard;
+

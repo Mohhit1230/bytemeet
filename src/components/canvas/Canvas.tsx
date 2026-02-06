@@ -106,10 +106,10 @@ export function Canvas({ subjectId }: CanvasProps) {
   };
 
   return (
-    <div className="flex h-full flex-col bg-[#0f0f12] text-white">
+    <div className="flex h-full flex-col bg-bg-400 text-white">
       {/* Canvas Header */}
       <div className="shrink-0 pb-2">
-        <div className="rounded-2xl border border-white/5 bg-[#131316] p-2 px-4 shadow-xl">
+        <div className="rounded-2xl border border-white/5 bg-bg-300 p-2 px-4 shadow-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500">
@@ -255,7 +255,7 @@ export function Canvas({ subjectId }: CanvasProps) {
                     <div
                       key={file._id}
                       onClick={() => openViewer(file)}
-                      className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-[#131316] transition-all hover:border-white/20"
+                      className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-bg-300 transition-all hover:border-white/20"
                     >
                       <div className="relative flex aspect-video items-center justify-center bg-black/50">
                         {file.fileUrl ? (
@@ -334,9 +334,9 @@ export function Canvas({ subjectId }: CanvasProps) {
                     <div
                       key={file._id}
                       onClick={() => openViewer(file)}
-                      className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-[#131316] transition-all hover:border-white/20"
+                      className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-bg-300 transition-all hover:border-white/20"
                     >
-                      <div className="relative h-32 overflow-hidden bg-[#1a1a1e]">
+                      <div className="relative h-32 overflow-hidden bg-bg-200">
                         {file.fileUrl ? (
                           <>
                             <iframe
@@ -436,9 +436,9 @@ export function Canvas({ subjectId }: CanvasProps) {
                     <div
                       key={file._id}
                       onClick={() => openViewer(file)}
-                      className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-[#131316] transition-all hover:border-white/20"
+                      className="group cursor-pointer overflow-hidden rounded-xl border border-white/10 bg-bg-300 transition-all hover:border-white/20"
                     >
-                      <div className="h-24 overflow-hidden bg-[#0d0d0f] p-4 font-mono text-xs text-gray-400">
+                      <div className="h-24 overflow-hidden bg-bg-500 p-4 font-mono text-xs text-gray-400">
                         {file.content?.substring(0, 150) || 'No preview available'}...
                       </div>
                       <div className="p-4">
@@ -478,3 +478,4 @@ export function Canvas({ subjectId }: CanvasProps) {
     </div>
   );
 }
+

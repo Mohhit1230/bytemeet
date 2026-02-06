@@ -14,6 +14,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useApolloClient, useMutation, useQuery } from '@apollo/client/react';
+import { authApi } from '@/lib/api';
 import {
   GET_ME,
   LOGIN,
@@ -23,6 +24,7 @@ import {
   CHECK_USERNAME,
   CHECK_EMAIL,
 } from '@/lib/graphql/operations';
+import { clearAuthCookies } from '@/lib/auth/cookies';
 
 // =============================================================================
 // TYPES
@@ -352,13 +354,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = useCallback(async () => {
     try {
-      await logoutMutation();
+      await Promise.allSettled([logoutMutation(), authApi.logout()]);
     } catch (err) {
       console.error('Logout error:', err);
     } finally {
       await client.clearStore();
       setUser(null);
       clearPersistedUser();
+      clearAuthCookies();
       router.push('/login');
     }
   }, [logoutMutation, client, router]);

@@ -157,7 +157,7 @@ export function VideoCall({ subjectId, audioOnly: _audioOnly = false, onCallStat
     return (
       <div
         ref={containerRef}
-        className="relative flex h-full flex-col bg-[#0f0f12]"
+        className="relative flex h-full flex-col bg-bg-400"
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         onClick={handleClick}
@@ -209,13 +209,13 @@ export function VideoCall({ subjectId, audioOnly: _audioOnly = false, onCallStat
 
   // Pre-join view
   return (
-    <div className="relative flex h-full flex-col bg-[#0f0f12] text-white">
+    <div className="relative flex h-full flex-col bg-bg-400 text-white">
       {/* Main Content */}
       <div className="flex flex-1 flex-col items-center justify-center p-6">
         {/* Animated Icon */}
         <div className="relative mb-8">
           <div className="absolute inset-0 animate-pulse rounded-3xl bg-emerald-500/20 blur-xl"></div>
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl border border-white/10 bg-[#0f0f12] shadow-2xl">
+          <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl border border-white/10 bg-bg-400 shadow-2xl">
             <svg
               className="h-12 w-12 text-emerald-400"
               fill="none"
@@ -339,3 +339,4 @@ export function VideoCall({ subjectId, audioOnly: _audioOnly = false, onCallStat
 }
 
 export default VideoCall;
+

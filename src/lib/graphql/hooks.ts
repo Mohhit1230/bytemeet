@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useApolloClient } from '@apollo/client/react';
 import { useCallback } from 'react';
+import { authApi } from '@/lib/api';
+import { clearAuthCookies } from '@/lib/auth/cookies';
 import {
   GET_ME,
   CHECK_USERNAME,
@@ -131,7 +133,8 @@ export function useLogout() {
   const [logoutMutation, { loading }] = useMutation<any>(LOGOUT);
 
   const logout = useCallback(async () => {
-    await logoutMutation();
+    await Promise.allSettled([logoutMutation(), authApi.logout()]);
+    clearAuthCookies();
     // Clear Apollo cache on logout
     await client.clearStore();
   }, [logoutMutation, client]);

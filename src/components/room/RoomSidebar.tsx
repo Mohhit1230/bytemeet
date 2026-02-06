@@ -147,7 +147,7 @@ export function RoomSidebar({
   return (
     <div
       ref={sidebarRef}
-      className={`flex h-full flex-col border-r border-white/5 bg-[#101010] backdrop-blur-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${collapsed ? 'w-[80px]' : 'w-[240px]'
+      className={`flex h-full flex-col border-r border-white/5 bg-bg-400 backdrop-blur-xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] ${collapsed ? 'w-[80px]' : 'w-[240px]'
         } z-20`}
     >
       {/* Header / Logo Area */}
@@ -273,3 +273,4 @@ export function RoomSidebar({
 }
 
 export default RoomSidebar;
+

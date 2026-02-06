@@ -88,9 +88,9 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
   };
 
   return (
-    <div className="flex h-full flex-col bg-[#0e0f12] text-white">
+    <div className="flex h-full flex-col bg-bg-400 text-white">
       {/* Header */}
-      {/* <div className="flex items-center justify-between border-b border-white/5 bg-[#131316] p-4">
+      {/* <div className="flex items-center justify-between border-b border-white/5 bg-bg-300 p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 shadow-lg shadow-orange-900/20">
             <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -103,7 +103,7 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
           </div>
         </div>
 
-        <button className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#1a1a1e] px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-white hover:bg-white/5">
+        <button className="flex items-center gap-2 rounded-lg border border-white/10 bg-bg-200 px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-white hover:bg-white/5">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -140,7 +140,7 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
 
       {/* Input Area */}
       <div className="shrink-0 p-2 px-6">
-        <div className="focus-within:border-accent/50 relative flex items-center gap-2 rounded-xl border border-white/10 bg-[#050505] p-2 pl-4 transition-colors">
+        <div className="focus-within:border-accent/50 relative flex items-center gap-2 rounded-xl border border-white/10 bg-bg-500 p-2 pl-4 transition-colors">
           <button className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-white/10 hover:text-white">
             <svg
               className="h-5 w-5"
@@ -208,3 +208,4 @@ export function FriendsChat({ subjectId }: FriendsChatProps) {
     </div>
   );
 }
+

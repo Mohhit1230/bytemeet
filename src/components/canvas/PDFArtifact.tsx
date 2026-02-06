@@ -15,10 +15,10 @@ export function PDFArtifact({ src, title }: PDFArtifactProps) {
   const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(src)}&embedded=true`;
 
   return (
-    <div className="scroll-none relative h-full min-h-[600px] w-full overflow-hidden bg-[#0d0d0d]">
+    <div className="scroll-none relative h-full min-h-[600px] w-full overflow-hidden bg-bg-500">
       {/* Loading State */}
       {!loaded && !error && (
-        <div className="absolute inset-0 flex items-center justify-center bg-[#0d0d0d]">
+        <div className="absolute inset-0 flex items-center justify-center bg-bg-500">
           <div className="flex flex-col items-center gap-4">
             <div className="relative h-12 w-12">
               <div className="border-bg-200 absolute inset-0 rounded-full border-4" />
@@ -99,3 +99,4 @@ export function PDFArtifact({ src, title }: PDFArtifactProps) {
 }
 
 export default PDFArtifact;
+

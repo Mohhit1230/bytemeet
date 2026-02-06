@@ -79,9 +79,9 @@ export function ImageArtifact({ src, alt }: ImageArtifactProps) {
   };
 
   return (
-    <div className="relative flex flex-col bg-[#0d0d0d]">
+    <div className="relative flex flex-col bg-bg-500">
       {/* Zoom Controls */}
-      <div className="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-lg bg-[#1a1a1b]/90 p-1 backdrop-blur-sm">
+      <div className="absolute top-4 right-4 z-10 flex items-center gap-2 rounded-lg bg-bg-200/90 p-1 backdrop-blur-sm">
         <button
           onClick={zoomOut}
           className="hover:bg-bg-200 rounded p-2 text-gray-400 transition-colors hover:text-white"
@@ -209,3 +209,4 @@ export function ImageArtifact({ src, alt }: ImageArtifactProps) {
 }
 
 export default ImageArtifact;
+

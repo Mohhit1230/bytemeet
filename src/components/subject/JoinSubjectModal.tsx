@@ -172,7 +172,7 @@ export function JoinSubjectModal({ isOpen, onClose, onSuccess }: JoinSubjectModa
             {/* Modal */}
             <div
                 ref={modalRef}
-                className="border-bg-200 relative w-full max-w-md rounded-2xl border bg-[#292f2e89] shadow-2xl"
+                className="border-bg-200 relative w-full max-w-md rounded-2xl border bg-bg-200/60 shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -309,3 +309,4 @@ export function JoinSubjectModal({ isOpen, onClose, onSuccess }: JoinSubjectModa
 }
 
 export default JoinSubjectModal;
+

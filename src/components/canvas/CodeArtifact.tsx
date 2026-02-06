@@ -115,9 +115,9 @@ export function CodeArtifact({ code, language, title }: CodeArtifactProps) {
   };
 
   return (
-    <div className="overflow-hidden rounded-lg bg-[#0d0d0d]">
+    <div className="overflow-hidden rounded-lg bg-bg-500">
       {/* Header Bar */}
-      <div className="border-bg-200/30 flex items-center justify-between border-b bg-[#1a1a1b] px-4 py-2">
+      <div className="border-bg-200/30 flex items-center justify-between border-b bg-bg-200 px-4 py-2">
         <div className="flex items-center gap-3">
           {/* Traffic Lights */}
           <div className="flex gap-1.5">
@@ -210,7 +210,7 @@ export function CodeArtifact({ code, language, title }: CodeArtifactProps) {
         <table className="w-full font-mono text-sm">
           <tbody>
             {lines.map((line, index) => (
-              <tr key={index} className="group hover:bg-[#1a1a1b]/50">
+              <tr key={index} className="group hover:bg-bg-200/50">
                 {/* Line Number */}
                 <td className="border-bg-200/30 w-12 border-r py-0.5 pr-4 pl-4 text-right text-xs text-gray-600 select-none">
                   {index + 1}
@@ -234,3 +234,4 @@ export function CodeArtifact({ code, language, title }: CodeArtifactProps) {
 }
 
 export default CodeArtifact;
+

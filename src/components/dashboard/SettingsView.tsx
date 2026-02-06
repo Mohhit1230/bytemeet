@@ -296,7 +296,7 @@ export function SettingsView() {
               {/* ACCOUNT Card */}
               <div
                 ref={accountCardRef}
-                className="flex flex-col rounded-3xl border border-white/5 bg-[#0f0f10] p-6"
+                className="flex flex-col rounded-3xl border border-white/5 bg-bg-400 p-6"
               >
                 <div className="mb-6 flex items-center gap-2">
                   <svg
@@ -386,7 +386,7 @@ export function SettingsView() {
             {/* Right Column: SECURITY Card - Expanded */}
             <div
               ref={securityCardRef}
-              className="flex flex-col rounded-3xl border border-white/5 bg-[#0f0f10] p-6 md:w-1/2"
+              className="flex flex-col rounded-3xl border border-white/5 bg-bg-400 p-6 md:w-1/2"
             >
               <div className="mb-6 flex items-center gap-2">
                 <svg
@@ -423,7 +423,7 @@ export function SettingsView() {
                     onChange={(e) =>
                       setPasswordForm((prev) => ({ ...prev, currentPassword: e.target.value }))
                     }
-                    className="w-full rounded-xl border border-white/10 bg-[#1a1a1c] px-4 py-3 text-white focus:border-emerald-500/30 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-bg-200 px-4 py-3 text-white focus:border-emerald-500/30 focus:outline-none"
                     placeholder="Enter current password"
                   />
                 </div>
@@ -438,7 +438,7 @@ export function SettingsView() {
                     onChange={(e) =>
                       setPasswordForm((prev) => ({ ...prev, newPassword: e.target.value }))
                     }
-                    className="w-full rounded-xl border border-white/10 bg-[#1a1a1c] px-4 py-3 text-white focus:border-emerald-500/30 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-bg-200 px-4 py-3 text-white focus:border-emerald-500/30 focus:outline-none"
                     placeholder="Enter new password"
                   />
                 </div>
@@ -453,7 +453,7 @@ export function SettingsView() {
                     onChange={(e) =>
                       setPasswordForm((prev) => ({ ...prev, confirmPassword: e.target.value }))
                     }
-                    className="w-full rounded-xl border border-white/10 bg-[#1a1a1c] px-4 py-3 text-white focus:border-emerald-500/30 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-bg-200 px-4 py-3 text-white focus:border-emerald-500/30 focus:outline-none"
                     placeholder="Confirm new password"
                   />
                 </div>
@@ -487,7 +487,7 @@ export function SettingsView() {
               {/* ACCOUNT Card */}
               <div
                 ref={accountCardRef}
-                className="flex flex-col rounded-3xl border border-white/5 bg-[#0f0f10] p-6"
+                className="flex flex-col rounded-3xl border border-white/5 bg-bg-400 p-6"
               >
                 <div className="mb-6 flex items-center gap-2">
                   <svg
@@ -523,7 +523,7 @@ export function SettingsView() {
               {/* SECURITY Card */}
               <div
                 ref={securityCardRef}
-                className="flex flex-col rounded-3xl border border-white/5 bg-[#0f0f10] p-6"
+                className="flex flex-col rounded-3xl border border-white/5 bg-bg-400 p-6"
               >
                 <div className="mb-6 flex items-center gap-2">
                   <svg
@@ -619,3 +619,4 @@ export function SettingsView() {
     </div>
   );
 }
+

@@ -158,9 +158,9 @@ export function AIChat({ subjectId }: AIChatProps) {
   const isLoading = sending || uploading;
 
   return (
-    <div className="flex h-full flex-col bg-[#050505] text-white">
+    <div className="flex h-full flex-col bg-bg-500 text-white">
       {/* Header */}
-      {/* <div className="flex items-center justify-between border-b border-white/5 bg-[#131316] p-4">
+      {/* <div className="flex items-center justify-between border-b border-white/5 bg-bg-300 p-4">
         <div className="flex items-center gap-3">
           <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-lg shadow-blue-900/20">
             <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -174,7 +174,7 @@ export function AIChat({ subjectId }: AIChatProps) {
           </div>
         </div>
 
-        <button className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#1a1a1e] px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-white hover:bg-white/5">
+        <button className="flex items-center gap-2 rounded-lg border border-white/10 bg-bg-200 px-3 py-1.5 text-xs font-medium text-gray-400 transition-colors hover:text-white hover:bg-white/5">
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -257,7 +257,7 @@ export function AIChat({ subjectId }: AIChatProps) {
                     const isImage = /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(fileName);
 
                     return (
-                      <div className="flex max-w-xs items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a1e] p-3">
+                      <div className="flex max-w-xs items-center gap-3 rounded-xl border border-white/10 bg-bg-200 p-3">
                         <div
                           className={`flex h-10 w-10 items-center justify-center rounded-lg ${isPdf ? 'bg-red-500/20' : isImage ? 'bg-emerald-500/20' : 'bg-blue-500/20'
                             }`}
@@ -330,10 +330,10 @@ export function AIChat({ subjectId }: AIChatProps) {
                   return (
                     <div
                       className={`rounded-2xl p-4 text-sm leading-relaxed ${isActuallyMe
-                        ? 'border border-white/10 bg-[#1a1a1e] text-gray-200'
+                        ? 'border border-white/10 bg-bg-200 text-gray-200'
                         : isAssistant
                           ? 'border border-blue-500/20 bg-blue-600/10 text-gray-300'
-                          : 'border border-white/10 bg-[#2a2a2e] text-gray-200'
+                          : 'border border-white/10 bg-bg-100 text-gray-200'
                         }`}
                     >
                       {/* Check if content has code block */}
@@ -347,9 +347,9 @@ export function AIChat({ subjectId }: AIChatProps) {
                               return (
                                 <div
                                   key={i}
-                                  className="overflow-hidden rounded-lg border border-white/10 bg-[#0d0d0f] font-mono text-xs"
+                                  className="overflow-hidden rounded-lg border border-white/10 bg-bg-500 font-mono text-xs"
                                 >
-                                  <div className="flex items-center justify-between border-b border-white/5 bg-[#1a1a1e] px-4 py-2">
+                                  <div className="flex items-center justify-between border-b border-white/5 bg-bg-200 px-4 py-2">
                                     <span className="text-gray-400">{lang}</span>
                                     <div className="flex gap-1.5">
                                       <div className="h-2.5 w-2.5 rounded-full bg-red-500/30"></div>
@@ -394,7 +394,7 @@ export function AIChat({ subjectId }: AIChatProps) {
                 <span className="font-medium text-gray-300">{user?.username}</span>
                 <span>Sending...</span>
               </div>
-              <div className="rounded-2xl p-4 text-sm leading-relaxed border border-white/10 bg-[#1a1a1e] text-gray-200 opacity-80">
+              <div className="rounded-2xl p-4 text-sm leading-relaxed border border-white/10 bg-bg-200 text-gray-200 opacity-80">
                 <p className="whitespace-pre-wrap">{pendingMessage.content}</p>
               </div>
             </div>
@@ -493,7 +493,7 @@ export function AIChat({ subjectId }: AIChatProps) {
       <div className="shrink-0 p-4 px-20 pt-2">
         {/* Attached File Preview */}
         {attachedFile && (
-          <div className="mb-3 flex items-center gap-3 rounded-xl border border-white/10 bg-[#1a1a1e] p-3">
+          <div className="mb-3 flex items-center gap-3 rounded-xl border border-white/10 bg-bg-200 p-3">
             <div className="flex h-10 w-10 items-center justify-center rounded bg-blue-500/20">
               <svg
                 className="h-5 w-5 text-blue-400"
@@ -529,7 +529,7 @@ export function AIChat({ subjectId }: AIChatProps) {
           </div>
         )}
 
-        <div className="relative flex items-center rounded-xl border border-white/10 bg-[#121212] p-2 pl-4 transition-colors focus-within:border-accent-secondary/50">
+        <div className="relative flex items-center rounded-xl border border-white/10 bg-bg-400 p-2 pl-4 transition-colors focus-within:border-accent-secondary/50">
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isLoading}
@@ -599,3 +599,4 @@ export function AIChat({ subjectId }: AIChatProps) {
     </div>
   );
 }
+

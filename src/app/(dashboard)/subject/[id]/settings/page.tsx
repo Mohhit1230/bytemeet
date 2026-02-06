@@ -339,7 +339,7 @@ export default function RoomSettingsPage() {
 
     if (isLoading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-[#0a0a0c]">
+            <div className="flex min-h-screen items-center justify-center bg-bg-500">
                 <div className="border-accent h-8 w-8 animate-spin rounded-full border-2 border-t-transparent" />
             </div>
         );
@@ -347,7 +347,7 @@ export default function RoomSettingsPage() {
 
     if (!subject) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-[#0a0a0c]">
+            <div className="flex min-h-screen items-center justify-center bg-bg-500">
                 <p className="text-gray-400">Room not found</p>
             </div>
         );
@@ -547,7 +547,7 @@ export default function RoomSettingsPage() {
                             </h3>
                             <div className="space-y-3">
                                 {approvedMembers.map((member: any) => (
-                                    <div key={member.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-[#151518] p-4 transition-colors hover:border-white/20">
+                                    <div key={member.id} className="flex items-center justify-between rounded-xl border border-white/10 bg-bg-300 p-4 transition-colors hover:border-white/20">
                                         <div className="flex items-center gap-3">
                                             <UserAvatar
                                                 username={member.user?.username || member.username || 'Unknown'}
@@ -650,7 +650,7 @@ export default function RoomSettingsPage() {
                             </div>
                         </div>
 
-                        <div className="rounded-2xl border border-white/10 bg-[#151518] p-6">
+                        <div className="rounded-2xl border border-white/10 bg-bg-300 p-6">
                             <h3 className="mb-6 flex items-center gap-2 text-lg font-semibold text-purple-400">
                                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -723,7 +723,7 @@ export default function RoomSettingsPage() {
                             </div>
                         </div>
 
-                        <div className="rounded-2xl border border-white/10 bg-[#151518] p-6">
+                        <div className="rounded-2xl border border-white/10 bg-bg-300 p-6">
                             <h3 className="mb-6 flex items-center gap-2 text-lg font-semibold text-emerald-400">
                                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -825,14 +825,14 @@ export default function RoomSettingsPage() {
         <>
             <div
                 ref={containerRef}
-                className="h-screen overflow-hidden bg-[#050505] text-white"
+                className="h-screen overflow-hidden bg-bg-500 text-white"
             >
                 <div
                     className="h-full overflow-y-auto scrollbar-hide"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
                     {/* Header */}
-                    <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0f0f0f0] backdrop-blur-xl">
+                    <header className="sticky top-0 z-20 border-b border-white/5 bg-bg-400/80 backdrop-blur-xl">
                         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
                             <div className="flex items-center gap-4">
                                 <button
@@ -874,7 +874,7 @@ export default function RoomSettingsPage() {
                                                 setIsMobileMenuOpen(false);
                                             }}
                                             className={`flex w-full items-center gap-3 rounded-xl px-4 py-3.5 text-left transition-all ${activeCategory === category.id
-                                                ? 'bg-[#222] text-accent'
+                                                ? 'bg-bg-200 text-accent'
                                                 : 'text-gray-400 hover:bg-white/10 hover:text-white'
                                                 }`}
                                         >

@@ -63,7 +63,7 @@ export function AIMessageBubble({
           return (
             <div
               key={index}
-              className="border-bg-200 my-3 overflow-hidden rounded-lg border bg-[#0d0d0e]"
+              className="border-bg-200 my-3 overflow-hidden rounded-lg border bg-bg-500"
             >
               <div className="border-bg-200 bg-bg-600 flex items-center justify-between border-b px-3 py-2">
                 <span className="font-mono text-xs text-gray-400">{language}</span>

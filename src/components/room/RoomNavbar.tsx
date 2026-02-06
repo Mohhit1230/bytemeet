@@ -233,7 +233,7 @@ export function RoomNavbar({
           {isOwner && (
             <button
               onClick={handleOpenSettings}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/5 bg-[#19191c] text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-white/5 bg-bg-200 text-gray-400 transition-colors hover:bg-white/10 hover:text-white"
               title="Room Settings"
             >
               <svg
@@ -275,3 +275,4 @@ export function RoomNavbar({
 }
 
 export default RoomNavbar;
+

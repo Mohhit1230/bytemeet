@@ -174,7 +174,7 @@ export function ArtifactViewer({ artifact, onClose, onDelete, canDelete }: Artif
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="border-bg-200/50 flex items-center justify-between border-b bg-[#1a1a1b]/50 px-6 py-4">
+        <div className="border-bg-200/50 flex items-center justify-between border-b bg-bg-200/50 px-6 py-4">
           <div className="flex min-w-0 items-center gap-3">
             {/* Type Icon */}
             <span className="text-2xl">
@@ -303,7 +303,7 @@ export function ArtifactViewer({ artifact, onClose, onDelete, canDelete }: Artif
         <div className="max-h-[calc(90vh-80px)] overflow-hidden">{renderContent()}</div>
 
         {/* Footer Stats */}
-        <div className="border-bg-200/50 flex items-center justify-between border-t bg-[#1a1a1b]/50 px-6 py-3 text-sm text-gray-500">
+        <div className="border-bg-200/50 flex items-center justify-between border-t bg-bg-200/50 px-6 py-3 text-sm text-gray-500">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -342,3 +342,4 @@ export function ArtifactViewer({ artifact, onClose, onDelete, canDelete }: Artif
 }
 
 export default ArtifactViewer;
+

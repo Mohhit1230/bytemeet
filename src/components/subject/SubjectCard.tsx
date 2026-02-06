@@ -112,7 +112,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
     <div
       ref={cardRef}
       onClick={handleClick}
-      className="group relative flex h-full min-h-[220px] cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-[#19191c] pt-6 backdrop-blur-3xl transition-all duration-500 hover:-translate-y-1! hover:scale-[1.03]! hover:skew-1 hover:border-white/5 hover:shadow-2xl hover:shadow-black/50"
+      className="group relative flex h-full min-h-[220px] cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-bg-200 pt-6 backdrop-blur-3xl transition-all duration-500 hover:-translate-y-1! hover:scale-[1.03]! hover:skew-1 hover:border-white/5 hover:shadow-2xl hover:shadow-black/50"
     >
       {/* Dynamic Background Gradient */}
       {/* <div className={`absolute -top-24 -right-24 h-48 w-48 rounded-full ${isOwner ? 'bg-accent/20' : 'bg-accent-secondary/20'} blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-60`} />
@@ -156,7 +156,7 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
       </div>
 
       {/* Footer Section */}
-      <div className="relative z-10 mt-6 w-full border-t border-white/5 bg-[#101010] px-6 py-8 pt-4">
+      <div className="relative z-10 mt-6 w-full border-t border-white/5 bg-bg-400 px-6 py-8 pt-4">
         <div className="flex items-end justify-between">
           {/* Members Info */}
           <div className="flex flex-col gap-1.5">
@@ -209,3 +209,4 @@ export function SubjectCard({ subject, delay = 0 }: SubjectCardProps) {
 }
 
 export default SubjectCard;
+

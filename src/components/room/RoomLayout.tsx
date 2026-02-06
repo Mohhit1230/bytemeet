@@ -197,7 +197,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
   return (
     <div
       ref={containerRef}
-      className="selection:bg-accent/30 flex h-screen overflow-hidden bg-[#050505] text-white"
+      className="selection:bg-accent/30 flex h-screen overflow-hidden bg-bg-500 text-white"
     >
       {/* Background Ambience */}
 
@@ -231,7 +231,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
         >
           {/* Left Panel - Primary Content */}
           <div
-            className="min-w-0 flex-1 overflow-hidden rounded-l-2xl border border-r-0 border-white/5 bg-[#0a0a0c]"
+            className="min-w-0 flex-1 overflow-hidden rounded-l-2xl border border-r-0 border-white/5 bg-bg-500"
             style={{
               width: showRightPanel && !isSmallScreen ? `${100 - rightPanelWidth}%` : '100%',
               borderRadius: showRightPanel && !isSmallScreen ? '1rem 0 0 1rem' : '1rem',
@@ -264,7 +264,7 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
           {/* Right Panel - Secondary Content */}
           {showRightPanel && !isSmallScreen && (
             <div
-              className="flex flex-col overflow-hidden rounded-r-2xl border border-l-0 border-white/5 bg-[#0a0a0c]"
+              className="flex flex-col overflow-hidden rounded-r-2xl border border-l-0 border-white/5 bg-bg-500"
               style={{ width: `${rightPanelWidth}%` }}
             >
               {/* Right Panel Header */}
@@ -440,3 +440,4 @@ export function RoomLayout({ subject }: RoomLayoutProps) {
 }
 
 export default RoomLayout;
+

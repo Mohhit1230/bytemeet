@@ -88,7 +88,7 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
       {/* Modal */}
       <div
         ref={modalRef}
-        className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-[#1a1a1d] shadow-2xl shadow-black/50"
+        className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-white/10 bg-bg-200 shadow-2xl shadow-black/50"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/5 p-5">
@@ -212,3 +212,4 @@ export function InviteModal({ isOpen, onClose, inviteCode, subjectName }: Invite
 }
 
 export default InviteModal;
+

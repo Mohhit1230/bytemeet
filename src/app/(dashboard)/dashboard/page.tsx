@@ -83,11 +83,11 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div ref={containerRef} className="flex min-h-screen overflow-y-auto scrollbar-hide bg-[#050505]" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div ref={containerRef} className="flex min-h-screen overflow-y-auto scrollbar-hide bg-bg-500" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Sidebar */}
         <aside
           ref={sidebarRef}
-          className="fixed top-0 bottom-0 left-0 z-40 hidden w-[240px] flex-col border-r border-white/5 bg-[#101010] lg:flex"
+          className="fixed top-0 bottom-0 left-0 z-40 hidden w-[240px] flex-col border-r border-white/5 bg-bg-400 lg:flex"
         >
           {/* Logo */}
           <div className="flex h-16 items-center px-3">
@@ -198,7 +198,7 @@ export default function Dashboard() {
                     placeholder="Search subjects, rooms..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="focus:border-accent/50 w-full rounded-xl border border-white/10 bg-[#19191c] py-2.5 pr-4 pl-11 text-sm text-white placeholder-gray-500 transition-colors outline-none"
+                    className="focus:border-accent/50 w-full rounded-xl border border-white/10 bg-bg-200 py-2.5 pr-4 pl-11 text-sm text-white placeholder-gray-500 transition-colors outline-none"
                   />
                 </div>
               </div>
@@ -246,7 +246,7 @@ export default function Dashboard() {
                   {/* Create Subject Card */}
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="border-r-accent/50 group flex h-18 items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-[#1a1a1c] px-3 py-0 transition-all hover:-translate-y-1 hover:bg-[#1f1f21]"
+                    className="border-r-accent/50 group flex h-18 items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-bg-200 px-3 py-0 transition-all hover:-translate-y-1 hover:bg-bg-100"
                   >
                     <div className="bg-accent/20 text-accent group-hover:bg-accent flex h-12 w-12 items-center justify-center rounded-xl transition-all group-hover:text-white">
                       <svg
@@ -268,7 +268,7 @@ export default function Dashboard() {
                   {/* Join Room with Code Card */}
                   <button
                     onClick={() => setIsJoinModalOpen(true)}
-                    className="border-r-yellow-500/50 group flex h-18 items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-[#1a1a1c] px-3 py-0 transition-all hover:-translate-y-1 hover:bg-[#1f1f21]"
+                    className="border-r-yellow-500/50 group flex h-18 items-center gap-4 rounded-xl border border-r-4 border-white/5 bg-bg-200 px-3 py-0 transition-all hover:-translate-y-1 hover:bg-bg-100"
                   >
                     <div className="bg-yellow-500/20 text-yellow-400 group-hover:bg-yellow-500 flex h-12 w-12 items-center justify-center rounded-xl transition-all group-hover:text-white">
                       <svg
@@ -288,7 +288,7 @@ export default function Dashboard() {
                   </button>
 
                   {/* Rooms Owned */}
-                  <div className="flex h-18 items-center gap-4 rounded-2xl border border-r-4 border-white/5 border-r-emerald-500/50 bg-[#1a1a1c] p-5 py-0">
+                  <div className="flex h-18 items-center gap-4 rounded-2xl border border-r-4 border-white/5 border-r-emerald-500/50 bg-bg-200 p-5 py-0">
                     <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/20">
                       <svg
                         className="h-6 w-6 text-emerald-400"
@@ -313,7 +313,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Rooms Joined */}
-                  <div className="border-r-accent-secondary/50 flex h-18 items-center gap-4 rounded-2xl border border-r-4 border-white/5 bg-[#1a1a1c] p-5 py-0">
+                  <div className="border-r-accent-secondary/50 flex h-18 items-center gap-4 rounded-2xl border border-r-4 border-white/5 bg-bg-200 p-5 py-0">
                     <div className="bg-accent-secondary/20 flex h-12 w-12 items-center justify-center rounded-xl">
                       <svg
                         className="text-accent-secondary h-6 w-6"
@@ -340,7 +340,7 @@ export default function Dashboard() {
 
                 {/* Filter Tabs Row */}
                 <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-3">
-                  <div className="flex gap-2 rounded-full bg-[#121212] p-1">
+                  <div className="flex gap-2 rounded-full bg-bg-400 p-1">
                     {[
                       { id: 'all', label: 'All' },
                       { id: 'owned', label: 'Owned' },
@@ -350,7 +350,7 @@ export default function Dashboard() {
                         key={tab.id}
                         onClick={() => setFilterType(tab.id as 'all' | 'owned' | 'joined')}
                         className={`rounded-full px-4 py-2 text-sm font-medium transition-all ${filterType === tab.id
-                          ? 'bg-[#050505] text-white'
+                          ? 'bg-bg-500 text-white'
                           : 'text-gray-400 hover:bg-white/5 hover:text-white'
                           }`}
                       >
@@ -399,3 +399,4 @@ export default function Dashboard() {
     </ProtectedRoute>
   );
 }
+

@@ -1,14 +1,16 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect,useState, useRef } from 'react';
 import Link from 'next/link';
 import gsap from 'gsap';
+import Preloader from '@/components/preloader/preloader';
 
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const textRef = useRef<HTMLParagraphElement>(null);
   const buttonsRef = useRef<HTMLDivElement>(null);
+  const [showPreloader, setShowPreloader] = useState(true);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -45,7 +47,13 @@ export default function LandingPage() {
     return () => ctx.revert();
   }, []);
 
+
   return (
+    <>
+    {
+      
+      showPreloader && (<Preloader onComplete={() => setShowPreloader(false)} />)
+}
     <div className="selection:bg-accent min-h-screen bg-black text-white selection:text-white">
       {/* Navigation */}
       <nav className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-6 py-5 md:px-12">
@@ -110,5 +118,7 @@ export default function LandingPage() {
         </div>
       </div>
     </div>
+
+    </>
   );
 }

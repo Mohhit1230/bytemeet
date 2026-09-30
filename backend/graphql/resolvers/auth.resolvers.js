@@ -97,10 +97,16 @@ const authMutations = {
   login: async (_, { input }) => {
     const { email, password } = input;
 
-    // Find user
-    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    // Support login by email or username
+    const isEmail = email.includes('@');
+    let user;
+    if (isEmail) {
+      user = await User.findOne({ email: email.toLowerCase() }).select('+password');
+    } else {
+      user = await User.findOne({ username: email.toLowerCase() }).select('+password');
+    }
     if (!user) {
-      throw new Error('Invalid email or password');
+      throw new Error('Invalid email/username or password');
     }
 
     // Verify password

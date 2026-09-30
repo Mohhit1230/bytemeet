@@ -29,6 +29,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { Suspense } from 'react';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,11 +42,13 @@ export default function RootLayout({
         <GSAPProvider>
           <GraphQLProvider>
             <QueryProvider>
-              <AuthProvider>
-                <ToastProvider>
-                  <NotificationProvider>{children}</NotificationProvider>
-                </ToastProvider>
-              </AuthProvider>
+              <Suspense fallback={<div className="flex h-screen items-center justify-center bg-black/80"><div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" /></div>}>
+                <AuthProvider>
+                  <ToastProvider>
+                    <NotificationProvider>{children}</NotificationProvider>
+                  </ToastProvider>
+                </AuthProvider>
+              </Suspense>
             </QueryProvider>
           </GraphQLProvider>
         </GSAPProvider>

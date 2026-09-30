@@ -55,17 +55,17 @@ export function Canvas({ subjectId }: CanvasProps) {
   ];
 
   const filteredArtifacts = activeFilter
-    ? artifacts.filter((a) => a.type === activeFilter)
+    ? artifacts.filter((a: GraphQLArtifact) => a.type === activeFilter)
     : artifacts;
 
   const totalArtifacts = artifacts.length;
-  const codeCount = artifacts.filter((a) => a.type === 'code').length;
-  const imageCount = artifacts.filter((a) => a.type === 'image').length;
+  const codeCount = artifacts.filter((a: GraphQLArtifact) => a.type === 'code').length;
+  const imageCount = artifacts.filter((a: GraphQLArtifact) => a.type === 'image').length;
 
   // Group artifacts by type for display
-  const imageArtifacts = filteredArtifacts.filter((a) => a.type === 'image');
-  const pdfArtifacts = filteredArtifacts.filter((a) => a.type === 'pdf');
-  const codeArtifacts = filteredArtifacts.filter((a) => a.type === 'code');
+  const imageArtifacts = filteredArtifacts.filter((a: GraphQLArtifact) => a.type === 'image');
+  const pdfArtifacts = filteredArtifacts.filter((a: GraphQLArtifact) => a.type === 'pdf');
+  const codeArtifacts = filteredArtifacts.filter((a: GraphQLArtifact) => a.type === 'code');
 
   // Handle file upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -182,7 +182,7 @@ export function Canvas({ subjectId }: CanvasProps) {
                 <span>{filter.label}</span>
                 <span className="ml-1 text-xs opacity-50">
                   {filter.id
-                    ? artifacts.filter((a) => a.type === filter.id).length
+                    ? artifacts.filter((a: GraphQLArtifact) => a.type === filter.id).length
                     : artifacts.length}
                 </span>
               </button>
@@ -248,7 +248,7 @@ export function Canvas({ subjectId }: CanvasProps) {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                  {imageArtifacts.map((file) => (
+                  {imageArtifacts.map((file: GraphQLArtifact) => (
                     <div
                       key={file._id}
                       onClick={() => openViewer(file)}
@@ -327,7 +327,7 @@ export function Canvas({ subjectId }: CanvasProps) {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-                  {pdfArtifacts.map((file) => (
+                  {pdfArtifacts.map((file: GraphQLArtifact) => (
                     <div
                       key={file._id}
                       onClick={() => openViewer(file)}
@@ -429,7 +429,7 @@ export function Canvas({ subjectId }: CanvasProps) {
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {codeArtifacts.map((file) => (
+                  {codeArtifacts.map((file: GraphQLArtifact) => (
                     <div
                       key={file._id}
                       onClick={() => openViewer(file)}

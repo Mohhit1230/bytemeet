@@ -3,14 +3,11 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import {
-  useArtifactsQuery,
   useUploadArtifactMutation,
-  useTrackDownloadMutation,
   type ArtifactType,
-  type Artifact,
 } from '@/hooks/queries';
 import { ArtifactViewer } from './ArtifactViewer';
-import { Artifact as GraphQLArtifact } from '@/hooks/useArtifacts';
+import { Artifact as GraphQLArtifact, useArtifacts } from '@/hooks/useArtifacts';
 
 interface CanvasProps {
   subjectId: string;
@@ -18,21 +15,21 @@ interface CanvasProps {
 
 export function Canvas({ subjectId }: CanvasProps) {
   const {
-    data: artifacts = [],
-    isLoading: loading,
+    artifacts = [],
+    loading,
     error: queryError,
     refetch: refetchArtifacts,
-  } = useArtifactsQuery(subjectId);
+    trackDownload,
+  } = useArtifacts(subjectId);
   const uploadArtifactMutation = useUploadArtifactMutation(subjectId);
-  const trackDownloadMutation = useTrackDownloadMutation();
 
   const [activeFilter, setActiveFilter] = useState<ArtifactType | null>(null);
   const [uploading, setUploading] = useState(false);
   const [viewerOpen, setViewerOpen] = useState(false);
-  const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
+  const [selectedArtifact, setSelectedArtifact] = useState<GraphQLArtifact | null>(null);
 
   // Viewer handlers
-  const openViewer = (artifact: Artifact) => {
+  const openViewer = (artifact: GraphQLArtifact) => {
     setSelectedArtifact(artifact);
     setViewerOpen(true);
   };

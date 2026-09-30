@@ -4,13 +4,14 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { RoomLayout } from '@/components/room/RoomLayout';
-import api from '@/lib/api';
+import { useSubjects } from '@/hooks/useSubjects';
 import type { Subject } from '@/types/database';
 
 export default function SubjectRoomPage() {
   const params = useParams();
   const router = useRouter();
   const subjectId = params.id as string;
+  const { getSubject } = useSubjects();
 
   const [subject, setSubject] = useState<Subject | null>(null);
   const [loading, setLoading] = useState(true);
@@ -20,20 +21,20 @@ export default function SubjectRoomPage() {
     const fetchSubject = async () => {
       try {
         setLoading(true);
-        const response = await api.get(`/subjects/${subjectId}`);
-
-        if (response.data.success) {
-          setSubject(response.data.data);
+        const data = await getSubject(subjectId);
+        
+        if (data) {
+          setSubject(data);
+        } else {
+          router.push('/dashboard');
         }
-      } catch (err: unknown) {
-        const e = err as { response?: { status?: number; data?: { message?: string } } };
-        console.error('Fetch subject error:', e);
-
-        if (e.response?.status === 403 || e.response?.status === 404) {
-          // Access denied or not found - redirect to join page or home
+      } catch (err: any) {
+        console.error('Fetch subject error:', err);
+        
+        if (err.message?.includes('Access denied') || err.message?.includes('not found')) {
           router.push('/dashboard');
         } else {
-          setError(e.response?.data?.message || 'Failed to load subject');
+          setError(err.message || 'Failed to load subject');
         }
       } finally {
         setLoading(false);
@@ -43,7 +44,7 @@ export default function SubjectRoomPage() {
     if (subjectId) {
       fetchSubject();
     }
-  }, [subjectId, router]);
+  }, [subjectId, router, getSubject]);
 
   if (loading) {
     return (

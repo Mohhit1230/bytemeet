@@ -8,7 +8,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import gsap from 'gsap';
-import { useCreateSubjectMutation } from '@/hooks/queries';
+import { useSubjects } from '@/hooks/useSubjects';
 import type { Subject } from '@/types/database';
 
 interface CreateSubjectModalProps {
@@ -18,8 +18,8 @@ interface CreateSubjectModalProps {
 }
 
 export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubjectModalProps) {
-  const createSubjectMutation = useCreateSubjectMutation();
-  const loading = createSubjectMutation.isPending;
+  const { createSubject } = useSubjects();
+  const [loading, setLoading] = useState(false);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -134,11 +134,12 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
     if (!validateForm()) return;
 
     try {
-      const subject = await createSubjectMutation.mutateAsync({
-        name: formData.name.trim(),
-        description: formData.description.trim() || undefined,
-      });
-
+      setLoading(true);
+      const subject = await createSubject(
+        formData.name.trim(),
+        formData.description.trim() || undefined
+      );
+      
       // Success animation
       if (modalRef.current) {
         gsap.to(modalRef.current, {
@@ -154,6 +155,7 @@ export function CreateSubjectModal({ isOpen, onClose, onSuccess }: CreateSubject
         });
       }
     } catch {
+      setLoading(false);
       // Shake animation on error
       if (modalRef.current) {
         gsap.to(modalRef.current, {

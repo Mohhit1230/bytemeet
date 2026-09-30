@@ -115,15 +115,15 @@ export function useArtifacts(subjectId?: string) {
     return {
       _id: artifact.id, // Ensure internal _id is mapped from GraphQL id
       id: artifact.id,
-      type: artifact.type,
+      type: (artifact.type || '').toLowerCase() as ArtifactType,
       title: artifact.title,
       content: artifact.content,
       fileUrl: artifact.fileUrl,
       fileName: artifact.fileName,
       fileSize: artifact.fileSize,
       displaySize: artifact.displaySize,
-      diagramType: artifact.diagramType,
-      language: artifact.language,
+      diagramType: artifact.diagramType ? artifact.diagramType.toLowerCase() : undefined,
+      language: artifact.language ? artifact.language.toLowerCase() : undefined,
       isAiGenerated: artifact.isAiGenerated,
       createdBy: {
         id: artifact.createdBy?.id || '',
@@ -150,8 +150,16 @@ export function useArtifacts(subjectId?: string) {
   const createArtifact = useCallback(
     async (input: any) => {
       try {
+        const graphqlInput = {
+          ...input,
+          subjectId,
+          type: input.type ? input.type.toUpperCase() : undefined,
+          language: input.language ? input.language.toUpperCase() : undefined,
+          diagramType: input.diagramType ? input.diagramType.toUpperCase() : undefined,
+        };
+
         const { data } = await createMutation({
-          variables: { input: { ...input, subjectId } },
+          variables: { input: graphqlInput },
           update: (cache, { data: { createArtifact } }) => {
             if (!subjectId) return;
 

@@ -10,13 +10,23 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 // Get API URL from environment or default to localhost
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
-// Create axios instance
 export const api: AxiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
   withCredentials: true, // Crucial: Include cookies in requests
+});
+
+// Request interceptor to attach token from localStorage
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('authToken');
+    if (token && token !== 'cookie-based') {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
 });
 
 // Flag to prevent infinite refresh loops

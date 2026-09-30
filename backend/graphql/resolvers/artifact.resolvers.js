@@ -80,6 +80,9 @@ const artifactMutations = {
 
     const artifact = await Artifact.create({
       ...input,
+      type: input.type ? input.type.toLowerCase() : undefined,
+      language: input.language ? input.language.toLowerCase() : undefined,
+      diagramType: input.diagramType ? input.diagramType.toLowerCase() : undefined,
       createdBy: user._id,
     });
 
@@ -136,6 +139,10 @@ const artifactMutations = {
 // =============================================================================
 
 const artifactResolvers = {
+  type: (artifact) => artifact.type ? artifact.type.toUpperCase() : artifact.type,
+  language: (artifact) => artifact.language ? artifact.language.toUpperCase() : artifact.language,
+  diagramType: (artifact) => artifact.diagramType ? artifact.diagramType.toUpperCase() : artifact.diagramType,
+
   createdBy: async (artifact, _, context) => {
     if (artifact.createdBy && artifact.createdBy.username) return artifact.createdBy; // Already populated
     return context.loaders.userLoader.load(artifact.createdBy);

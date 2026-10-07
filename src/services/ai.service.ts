@@ -97,7 +97,7 @@ export async function sendToAI(
         model: 'gpt-5-nano',
         messages: formattedMessages,
         stream: true,
-        max_tokens: 2048,
+        max_completion_tokens: 2048,
       });
 
       let fullContent = '';
@@ -115,7 +115,7 @@ export async function sendToAI(
       const response = await client.chat.completions.create({
         model: 'gpt-5-nano',
         messages: formattedMessages,
-        max_tokens: 2048,
+        max_completion_tokens: 2048,
       });
 
       const content = response.choices[0]?.message?.content || '';

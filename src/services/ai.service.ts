@@ -113,7 +113,7 @@ export async function sendToAI(
     } else {
       // Non-streaming response
       const response = await client.chat.completions.create({
-        model: 'gpt-5-nano',
+        model: 'gpt-4o-mini',
         messages: formattedMessages,
         max_tokens: 2048,
       });

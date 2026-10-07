@@ -94,7 +94,7 @@ export async function sendToAI(
     if (onStream) {
       // Streaming response
       const stream = await client.chat.completions.create({
-        model: 'gpt-4o-mini',
+        model: 'gpt-5-nano',
         messages: formattedMessages,
         stream: true,
         max_tokens: 2048,

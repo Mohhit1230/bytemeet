@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { AboutMotion, ExploreFeaturesLink } from './AboutMotion';
 import {
   ArrowDown, ArrowLeft, ArrowRight, BookOpen, BrainCircuit, Check,
   Code2, FileText, Layers3, MessageCircle, Plus, Sparkles, Users, Video,
@@ -88,9 +89,10 @@ function WorkspacePreview() {
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-black text-white selection:bg-accent selection:text-white">
+    <div id="bytemeet-about" className="min-h-screen overflow-x-clip bg-black text-white selection:bg-accent selection:text-white">
+      <AboutMotion />
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:rounded-lg focus:bg-bg-400 focus:px-4 focus:py-3">Skip to content</a>
-      <header className="sticky top-0 z-50 border-b border-white/10 bg-black/85 backdrop-blur-xl">
+      <header className="fixed inset-x-0 top-0 z-50 bg-transparent">
         <nav aria-label="Main navigation" className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-5 py-4 sm:px-8 md:px-12">
           <Brand />
           <div className="flex items-center gap-3 sm:gap-5">
@@ -100,7 +102,7 @@ export default function AboutPage() {
         </nav>
       </header>
 
-      <main id="main-content">
+      <main id="main-content" className="pt-[68px] sm:pt-[76px]">
         <section className="relative isolate mx-auto grid max-w-7xl items-center gap-14 px-5 pt-20 pb-16 sm:px-8 md:px-12 lg:grid-cols-[1.1fr_1fr] lg:gap-12 lg:pt-28 lg:pb-24">
           <div aria-hidden="true" className="pointer-events-none absolute -top-20 -left-48 -z-10 h-96 w-96 rounded-full bg-accent/20 blur-[125px]" />
           <div aria-hidden="true" className="pointer-events-none absolute -right-28 bottom-0 -z-10 h-96 w-96 rounded-full bg-accent-secondary/15 blur-[125px]" />
@@ -111,19 +113,19 @@ export default function AboutPage() {
             <p className="mt-6 max-w-xl text-base leading-8 text-gray-300 sm:text-lg">ByteMeet brings your study group, AI tutor, live conversations and learning resources into one shared space. Less switching between apps. More time understanding what matters.</p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link href="/register" className={`inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3.5 text-sm font-bold text-white transition-colors hover:bg-accent-dark ${focusClass}`}>Get Started Free <ArrowRight size={17} aria-hidden="true" /></Link>
-              <a href="#features" className={`inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-3.5 text-sm font-semibold transition-colors hover:bg-white/10 ${focusClass}`}>Explore features <ArrowDown size={16} aria-hidden="true" /></a>
+              <ExploreFeaturesLink className={`inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-5 py-3.5 text-sm font-semibold transition-colors hover:bg-white/10 ${focusClass}`}>Explore features <ArrowDown size={16} aria-hidden="true" /></ExploreFeaturesLink>
             </div>
           </div>
-          <WorkspacePreview />
+          <div data-about-reveal data-about-delay="120"><WorkspacePreview /></div>
         </section>
 
         <section aria-labelledby="mission-heading" className="border-y border-white/10 bg-bg-500/60">
           <div className="mx-auto grid max-w-7xl gap-9 px-5 py-16 sm:px-8 md:px-12 lg:grid-cols-[0.85fr_1.15fr] lg:py-20">
-            <div>
+            <div data-about-reveal>
               <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-accent-light uppercase">Our purpose</p>
               <h2 id="mission-heading" className="text-3xl leading-tight tracking-tight sm:text-4xl md:text-5xl">Less fragmentation.<br /> <span className="text-accent">More connection.</span></h2>
             </div>
-            <div className="space-y-4 text-base leading-8 text-gray-300">
+            <div data-about-reveal data-about-delay="100" className="space-y-4 text-base leading-8 text-gray-300">
               <p>Studying with friends often means jumping between messaging apps, video calls, scattered notes and a separate AI assistant. Every switch interrupts the discussion.</p>
               <p>ByteMeet is built around a simple idea: a subject should have its own place to learn. We bring the tools for collaboration and independent exploration into that place, so a question can become a conversation, an explanation or a shared resource.</p>
               <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2 text-sm font-medium text-gray-200">
@@ -133,15 +135,15 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <section id="features" aria-labelledby="features-heading" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-20 sm:px-8 md:px-12 lg:py-24">
-          <div className="mx-auto mb-12 max-w-2xl text-center">
+        <section id="features" tabIndex={-1} aria-labelledby="features-heading" className="mx-auto max-w-7xl scroll-mt-20 px-5 py-20 focus:outline-none sm:px-8 md:px-12 lg:py-24">
+          <div data-about-reveal className="mx-auto mb-12 max-w-2xl text-center">
             <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-accent-light uppercase">Everything in one place</p>
             <h2 id="features-heading" className="text-3xl tracking-tight sm:text-5xl">A workspace for the way <span className="text-accent">you learn.</span></h2>
             <p className="mt-4 leading-7 text-gray-400">From your first question to your next group discussion, your tools stay connected.</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map(({ icon: Icon, title, description, color, background }) => (
-              <article key={title} className="group rounded-2xl border border-white/10 bg-bg-500 p-6 transition-colors hover:border-accent/40 hover:bg-bg-400 sm:p-7">
+            {features.map(({ icon: Icon, title, description, color, background }, index) => (
+              <article key={title} data-about-reveal data-about-delay={(index % 3) * 90} className="group rounded-2xl border border-white/10 bg-bg-500 p-6 transition-colors hover:border-accent/40 hover:bg-bg-400 sm:p-7">
                 <div className={`mb-5 inline-flex h-12 w-12 items-center justify-center rounded-xl ${color} ${background}`}><Icon size={24} strokeWidth={1.7} aria-hidden="true" /></div>
                 <h3 className="text-xl tracking-tight">{title}</h3>
                 <p className="mt-3 text-sm leading-7 text-gray-400">{description}</p>
@@ -152,11 +154,13 @@ export default function AboutPage() {
 
         <section aria-labelledby="steps-heading" className="border-y border-white/10 bg-bg-500/60">
           <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:px-12 lg:py-20">
-            <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-accent-secondary-light uppercase">How it works</p>
-            <h2 id="steps-heading" className="text-3xl tracking-tight sm:text-5xl">Your next study session,<br className="hidden sm:block" /> in three simple steps.</h2>
+            <div data-about-reveal>
+              <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-accent-secondary-light uppercase">How it works</p>
+              <h2 id="steps-heading" className="text-3xl tracking-tight sm:text-5xl">Your next study session,<br className="hidden sm:block" /> in three simple steps.</h2>
+            </div>
             <ol className="mt-10 grid gap-8 md:grid-cols-3 md:gap-6">
-              {steps.map(({ number, icon: Icon, title, description }) => (
-                <li key={number} className="relative border-t border-white/15 pt-6">
+              {steps.map(({ number, icon: Icon, title, description }, index) => (
+                <li key={number} data-about-reveal data-about-delay={index * 90} className="relative border-t border-white/15 pt-6">
                   <div className="mb-4 flex items-center justify-between"><span className="text-3xl font-bold tracking-tight text-accent-light">{number}</span><Icon size={26} className="text-gray-400" aria-hidden="true" /></div>
                   <h3 className="text-xl">{title}</h3>
                   <p className="mt-3 max-w-sm text-sm leading-7 text-gray-400">{description}</p>
@@ -167,7 +171,7 @@ export default function AboutPage() {
         </section>
 
         <section aria-labelledby="cta-heading" className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:px-12 lg:py-24">
-          <div className="relative isolate overflow-hidden rounded-3xl border border-accent/25 bg-bg-500 px-6 py-14 text-center sm:px-12 sm:py-20">
+          <div data-about-reveal className="relative isolate overflow-hidden rounded-3xl border border-accent/25 bg-bg-500 px-6 py-14 text-center sm:px-12 sm:py-20">
             <div aria-hidden="true" className="absolute -top-32 left-1/2 -z-10 h-72 w-96 -translate-x-1/2 rounded-full bg-accent/20 blur-[95px]" />
             <div aria-hidden="true" className="absolute -right-20 -bottom-28 -z-10 h-64 w-64 rounded-full bg-accent-secondary/15 blur-[95px]" />
             <p className="mb-4 text-xs font-semibold tracking-[0.2em] text-accent-light uppercase">Make your next study session count</p>
